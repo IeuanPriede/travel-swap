@@ -18,7 +18,6 @@ if os.path.isfile('env.py'):
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 
 # Quick-start development settings - unsuitable for production
@@ -60,7 +59,10 @@ ROOT_URLCONF = 'codestar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),  # Main templates directory
+            os.path.join(BASE_DIR, 'profiles', 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -112,6 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGOUT_REDIRECT_URL = '/'
 # Redirect user to profile page after login
 LOGIN_REDIRECT_URL = '/profiles/'
+# Email configuration (for development)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
