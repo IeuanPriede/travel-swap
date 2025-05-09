@@ -50,7 +50,7 @@
                             <a class="nav-link" href="{{ profile_url }}">My Profile</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ logout_url }}">Logout</a>
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
