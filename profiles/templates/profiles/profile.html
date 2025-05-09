@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Your Profile</h2>
+    <hr>
+
+    <!-- Profile Picture -->
+    <div class="mb-3">
+        <img src="{{ profile.image.url }}" alt="Profile image" class="img-thumbnail" width="200">
+    </div>
+
+    <!-- Username and Email -->
+    <p><strong>Username:</strong> {{ profile.user.username }}</p>
+    <p><strong>Email:</strong> {{ profile.user.email }}</p>
+
+    <!-- Optional fields -->
+    {% if profile.bio %}
+        <p><strong>Bio:</strong> {{ profile.bio }}</p>
+    {% endif %}
+
+    {% if profile.location %}
+        <p><strong>Location:</strong> {{ profile.location }}</p>
+    {% endif %}
+
+    <p><strong>Profile Visible:</strong> {{ profile.is_visible|yesno:"Yes,No" }}</p>
+</div>
+{% endblock %}

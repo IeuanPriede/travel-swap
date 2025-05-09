@@ -7,10 +7,13 @@ from django.contrib import messages
 
 
 # Create your views here.
+# View to display the logged-in user's profile
 @login_required
-def my_profiles(request):
+def  profile_view(request):
+    # Get or create a Profile instance tied to the logged-in user
     profile, created = Profile.objects.get_or_create(user=request.user)
-    return render(request, 'profiles/index.html', {'profile': profile})
+    # Pass profile object to the template
+    return render(request, 'profiles/profile.html', {'profile': profile})
 
 
 def register(request):
