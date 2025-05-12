@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Profile
-from .forms import CustomUserCreationForm, ProfileForm, UserForm
+from .models import Profile, HouseImage
+from .forms import CustomUserCreationForm, ProfileForm, UserForm, ImageFormSet
 from django.contrib.auth import login, logout
 from django.contrib import messages
 
@@ -30,10 +30,28 @@ def edit_profile(request):
         profile_form = ProfileForm(
             request.POST, request.FILES, instance=profile
             )  # for updating the profile model
+        formset = ImageFormSet(
+            request.POST, request.FILES, queryset=HouseImage.objects.filter(
+                profile=profile
+                )
+            )
 
-        if user_form.is_valid() and profile_form.is_valid():
+        if (
+            user_form.is_valid()
+            and profile_form.is_valid()
+            and formset.is_valid()
+                ):
+
             user_form.save()
             profile_form.save()
+            images = formset.save(commit=False)
+            for image in images:
+                image.profile = profile
+                image.save()
+            # Delete any images marked for deletion
+            for obj in formset.deleted_objects:
+                obj.delete()
+
             messages.success(request, "Your profile has been updated.")
             return redirect(
                 'profiles'
@@ -45,11 +63,45 @@ def edit_profile(request):
         profile_form = ProfileForm(
             instance=profile
             )  # Prepopulate with current profile info
+        formset = ImageFormSet(
+            queryset=HouseImage.objects.filter(profile=profile)
+            )
 
     return render(request, 'profiles/edit_profile.html', {
         'user_form': user_form,
-        'profile_form': profile_form
+        'profile_form': profile_form,
+        'formset': formset,
     })
+
+
+@login_required
+def upload_images(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    formset = ImageFormSet(
+        request.POST or None, request.FILES or None,
+        queryset=HouseImage.objects.filter(profile=profile)
+        )
+
+    if request.method == 'POST' and formset.is_valid():
+        for form in formset:
+            image = form.save(commit=False)
+            image.profile = profile
+            image.save()
+        messages.success(request, "Images uploaded successfully.")
+        return redirect('edit_profile')
+
+    # This view should only be reached via POST
+    return redirect('edit_profile')
+
+
+@login_required
+def delete_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        messages.success(request, "Your profile has been deleted.")
+        return redirect('home')
+    return redirect('edit_profile')
 
 
 def register(request):
