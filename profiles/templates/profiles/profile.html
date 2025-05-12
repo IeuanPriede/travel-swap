@@ -2,25 +2,34 @@
 
 {% block content %}
 {% if messages %}
-  <div>
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
+    <div>
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
 {% endif %}
-  <h2>Your Profile</h2>
-  <p>Username: {{ profile.user.username }}</p>
-  <p>Email: {{ profile.user.email }}</p>
-  <p>Bio: {{ profile.bio }}</p>
-  <p>Location: {{ profile.location }}</p>
+    <h2>Your Profile</h2>
+    <p>Username: {{ profile.user.username }}</p>
+    <p>Email: {{ profile.user.email }}</p>
+    <p>Bio: {{ profile.bio }}</p>
+    <p>Location: {{ profile.location }}</p>
   
-  {% if profile.image %}
-    <img src="{{ profile.image.url }}" alt="Profile image" width="150">
-  {% else %}
-    <p>No image available.</p>
-  {% endif %}
+    <h3 class="mt-4">House Images</h3>
+    <div class="row">
+        {% for image in house_images %}
+            {% if image.image %}
+                <div class="col-md-4 mb-3">
+                    <img src="{{ image.image.url }}" class="img-fluid rounded shadow" alt="House Image">
+                </div>
+            {% else %}
+                <p>No image available for this entry.</p>
+            {% endif %}
+        {% empty %}
+            <p>No images uploaded yet.</p>
+        {% endfor %}
+    </div>
   
   <!-- Edit profile button -->
   <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>

@@ -12,8 +12,12 @@ from django.contrib import messages
 def profile_view(request):
     # Get or create a Profile instance tied to the logged-in user
     profile, created = Profile.objects.get_or_create(user=request.user)
+    house_images = profile.house_images.all()
     # Pass profile object to the template
-    return render(request, 'profiles/profile.html', {'profile': profile})
+    return render(request, 'profiles/profile.html', {
+        'profile': profile,
+        'house_images': house_images
+        })
 
 
 # Edit profile view
