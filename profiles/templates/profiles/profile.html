@@ -1,28 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Your Profile</h2>
-    <hr>
-
-    <!-- Profile Picture -->
-    <div class="mb-3">
-        <img src="{{ profile.image.url }}" alt="Profile image" class="img-thumbnail" width="200">
-    </div>
-
-    <!-- Username and Email -->
-    <p><strong>Username:</strong> {{ profile.user.username }}</p>
-    <p><strong>Email:</strong> {{ profile.user.email }}</p>
-
-    <!-- Optional fields -->
-    {% if profile.bio %}
-        <p><strong>Bio:</strong> {{ profile.bio }}</p>
-    {% endif %}
-
-    {% if profile.location %}
-        <p><strong>Location:</strong> {{ profile.location }}</p>
-    {% endif %}
-
-    <p><strong>Profile Visible:</strong> {{ profile.is_visible|yesno:"Yes,No" }}</p>
-</div>
+  <h2>Your Profile</h2>
+  <p>Username: {{ profile.user.username }}</p>
+  <p>Email: {{ profile.user.email }}</p>
+  <p>Bio: {{ profile.bio }}</p>
+  <p>Location: {{ profile.location }}</p>
+  
+  {% if profile.image %}
+    <img src="{{ profile.image.url }}" alt="Profile image" width="150">
+  {% else %}
+    <p>No image available.</p>
+  {% endif %}
+  
+  <!-- Edit profile button -->
+  <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
 {% endblock %}

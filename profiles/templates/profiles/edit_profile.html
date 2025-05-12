@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Your Profile</h2>
+
+    <!-- Display success or error messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Begin Profile Edit Form -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- User Fields (username, email, etc.) -->
+        <fieldset class="mb-4">
+            <legend>User Info</legend>
+            {{ user_form.as_p }}
+        </fieldset>
+
+        <!-- Profile Fields (bio, location, image, etc.) -->
+        <fieldset class="mb-4">
+            <legend>Profile Info</legend>
+            {{ profile_form.as_p }}
+        </fieldset>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'profiles' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
