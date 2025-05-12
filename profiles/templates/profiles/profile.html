@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if messages %}
+  <div>
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
   <h2>Your Profile</h2>
   <p>Username: {{ profile.user.username }}</p>
   <p>Email: {{ profile.user.email }}</p>

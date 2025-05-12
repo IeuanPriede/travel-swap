@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Profile
-from .forms import CustomUserCreationForm, ProfileForm
+from .forms import CustomUserCreationForm, ProfileForm, UserForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
 
@@ -24,7 +24,7 @@ def edit_profile(request):
 
     if request.method == 'POST':
         # Handle the form submission
-        user_form = CustomUserCreationForm(
+        user_form = UserForm(
             request.POST, instance=request.user
             )  # for updating the user model
         profile_form = ProfileForm(
@@ -39,7 +39,7 @@ def edit_profile(request):
                 'profiles'
                 )  # Redirect to the profile view after successful update
     else:
-        user_form = CustomUserCreationForm(
+        user_form = UserForm(
             instance=request.user
             )  # Prepopulate with current user info
         profile_form = ProfileForm(
