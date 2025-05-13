@@ -27,6 +27,7 @@ def edit_profile(request):
     profile = get_object_or_404(Profile, user=request.user)
 
     if request.method == 'POST':
+        print("Form submitted")
         # Handle the form submission
         user_form = UserForm(
             request.POST, instance=request.user
@@ -34,24 +35,32 @@ def edit_profile(request):
         profile_form = ProfileForm(
             request.POST, request.FILES, instance=profile
             )  # for updating the profile model
-        formset = ImageFormSet(
-            request.POST, request.FILES, queryset=HouseImage.objects.filter(
-                profile=profile
-                )
-            )
+        formset = ImageFormSet(queryset=HouseImage.objects.filter(
+            profile=profile
+                ))
 
-        if (
-            user_form.is_valid()
-            and profile_form.is_valid()
-            and formset.is_valid()
-                ):
+        # Check all forms individually first
+        user_form_valid = user_form.is_valid()
+        profile_form_valid = profile_form.is_valid()
+        formset_valid = formset.is_valid()
 
+        # Debug: print validation states
+        print("UserForm valid:", user_form_valid)
+        print("ProfileForm valid:", profile_form_valid)
+        print("Formset valid:", formset_valid)
+        print("UserForm errors:", user_form.errors)
+        print("ProfileForm errors:", profile_form.errors)
+        print("Formset errors:", formset.errors)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            print("All forms valid")
             user_form.save()
             profile_form.save()
             images = formset.save(commit=False)
             for image in images:
-                image.profile = profile
-                image.save()
+                if image.image:  # only save if image was uploaded
+                    image.profile = profile
+                    image.save()
             # Delete any images marked for deletion
             for obj in formset.deleted_objects:
                 obj.delete()

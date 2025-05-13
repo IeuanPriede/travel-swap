@@ -13,9 +13,27 @@
             </div>
         {% endfor %}
     {% endif %}
-
+    
+    {% if user_form.errors %}
+        <div class="alert alert-danger">
+            <strong>User Form Errors:</strong>
+            {{ user_form.errors }}
+        </div>
+    {% endif %}
+    {% if profile_form.errors %}
+        <div class="alert alert-danger">
+            <strong>Profile Form Errors:</strong>
+            {{ profile_form.errors }}
+        </div>
+    {% endif %}
+    {% if formset.errors %}
+        <div class="alert alert-danger">
+            <strong>Image Formset Errors:</strong>
+            {{ formset.errors }}
+        </div>
+    {% endif %}
     <!-- Begin Profile Edit Form -->
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
         {% csrf_token %}
 
         <!-- User Fields (username, email, etc.) -->
@@ -30,7 +48,7 @@
             {{ profile_form.as_p }}
         </fieldset>
 
-        <!-- Trigger buttons for modals -->
+            <!-- Trigger Modal Buttons -->
         <div class="d-flex gap-2 mb-4">
             <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
                 Upload House Images
@@ -40,9 +58,10 @@
             </button>
         </div>
 
-        <!-- Submit Button -->
+                <!-- Submit Button -->
         <button type="submit" class="btn btn-primary">Save Changes</button>
         <a href="{% url 'profiles' %}" class="btn btn-secondary">Cancel</a>
+
     </form>
 
     <!-- Upload Images Modal -->
@@ -89,6 +108,18 @@
             </div>
         </div>
     </div>
+</div>    
+{% endblock %}
 
-</div>
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const testModal = document.getElementById('uploadImagesModal');
+    if (!testModal) {
+      console.error('❌ Upload modal not found!');
+    } else {
+      console.log('✅ Upload modal found.');
+    }
+  });
+</script>
 {% endblock %}

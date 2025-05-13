@@ -23,8 +23,6 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'first_name',
-            'last_name',
             'bio',
             'location',
             'house_description',
@@ -37,6 +35,8 @@ class ProfileForm(forms.ModelForm):
 
 
 class ImageForm(forms.ModelForm):
+    image = forms.ImageField(required=False)  # ← make the image field optional
+
     class Meta:
         model = HouseImage
         fields = ['image']
@@ -45,7 +45,7 @@ class ImageForm(forms.ModelForm):
 ImageFormSet = modelformset_factory(
     HouseImage,
     form=ImageForm,
-    extra=5,
+    extra=3,
     max_num=5,
     validate_max=True,
     can_delete=True
