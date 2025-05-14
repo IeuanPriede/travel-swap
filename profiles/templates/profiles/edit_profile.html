@@ -48,6 +48,25 @@
             {{ profile_form.as_p }}
         </fieldset>
 
+        <h4>House Images</h4>
+            <div class="row" id="image-gallery">
+                {% for image in profile.house_images.all %}
+                    <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
+                        <div class="card">
+                            <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
+                            <div class="card-body text-center">
+                                <button class="btn btn-danger btn-sm delete-image-btn"
+                                        data-image-id="{{ image.id }}">
+                                    Delete Image
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No images uploaded yet.</p>
+                {% endfor %}
+            </div>
+
             <!-- Trigger Modal Buttons -->
         <div class="d-flex gap-2 mb-4">
             <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
@@ -70,18 +89,25 @@
             <div class="modal-content">
                 <form method="POST" action="{% url 'upload_images' %}" enctype="multipart/form-data">
                     {% csrf_token %}
+                    {{ formset.management_form }}
                     <div class="modal-header">
-                        <h5 class="modal-title" id="uploadImagesLabel">Upload House Images</h5>
+                        <h5 class="modal-title">Upload House Images</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                        {{ formset.management_form }}
                         {% for form in formset %}
-                            {{ form.as_p }}
+                            <div class="mb-3 border p-2 rounded">
+                                {% if form.instance.pk %}
+                                    <img src="{{ form.instance.image.url }}" class="img-fluid mb-2" alt="Existing Image">
+                                {% endif %}
+                                {{ form.image.label_tag }}<br>
+                                {{ form.image }}
+                            </div>
                         {% endfor %}
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="submit" class="btn btn-primary">Done</button>
                     </div>
                 </form>
             </div>
@@ -110,16 +136,43 @@
     </div>
 </div>    
 {% endblock %}
-
 {% block extra_js %}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const testModal = document.getElementById('uploadImagesModal');
-    if (!testModal) {
-      console.error('❌ Upload modal not found!');
-    } else {
-      console.log('✅ Upload modal found.');
-    }
-  });
+document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.delete-image-btn');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            const imageId = this.dataset.imageId;
+            if (!confirm('Are you sure you want to delete this image?')) {
+                return;
+            }
+
+            fetch(`/profiles/delete-image/${imageId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove image from the DOM
+                    const imageCard = document.getElementById(`image-${imageId}`);
+                    if (imageCard) {
+                        imageCard.remove();
+                    }
+                } else {
+                    alert('Failed to delete image.');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting image:', error);
+                alert('Error deleting image.');
+            });
+        });
+    });
+});
 </script>
 {% endblock %}

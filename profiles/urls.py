@@ -9,4 +9,7 @@ urlpatterns = [
     path('logout/', views.custom_logout, name='logout'),
     path('upload-images/', views.upload_images, name='upload_images'),
     path('delete-profile/', views.delete_profile, name='delete_profile'),
+    path(
+        'delete-image/<int:image_id>/',
+        views.delete_image, name='delete_image'),
 ]

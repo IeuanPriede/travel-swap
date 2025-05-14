@@ -1,9 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Profile, HouseImage
-from .forms import CustomUserCreationForm, ProfileForm, UserForm, ImageFormSet
+from .forms import (
+    CustomUserCreationForm,
+    ProfileForm,
+    UserForm,
+    ImageFormSet,
+)
 from django.contrib.auth import login, logout
 from django.contrib import messages
+from django.http import HttpResponseForbidden, JsonResponse
 
 
 # Create your views here.
@@ -61,9 +67,6 @@ def edit_profile(request):
                 if image.image:  # only save if image was uploaded
                     image.profile = profile
                     image.save()
-            # Delete any images marked for deletion
-            for obj in formset.deleted_objects:
-                obj.delete()
 
             messages.success(request, "Your profile has been updated.")
             return redirect(
@@ -84,26 +87,36 @@ def edit_profile(request):
         'user_form': user_form,
         'profile_form': profile_form,
         'formset': formset,
+        'profile': profile,
     })
 
 
 @login_required
 def upload_images(request):
     profile = get_object_or_404(Profile, user=request.user)
-    formset = ImageFormSet(
-        request.POST or None, request.FILES or None,
-        queryset=HouseImage.objects.filter(profile=profile)
-        )
+    existing_images = HouseImage.objects.filter(profile=profile)
 
-    if request.method == 'POST' and formset.is_valid():
-        for form in formset:
-            image = form.save(commit=False)
-            image.profile = profile
-            image.save()
-        messages.success(request, "Images uploaded successfully.")
-        return redirect('edit_profile')
+    if request.method == 'POST':
+        formset = ImageFormSet(request.POST, request.FILES,
+                               queryset=existing_images)
 
-    # This view should only be reached via POST
+        for form in formset.forms:
+            if not form.instance.pk:
+                form.empty_permitted = True
+
+            if formset.is_valid():
+                instances = formset.save(commit=False)
+                for instance in instances:
+                    instance.profile = profile
+                    instance.save()
+
+            print("Remaining images:", HouseImage.objects.filter(
+                profile=profile))
+
+            messages.success(request, "Images updated successfully.")
+        else:
+            messages.error(request, "There was a problem updating images.")
+
     return redirect('edit_profile')
 
 
@@ -127,6 +140,23 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+
+@login_required
+def delete_image(request, image_id):
+    image = get_object_or_404(HouseImage, id=image_id)
+
+    # Ensure the image belongs to the logged-in user
+    if image.profile.user != request.user:
+        return JsonResponse({"error": "Forbidden"}, status=403)
+
+    if request.method == "POST":
+        if image.image:
+            image.image.delete(save=False)  # Delete the file from media
+        image.delete()  # Delete the model instance
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 def custom_logout(request):

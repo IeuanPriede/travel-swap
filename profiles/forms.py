@@ -17,6 +17,14 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'username': forms.TextInput(attrs={'autocomplete': 'username'}),
+            'email': forms.EmailInput(attrs={'autocomplete': 'email'}),
+            'first_name': forms.TextInput
+            (attrs={'autocomplete': 'given-name'}),
+            'last_name': forms.TextInput(
+                attrs={'autocomplete': 'family-name'}),
+        }
 
 
 class ProfileForm(forms.ModelForm):
@@ -35,18 +43,18 @@ class ProfileForm(forms.ModelForm):
 
 
 class ImageForm(forms.ModelForm):
-    image = forms.ImageField(required=False)  # ← make the image field optional
-
     class Meta:
         model = HouseImage
         fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control'})
+        }
 
 
 ImageFormSet = modelformset_factory(
     HouseImage,
     form=ImageForm,
-    extra=3,
+    extra=5,
     max_num=5,
     validate_max=True,
-    can_delete=True
 )
