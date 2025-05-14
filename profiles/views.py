@@ -10,6 +10,7 @@ from .forms import (
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.http import JsonResponse
+from cloudinary.uploader import destroy
 
 
 # Create your views here.
@@ -151,9 +152,15 @@ def delete_image(request, image_id):
         return JsonResponse({"error": "Forbidden"}, status=403)
 
     if request.method == "POST":
-        if image.image:
-            image.image.delete(save=False)  # Delete the file from media
-        image.delete()  # Delete the model instance
+        # Extract the public ID from the image URL
+        public_id = image.image.name.rsplit(
+            '.', 1)[0]  # Removes file extension
+        try:
+            destroy(public_id)  # Cloudinary file delete
+        except Exception as e:
+            print(f"Error deleting image from Cloudinary: {e}")
+
+        image.delete()  # Delete the DB entry
         return JsonResponse({"success": True})
 
     return JsonResponse({"error": "Invalid request"}, status=400)
