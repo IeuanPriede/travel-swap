@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'profiles',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -135,9 +136,21 @@ USE_TZ = True
 # Media files (uploaded files)
 # https://docs.djangoproject.com/en/4.2/ref/settings/#media-url
 
-MEDIA_URL = '/media/'  # URL for media files
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Path where media files are stored on the server
+
+# Use S3 to store uploaded media files
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# AWS credentials (set as config vars in Heroku)
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = os.environ.get(
+    'AWS_S3_REGION_NAME', 'eu-south-2')
+AWS_QUERYSTRING_AUTH = False  # Makes uploaded file URLs
+# public/readable without a token
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
