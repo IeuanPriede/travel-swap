@@ -9,7 +9,7 @@ from .forms import (
 )
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import JsonResponse
 
 
 # Create your views here.

@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     // Remove image from the DOM
                     const imageCard = document.getElementById(`image-${imageId}`);
+                    console.log("Removing image card:", imageCard);
                     if (imageCard) {
                         imageCard.remove();
                     }
