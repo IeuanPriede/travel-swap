@@ -7,9 +7,13 @@
         <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
             {% for image in profile.house_images.all %}
-              <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="{{ image.image.url }}" class="d-block w-100 rounded" alt="House image">
-              </div>
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <img src="{{ image.image.url }}" class="d-block w-100 rounded" alt="House image">
+                </div>
+            {% empty %}
+                <div class="carousel-item active">
+                    <img src="{% static 'images/default.jpg' %}" class="d-block w-100 rounded" alt="Default image">
+                </div>
             {% endfor %}
           </div>
           <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel" data-bs-slide="prev">
