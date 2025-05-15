@@ -12,4 +12,7 @@ urlpatterns = [
     path(
         'delete-image/<int:image_id>/',
         views.delete_image, name='delete_image'),
+    path('', views.home, name='home'),
+    path('like/', views.like_profile, name='like_profile'),
+    path('dislike/', views.dislike_profile, name='dislike_profile'),
 ]

@@ -24,7 +24,7 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
-      
+
 
 # New model to support multiple images per profile
 class HouseImage(models.Model):
@@ -35,3 +35,26 @@ class HouseImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.profile.user.username}"
+
+
+class MatchResponse(models.Model):
+    # The user giving a thumbs up or down.
+    from_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='responses_sent')
+    # The profile being reviewed.
+    to_profile = models.ForeignKey(
+        Profile, on_delete=models.CASCADE, related_name='responses_received')
+    # True for thumbs up, false for thumbs down.
+    liked = models.BooleanField()
+    # The timestamp of the response.
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Ensure that a user can only respond once to a profile.
+        unique_together = ('from_user', 'to_profile')
+
+    def __str__(self):
+        # Return a string representation of the response.
+        status = "liked" if self.liked else "disliked"
+        return f"{
+            self.from_user.username} {status} {self.to_profile.user.username}"

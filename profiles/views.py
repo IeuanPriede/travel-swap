@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Profile, HouseImage
+from .models import Profile, HouseImage, MatchResponse
 from .forms import (
     CustomUserCreationForm,
     ProfileForm,
@@ -11,6 +11,10 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.http import JsonResponse
 from cloudinary.uploader import destroy
+from django.template.loader import render_to_string
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 
 # Create your views here.
@@ -164,6 +168,101 @@ def delete_image(request, image_id):
         return JsonResponse({"success": True})
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@login_required
+def home(request):
+    print("🏠 HOME VIEW HIT")
+    # Get the IDs of profiles the user already responded to
+    responded_ids = MatchResponse.objects.filter(
+        from_user=request.user
+    ).values_list('to_profile_id', flat=True)
+
+    # Get the next visible profile not already rated by the user
+    next_profile = Profile.objects.filter(
+        ~Q(user=request.user),                  # Not the current user
+        is_visible=True                        # Only visible profiles
+    ).exclude(id__in=responded_ids).first()
+
+    print("next_profile:", next_profile)
+
+    # If it's an AJAX request, return just the HTML snippet
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        html = render_to_string('partials/profile_card.html', {
+            'profile': next_profile
+        }, request=request)
+        return JsonResponse({'next_profile_html': html})
+
+    # Standard page load
+    return render(request, 'home.html', {
+        'profile': next_profile
+    })
+
+
+@csrf_exempt  # AJAX instead of Django forms
+@login_required
+def like_profile(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        profile_id = data.get('profile_id')
+        profile = get_object_or_404(Profile, id=profile_id)
+
+        MatchResponse.objects.get_or_create(
+            from_user=request.user,
+            to_profile=profile,
+            defaults={'liked': True}
+        )
+
+        is_match = MatchResponse.objects.filter(
+            from_user=profile.user,
+            to_profile__user=request.user,
+            liked=True
+        ).exists()
+
+        next_profile = Profile.objects.exclude(user=request.user).exclude(
+            id__in=MatchResponse.objects.filter(
+                from_user=request.user
+            ).values_list('to_profile_id', flat=True)
+        ).first()
+
+        html = render_to_string('partials/profile_card.html', {
+            'profile': next_profile}, request=request)
+
+        return JsonResponse({
+            'match': is_match,
+            'match_with': profile.user.username if is_match else None,
+            'next_profile_html': html
+        })
+
+
+@csrf_exempt
+@login_required
+def dislike_profile(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        profile_id = data.get('profile_id')
+        profile = get_object_or_404(Profile, id=profile_id)
+
+        MatchResponse.objects.get_or_create(
+            from_user=request.user,
+            to_profile=profile,
+            defaults={'liked': False}
+        )
+
+        next_profile = Profile.objects.exclude(user=request.user).exclude(
+            id__in=MatchResponse.objects.filter(
+                from_user=request.user
+            ).values_list('to_profile_id', flat=True)
+        ).first()
+
+        html = render_to_string(
+            'partials/profile_card.html', {
+                'profile': next_profile}, request=request)
+
+        return JsonResponse({
+            'match': False,
+            'next_profile_html': html
+        })
 
 
 def custom_logout(request):

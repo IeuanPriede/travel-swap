@@ -1,0 +1,47 @@
+<div class="row">
+    <p class="text-muted">Debug: profile = {{ profile }}</p>
+  <!-- Center Column: Carousel -->
+  <div class="col-md-6 mb-4">
+    <div class="card p-3 shadow-sm">
+      {% if profile and profile.house_images.all %}
+        <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for image in profile.house_images.all %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ image.image.url }}" class="d-block w-100 rounded" alt="House image">
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#profileCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      {% else %}
+        <p>No images available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right Column: Description and Actions -->
+  <div class="col-md-3 mb-4">
+    <div class="card p-3 shadow-sm">
+      {% if profile %}
+        <h5>{{ profile.first_name }} {{ profile.last_name }}</h5>
+        <p><strong>Location:</strong> {{ profile.location }}</p>
+        <p>{{ profile.house_description }}</p>
+
+        <div class="d-flex justify-content-between mt-3" id="match-actions">
+          <button class="btn btn-outline-danger" onclick="handleMatch('{{ profile.id }}', false)">👎</button>
+          <button class="btn btn-outline-success" onclick="handleMatch('{{ profile.id }}', true)">👍</button>
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+            No more profiles available. Try again later!
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
