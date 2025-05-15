@@ -34,7 +34,7 @@
         <p>{{ profile.house_description }}</p>
 
         <div class="d-flex justify-content-between mt-3" id="match-actions">
-          <button class="btn btn-outline-danger" onclick="handleMatch('{{ profile.id }}', false)">👎</button>
+          <button class="btn btn-outline-secondary" onclick="handleMatch('{{ profile.id }}', null)">Next</button>
           <button class="btn btn-outline-success" onclick="handleMatch('{{ profile.id }}', true)">👍</button>
         </div>
       {% else %}

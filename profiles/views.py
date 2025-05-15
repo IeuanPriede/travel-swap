@@ -199,6 +199,36 @@ def home(request):
     })
 
 
+@csrf_exempt
+@login_required
+def next_profile(request):
+    if request.method == 'POST':
+        # Just skip saving anything, move to next profile
+        data = json.loads(request.body)
+        profile_id = data.get('profile_id')
+        profile = get_object_or_404(Profile, id=profile_id)
+
+        # Simulate skipping by marking it "viewed" (optional enhancement)
+        request.session.setdefault('skipped_profiles', []).append(profile.id)
+
+        responded_ids = MatchResponse.objects.filter(
+            from_user=request.user).values_list('to_profile_id', flat=True)
+        skipped_ids = request.session.get('skipped_profiles', [])
+
+        next_profile = Profile.objects.filter(
+            ~Q(user=request.user),
+            is_visible=True
+        ).exclude(id__in=responded_ids).exclude(id__in=skipped_ids).first()
+
+        html = render_to_string('partials/profile_card.html', {
+            'profile': next_profile}, request=request)
+
+        return JsonResponse({
+            'match': False,
+            'next_profile_html': html
+        })
+
+
 @csrf_exempt  # AJAX instead of Django forms
 @login_required
 def like_profile(request):
@@ -231,36 +261,6 @@ def like_profile(request):
         return JsonResponse({
             'match': is_match,
             'match_with': profile.user.username if is_match else None,
-            'next_profile_html': html
-        })
-
-
-@csrf_exempt
-@login_required
-def dislike_profile(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        profile_id = data.get('profile_id')
-        profile = get_object_or_404(Profile, id=profile_id)
-
-        MatchResponse.objects.get_or_create(
-            from_user=request.user,
-            to_profile=profile,
-            defaults={'liked': False}
-        )
-
-        next_profile = Profile.objects.exclude(user=request.user).exclude(
-            id__in=MatchResponse.objects.filter(
-                from_user=request.user
-            ).values_list('to_profile_id', flat=True)
-        ).first()
-
-        html = render_to_string(
-            'partials/profile_card.html', {
-                'profile': next_profile}, request=request)
-
-        return JsonResponse({
-            'match': False,
             'next_profile_html': html
         })
 

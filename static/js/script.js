@@ -1,5 +1,7 @@
 function handleMatch(profileId, liked) {
-  fetch(liked ? '/like/' : '/dislike/', {
+  const url = liked === true ? '/like/' : '/next/';
+
+  fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
