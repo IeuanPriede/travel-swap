@@ -3,7 +3,7 @@
   <!-- Center Column: Carousel -->
   <div class="col-md-6 mb-4">
     <div class="card p-3 shadow-sm">
-      {% if profile and profile.house_images.all %}
+      {% if profile and profile.house_images.exists %}
         <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
             {% for image in profile.house_images.all %}
