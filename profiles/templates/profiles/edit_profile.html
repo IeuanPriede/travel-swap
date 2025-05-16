@@ -4,34 +4,6 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4">Edit Your Profile</h2>
-
-    <!-- Display success or error messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-    
-    {% if user_form.errors %}
-        <div class="alert alert-danger">
-            <strong>User Form Errors:</strong>
-            {{ user_form.errors }}
-        </div>
-    {% endif %}
-    {% if profile_form.errors %}
-        <div class="alert alert-danger">
-            <strong>Profile Form Errors:</strong>
-            {{ profile_form.errors }}
-        </div>
-    {% endif %}
-    {% if formset.errors %}
-        <div class="alert alert-danger">
-            <strong>Image Formset Errors:</strong>
-            {{ formset.errors }}
-        </div>
-    {% endif %}
     <!-- Begin Profile Edit Form -->
     <form method="post" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
         {% csrf_token %}
@@ -42,11 +14,47 @@
             {{ user_form.as_p }}
         </fieldset>
 
-        <!-- Profile Fields (bio, location, image, etc.) -->
+        <!-- Profile Fields -->
         <fieldset class="mb-4">
             <legend>Profile Info</legend>
-            {{ profile_form.as_p }}
+            {{ profile_form.bio.label_tag }} {{ profile_form.bio }}
+            {{ profile_form.location.label_tag }} {{ profile_form.location }}
+            {{ profile_form.house_description.label_tag }} {{ profile_form.house_description }}
+            {{ profile_form.is_visible.label_tag }} {{ profile_form.is_visible }}
         </fieldset>
+
+        <!-- House Criteria -->
+        <fieldset class="mb-4">
+            <legend>House Criteria</legend>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        {{ profile_form.pets_allowed }} {{ profile_form.pets_allowed.label_tag }}
+                    </div>
+                    <div class="form-check">
+                        {{ profile_form.has_pool }} {{ profile_form.has_pool.label_tag }}
+                    </div>
+                    <div class="form-check">
+                        {{ profile_form.more_than_3_bedrooms }} {{ profile_form.more_than_3_bedrooms.label_tag }}
+                    </div>
+                    <div class="form-check">
+                        {{ profile_form.near_beach }} {{ profile_form.near_beach.label_tag }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        {{ profile_form.in_mountains }} {{ profile_form.in_mountains.label_tag }}
+                    </div>
+                    <div class="form-check">
+                        {{ profile_form.in_city }} {{ profile_form.in_city.label_tag }}
+                    </div>
+                    <div class="form-check">
+                        {{ profile_form.in_rural }} {{ profile_form.in_rural.label_tag }}
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
 
         <h4>House Images</h4>
             <div class="row" id="image-gallery">

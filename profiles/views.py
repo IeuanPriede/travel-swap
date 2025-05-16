@@ -6,6 +6,7 @@ from .forms import (
     ProfileForm,
     UserForm,
     ImageFormSet,
+    SearchForm,
 )
 from django.contrib.auth import login, logout
 from django.contrib import messages
@@ -172,30 +173,36 @@ def delete_image(request, image_id):
 
 @login_required
 def home(request):
-    print("🏠 HOME VIEW HIT")
     # Get the IDs of profiles the user already responded to
     responded_ids = MatchResponse.objects.filter(
         from_user=request.user
     ).values_list('to_profile_id', flat=True)
 
-    # Get the next visible profile not already rated by the user
-    next_profile = Profile.objects.filter(
-        ~Q(user=request.user),                  # Not the current user
-        is_visible=True                        # Only visible profiles
-    ).exclude(id__in=responded_ids).first()
+# Start with visible, unrated profiles not belonging to the user
+    profiles = Profile.objects.filter(
+        ~Q(user=request.user),
+        is_visible=True
+    ).exclude(id__in=responded_ids)
 
-    print("next_profile:", next_profile)
+    form = SearchForm(request.GET or None)
 
-    # If it's an AJAX request, return just the HTML snippet
+    if form.is_valid():
+        for field, value in form.cleaned_data.items():
+            if value:
+                profiles = profiles.filter(**{field: True})
+
+    # Get the first profile from the filtered list
+    next_profile = profiles.first()
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         html = render_to_string('partials/profile_card.html', {
             'profile': next_profile
         }, request=request)
         return JsonResponse({'next_profile_html': html})
 
-    # Standard page load
     return render(request, 'home.html', {
-        'profile': next_profile
+        'profile': next_profile,
+        'form': form  # pass form to template
     })
 
 

@@ -11,6 +11,15 @@
     <p>Email: {{ profile.user.email }}</p>
     <p>Bio: {{ profile.bio }}</p>
     <p>Location: {{ profile.location }}</p>
+    <ul>
+        {% if profile.pets_allowed %}<li>Pets Allowed</li>{% endif %}
+        {% if profile.has_pool %}<li>Pool</li>{% endif %}
+        {% if profile.more_than_3_bedrooms %}<li>3+ Bedrooms</li>{% endif %}
+        {% if profile.near_beach %}<li>Beach Nearby</li>{% endif %}
+        {% if profile.in_mountains %}<li>Mountain Area</li>{% endif %}
+        {% if profile.in_city %}<li>City</li>{% endif %}
+        {% if profile.in_rural %}<li>Rural</li>{% endif %}
+    </ul>
   
     <h3 class="mt-4">House Images</h3>
     <div class="row">

@@ -14,18 +14,48 @@
         <div class="card p-3 shadow-sm">
           <h5>Search Criteria</h5>
           <form method="GET" action="">
+            <!-- Location Filter -->
             <div class="mb-2">
               <label for="location" class="form-label">Location</label>
               <input type="text" class="form-control" id="location" name="location">
             </div>
+
+            <!-- Dates Filter -->
             <div class="mb-2">
               <label for="dates" class="form-label">Dates</label>
               <input type="text" class="form-control" id="dates" name="dates">
             </div>
-            <button type="submit" class="btn btn-primary w-100">Filter</button>
-          </form>
-        </div>
-      </div>
+
+            <!-- House Criteria Checkboxes -->
+            <hr>
+            <p class="fw-semibold">House Features</p>
+            <div class="form-check">
+              {{ form.pets_allowed }} {{ form.pets_allowed.label_tag }}
+            </div>
+            <div class="form-check">
+              {{ form.has_pool }} {{ form.has_pool.label_tag }}
+            </div>
+            <div class="form-check">
+              {{ form.more_than_3_bedrooms }} {{ form.more_than_3_bedrooms.label_tag }}
+            </div>
+            <div class="form-check">
+              {{ form.near_beach }} {{ form.near_beach.label_tag }}
+            </div>
+            <div class="form-check">
+              {{ form.in_mountains }} {{ form.in_mountains.label_tag }}
+            </div>
+            <div class="form-check">
+              {{ form.in_city }} {{ form.in_city.label_tag }}
+            </div>
+            <div class="form-check">
+              {{ form.in_rural }} {{ form.in_rural.label_tag }}
+            </div>
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-primary w-100 mt-3">Apply Filters</button>
+    </form>
+  </div>
+</div>
+
 
       <!-- Center + Right: Profile Section (AJAX will update this) -->
       <div class="col-md-9" id="profile-section">

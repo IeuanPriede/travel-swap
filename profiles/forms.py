@@ -35,11 +35,35 @@ class ProfileForm(forms.ModelForm):
             'location',
             'house_description',
             'is_visible',
+            'pets_allowed',
+            'has_pool',
+            'more_than_3_bedrooms',
+            'near_beach',
+            'in_mountains',
+            'in_city',
+            'in_rural',
         ]
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 3}),
             'house_description': forms.Textarea(attrs={'rows': 4}),
+            'pets_allowed': forms.CheckboxInput(),
+            'has_pool': forms.CheckboxInput(),
+            'more_than_3_bedrooms': forms.CheckboxInput(),
+            'near_beach': forms.CheckboxInput(),
+            'in_mountains': forms.CheckboxInput(),
+            'in_city': forms.CheckboxInput(),
+            'in_rural': forms.CheckboxInput(),
         }
+
+
+class SearchForm(forms.Form):
+    pets_allowed = forms.BooleanField(required=False)
+    has_pool = forms.BooleanField(required=False)
+    more_than_3_bedrooms = forms.BooleanField(required=False)
+    near_beach = forms.BooleanField(required=False)
+    in_mountains = forms.BooleanField(required=False)
+    in_city = forms.BooleanField(required=False)
+    in_rural = forms.BooleanField(required=False)
 
 
 class ImageForm(forms.ModelForm):

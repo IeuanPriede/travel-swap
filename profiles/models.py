@@ -22,6 +22,15 @@ class Profile(models.Model):
     preferred_destinations = models.CharField(max_length=255, blank=True)
     available_dates = models.CharField(max_length=255, blank=True)
 
+    # House criteria fields
+    pets_allowed = models.BooleanField(default=False)
+    has_pool = models.BooleanField(default=False)
+    more_than_3_bedrooms = models.BooleanField(default=False)
+    near_beach = models.BooleanField(default=False)
+    in_mountains = models.BooleanField(default=False)
+    in_city = models.BooleanField(default=False)
+    in_rural = models.BooleanField(default=False)
+
     def __str__(self):
         return self.user.username
 
