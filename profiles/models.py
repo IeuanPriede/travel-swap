@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 
 
 # Create your models here.
@@ -35,12 +37,31 @@ class Profile(models.Model):
         return self.user.username
 
 
+@deconstructible
+class ImageValidator:
+    def __init__(self, max_size_mb=2, allowed_types=None):
+        self.max_size_mb = max_size_mb
+        self.allowed_types = allowed_types or ['image/jpeg', 'image/png']
+
+    def __call__(self, file):
+        # Size check
+        limit = self.max_size_mb * 1024 * 1024
+        if file.size > limit:
+            raise ValidationError(
+                f'Maximum file size is {self.max_size_mb}MB.')
+
+        # Type check
+        if file.content_type not in self.allowed_types:
+            raise ValidationError('Only JPEG and PNG images are allowed.')
+
+
 # New model to support multiple images per profile
 class HouseImage(models.Model):
     profile = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name='house_images'
     )
-    image = models.ImageField(upload_to='house_images/')
+    image = models.ImageField(upload_to='house_images/',
+                              validators=[ImageValidator(max_size_mb=2)])
 
     def __str__(self):
         return f"Image for {self.profile.user.username}"

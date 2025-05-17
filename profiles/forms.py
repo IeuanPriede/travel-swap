@@ -71,7 +71,10 @@ class ImageForm(forms.ModelForm):
         model = HouseImage
         fields = ['image']
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control'})
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/jpeg,image/png'
+                })
         }
 
 
