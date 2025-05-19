@@ -55,6 +55,8 @@ def edit_profile(request):
         # Check all forms individually first
         user_form_valid = user_form.is_valid()
         profile_form_valid = profile_form.is_valid()
+        print("DEBUG - Form valid states:",
+              user_form_valid, profile_form_valid)
         formset_valid = formset.is_valid()
 
         # Debug: print validation states
@@ -128,11 +130,6 @@ def upload_images(request):
             if not form.has_changed():
                 form.empty_permitted = True
 
-        # Debug lines
-        print("DEBUG - request.FILES:", request.FILES)
-        print("DEBUG - formset data valid?", formset.is_valid())
-        print("DEBUG - formset errors:", formset.errors)
-
         for form in formset.forms:
             # If the form has no file uploaded, let it be skipped
             if not form.cleaned_data.get('image') and not form.instance.pk:
@@ -142,9 +139,6 @@ def upload_images(request):
             instances = formset.save(commit=False)
             if formset.is_valid():
                 instances = formset.save(commit=False)
-                print(
-                    "DEBUG - Instances returned by save(commit=False):",
-                    len(instances))
             new_images = []
 
             for instance in instances:
@@ -153,12 +147,6 @@ def upload_images(request):
 
             # Save new images and auto-set first as main if none exists
             for i, image in enumerate(new_images):
-                print(
-                    "DEBUG - Saving image:",
-                    image.image, "| Is main:", image.is_main)
-                print("DEBUG - Uploaded file name:", image.image.name)
-                print("DEBUG - Uploaded file URL:",
-                      image.image.url if image.image else "No image")
                 if (
                     not profile.house_images.filter(is_main=True).exists()
                     and i == 0
@@ -172,9 +160,6 @@ def upload_images(request):
                 for image in profile.house_images.all():
                     image.is_main = (str(image.id) == selected_main_id)
                     image.save()
-
-            print("Remaining images:", HouseImage.objects.filter(
-                profile=profile))
 
             messages.success(request, "Images updated successfully.")
         else:

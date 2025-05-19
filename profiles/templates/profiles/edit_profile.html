@@ -54,38 +54,34 @@
                 </div>
             </div>
         </fieldset>
-
-
+        <!-- House Images -->
         <h4>House Images</h4>
-            <div class="row" id="image-gallery">
-                {% for image in profile.house_images.all %}
-                    <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
-                        <div class="card {% if image.is_main %}border-primary{% endif %}">
-                            <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
-                            <div class="card-body text-center d-flex flex-column gap-2">
-                                <form method="POST" action="{% url 'set_main_image' image.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit"
-                                            class="btn btn-outline-primary btn-sm {% if image.is_main %}active{% endif %}">
-                                        {% if image.is_main %}
-                                            ✓ Main Image
-                                        {% else %}
-                                            Set as Main Image
-                                        {% endif %}
-                                    </button>
-                                </form>
-
-                                <button class="btn btn-danger btn-sm delete-image-btn"
-                                        data-image-id="{{ image.id }}">
-                                    Delete Image
-                                </button>
-                            </div>
+        <div class="row" id="image-gallery">
+            {% for image in profile.house_images.all %}
+                <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
+                    <div class="card {% if image.is_main %}border-primary{% endif %}">
+                        <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
+                        <div class="card-body text-center d-flex flex-column gap-2">
+                            <a href="{% url 'set_main_image' image.id %}"
+                                class="btn btn-outline-primary btn-sm {% if image.is_main %}active{% endif %}">
+                                {% if image.is_main %}
+                                    ✓ Main Image
+                                {% else %}
+                                    Set as Main Image
+                                {% endif %}
+                            </a>
+                            <!-- Delete image button -->
+                            <button class="btn btn-danger btn-sm delete-image-btn"
+                                    data-image-id="{{ image.id }}">
+                                Delete Image
+                            </button>
                         </div>
                     </div>
-                {% empty %}
-                    <p>No images uploaded yet.</p>
-                {% endfor %}
-            </div>
+                </div>
+            {% empty %}
+                <p>No images uploaded yet.</p>
+            {% endfor %}
+        </div>
 
             <!-- Trigger Modal Buttons -->
         <div class="d-flex gap-2 mb-4">
@@ -100,7 +96,6 @@
                 <!-- Submit Button -->
         <button type="submit" class="btn btn-primary">Save Changes</button>
         <a href="{% url 'profiles' %}" class="btn btn-secondary">Cancel</a>
-
     </form>
 
     <!-- Upload Images Modal -->
