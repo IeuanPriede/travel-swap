@@ -16,6 +16,7 @@ from django.template.loader import render_to_string
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from django.views.decorators.http import require_POST
 
 
 # Create your views here.
@@ -98,6 +99,22 @@ def edit_profile(request):
 
 
 @login_required
+@require_POST
+def set_main_image(request, image_id):
+    image = get_object_or_404(
+        HouseImage, id=image_id, profile__user=request.user)
+
+    # Clear previous main image
+    HouseImage.objects.filter(profile=image.profile).update(is_main=False)
+
+    # Set new main image
+    image.is_main = True
+    image.save()
+
+    return redirect('edit_profile')
+
+
+@login_required
 def upload_images(request):
     profile = get_object_or_404(Profile, user=request.user)
     existing_images = HouseImage.objects.filter(profile=profile)
@@ -106,15 +123,55 @@ def upload_images(request):
         formset = ImageFormSet(request.POST, request.FILES,
                                queryset=existing_images)
 
+        # Mark empty forms as permitted
         for form in formset.forms:
-            if not form.instance.pk:
+            if not form.has_changed():
                 form.empty_permitted = True
 
+        # Debug lines
+        print("DEBUG - request.FILES:", request.FILES)
+        print("DEBUG - formset data valid?", formset.is_valid())
+        print("DEBUG - formset errors:", formset.errors)
+
+        for form in formset.forms:
+            # If the form has no file uploaded, let it be skipped
+            if not form.cleaned_data.get('image') and not form.instance.pk:
+                form.empty_permitted = True
+
+        if formset.is_valid():
+            instances = formset.save(commit=False)
             if formset.is_valid():
                 instances = formset.save(commit=False)
-                for instance in instances:
-                    instance.profile = profile
-                    instance.save()
+                print(
+                    "DEBUG - Instances returned by save(commit=False):",
+                    len(instances))
+            new_images = []
+
+            for instance in instances:
+                instance.profile = profile
+                new_images.append(instance)
+
+            # Save new images and auto-set first as main if none exists
+            for i, image in enumerate(new_images):
+                print(
+                    "DEBUG - Saving image:",
+                    image.image, "| Is main:", image.is_main)
+                print("DEBUG - Uploaded file name:", image.image.name)
+                print("DEBUG - Uploaded file URL:",
+                      image.image.url if image.image else "No image")
+                if (
+                    not profile.house_images.filter(is_main=True).exists()
+                    and i == 0
+                ):
+                    image.is_main = True
+                image.save()
+
+            # Handle manual main image selection (if applicable)
+            selected_main_id = request.POST.get('main_image')
+            if selected_main_id:
+                for image in profile.house_images.all():
+                    image.is_main = (str(image.id) == selected_main_id)
+                    image.save()
 
             print("Remaining images:", HouseImage.objects.filter(
                 profile=profile))

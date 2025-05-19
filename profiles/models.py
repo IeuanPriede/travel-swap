@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
+import mimetypes
 
 
 # Create your models here.
@@ -41,7 +42,12 @@ class Profile(models.Model):
 class ImageValidator:
     def __init__(self, max_size_mb=2, allowed_types=None):
         self.max_size_mb = max_size_mb
-        self.allowed_types = allowed_types or ['image/jpeg', 'image/png']
+        self.allowed_types = allowed_types or [
+            'image/jpeg',
+            'image/png',
+            'image/pjpeg',
+            'image/jpg',
+            ]
 
     def __call__(self, file):
         # Size check
@@ -50,8 +56,14 @@ class ImageValidator:
             raise ValidationError(
                 f'Maximum file size is {self.max_size_mb}MB.')
 
-        # Type check
-        if file.content_type not in self.allowed_types:
+        # Safely guess content type from file name
+        guessed_type, _ = mimetypes.guess_type(file.name)
+        print(
+            "DEBUG - Guessed MIME type:",
+            guessed_type, "for file:", file.name)
+
+        # Robust type check
+        if guessed_type is None or guessed_type not in self.allowed_types:
             raise ValidationError('Only JPEG and PNG images are allowed.')
 
 
@@ -62,6 +74,7 @@ class HouseImage(models.Model):
     )
     image = models.ImageField(upload_to='house_images/',
                               validators=[ImageValidator(max_size_mb=2)])
+    is_main = models.BooleanField(default=False)  # Indicates hero image
 
     def __str__(self):
         return f"Image for {self.profile.user.username}"

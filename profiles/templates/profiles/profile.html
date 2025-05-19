@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load image_extras %}
 
 {% block content %}
 {% if messages %}
@@ -6,6 +7,13 @@
     <div class="alert alert-{{ message.tags }}">{{ message }}</div>
   {% endfor %}
 {% endif %}
+    {% if profile.house_images.all %}
+        {% with profile.house_images.all|get_main_image as hero %}
+            {% if hero %}
+                <img src="{{ hero.image.url }}" class="img-fluid hero-img" alt="Main House Image">
+            {% endif %}
+        {% endwith %}
+    {% endif %}
     <h2>Your Profile</h2>
     <p>Username: {{ profile.user.username }}</p>
     <p>Email: {{ profile.user.email }}</p>

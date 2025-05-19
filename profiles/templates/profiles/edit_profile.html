@@ -60,9 +60,21 @@
             <div class="row" id="image-gallery">
                 {% for image in profile.house_images.all %}
                     <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
-                        <div class="card">
+                        <div class="card {% if image.is_main %}border-primary{% endif %}">
                             <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
-                            <div class="card-body text-center">
+                            <div class="card-body text-center d-flex flex-column gap-2">
+                                <form method="POST" action="{% url 'set_main_image' image.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit"
+                                            class="btn btn-outline-primary btn-sm {% if image.is_main %}active{% endif %}">
+                                        {% if image.is_main %}
+                                            ✓ Main Image
+                                        {% else %}
+                                            Set as Main Image
+                                        {% endif %}
+                                    </button>
+                                </form>
+
                                 <button class="btn btn-danger btn-sm delete-image-btn"
                                         data-image-id="{{ image.id }}">
                                     Delete Image
@@ -108,6 +120,14 @@
                             <div class="mb-3 border p-2 rounded">
                                 {% if form.instance.pk %}
                                     <img src="{{ form.instance.image.url }}" class="img-fluid mb-2" alt="Existing Image">
+                                    <!-- Radio to select as main image -->
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="main_image" value="{{ form.instance.id }}"
+                                            {% if form.instance.is_main %}checked{% endif %}>
+                                        <label class="form-check-label">
+                                            Set as main image
+                                        </label>
+                                    </div>
                                 {% endif %}
                                 {{ form.image.label_tag }}<br>
                                 {{ form.image }}
