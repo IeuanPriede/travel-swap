@@ -1,1 +1,28 @@
 {% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Your Travel Log</h2>
+    {% if liked_profiles %}
+        <div class="row">
+            {% for match in liked_profiles %}
+                {% if match.to_profile.is_visible %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <img src="{{ match.to_profile.image.url }}" class="card-img-top" alt="Profile image">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ match.to_profile.user.username }}</h5>
+                                <p class="card-text">{{ match.to_profile.location }}</p>
+                                <a href="{% url 'view_profile' match.to_profile.id %}" class="btn btn-primary">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You haven’t liked any profiles yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

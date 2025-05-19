@@ -313,6 +313,27 @@ def like_profile(request):
         })
 
 
+@login_required
+def travel_log(request):
+    liked_profiles = MatchResponse.objects.filter(
+        from_user=request.user,
+        liked=True
+    ).select_related('to_profile')
+
+    return render(request, 'travel_log.html', {
+        'liked_profiles': liked_profiles
+    })
+
+
+@login_required
+def view_profile(request, profile_id):
+    profile = get_object_or_404(Profile, id=profile_id, is_visible=True)
+
+    return render(request, 'profiles/view_profile.html', {
+        'profile': profile
+    })
+
+
 def custom_logout(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")

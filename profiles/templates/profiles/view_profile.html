@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ profile.user.username }}'s Profile</h2>
+    <p><strong>Location:</strong> {{ profile.location }}</p>
+    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+    <p><strong>House Description:</strong> {{ profile.house_description }}</p>
+
+    <h4>Gallery</h4>
+    <div class="row">
+        {% for image in profile.house_images.all %}
+            <div class="col-md-4 mb-3">
+                <img src="{{ image.image.url }}" class="img-fluid rounded shadow" alt="House image">
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -19,4 +19,6 @@ urlpatterns = [
         'set-main-image/<int:image_id>/',
         views.set_main_image, name='set_main_image'
         ),
+    path('travel-log/', views.travel_log, name='travel_log'),
+    path('profile/<int:profile_id>/', views.view_profile, name='view_profile'),
 ]
