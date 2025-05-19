@@ -24,5 +24,21 @@
             <p>You must be matched with this user to send a message.</p>
         {% endif %}
     </div>
+    <div class="card mt-4">
+        <div class="card-header">
+            Message History
+        </div>
+        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+            {% for message in messages %}
+            <div class="mb-2">
+                <strong>{{ message.sender.username }}:</strong><br>
+                {{ message.content }}<br>
+                <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+            </div>
+            {% empty %}
+            <p>No messages yet.</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

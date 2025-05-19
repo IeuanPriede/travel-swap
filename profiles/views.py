@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.views.decorators.http import require_POST
 from messaging.forms import MessageForm
+from messaging.models import Message
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -344,34 +345,42 @@ def view_profile(request, user_id):
     is_match = check_if_matched(request.user, profile_user)
 
     message_form = None
+    messages_between = None
 
-    if is_match and request.method == 'POST':
-        message_form = MessageForm(request.POST)
-        if message_form.is_valid():
-            message = message_form.save(commit=False)
-            message.sender = request.user
-            message.recipient = profile_user
-            message.save()
+    if is_match:
+        # Get messages between the two users
+        messages_between = Message.objects.filter(
+            Q(sender=request.user, recipient=profile_user) |
+            Q(sender=profile_user, recipient=request.user)
+        ).order_by('timestamp')
 
-            # Send email notification
-            send_mail(
-                subject='New message from your TravelSwap match!',
-                message=message.content,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[profile_user.email],
-                fail_silently=False,
-            )
+        if request.method == 'POST':
+            message_form = MessageForm(request.POST)
+            if message_form.is_valid():
+                message = message_form.save(commit=False)
+                message.sender = request.user
+                message.recipient = profile_user
+                message.save()
 
-            messages.success(request, "Message sent successfully!")
-            return redirect('view_profile', user_id=profile_user.id)
+                # Send email notification
+                send_mail(
+                    subject='New message from your TravelSwap match!',
+                    message=message.content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[profile_user.email],
+                    fail_silently=False,
+                )
 
-    elif is_match:
-        message_form = MessageForm()
+                messages.success(request, "Message sent successfully!")
+                return redirect('view_profile', user_id=profile_user.id)
+        else:
+            message_form = MessageForm()
 
     context = {
         'profile_user': profile_user,
         'is_match': is_match,
         'message_form': message_form,
+        'messages': messages_between,
     }
     return render(request, 'profiles/view_profile.html', context)
 
