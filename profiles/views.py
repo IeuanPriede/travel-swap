@@ -277,26 +277,34 @@ def next_profile(request):
         })
 
 
-@csrf_exempt  # AJAX instead of Django forms
+@csrf_exempt
 @login_required
 def like_profile(request):
+    print("DEBUG - Like recorded by:", request.user.username)
     if request.method == 'POST':
         data = json.loads(request.body)
         profile_id = data.get('profile_id')
         profile = get_object_or_404(Profile, id=profile_id)
 
-        MatchResponse.objects.get_or_create(
+        # Create or update MatchResponse
+        match, created = MatchResponse.objects.get_or_create(
             from_user=request.user,
             to_profile=profile,
             defaults={'liked': True}
         )
 
+        if not created and not match.liked:
+            match.liked = True
+            match.save()
+
+        # Check if it's a mutual match
         is_match = MatchResponse.objects.filter(
             from_user=profile.user,
             to_profile__user=request.user,
             liked=True
         ).exists()
 
+        # Get next profile to show
         next_profile = Profile.objects.exclude(user=request.user).exclude(
             id__in=MatchResponse.objects.filter(
                 from_user=request.user
@@ -318,7 +326,7 @@ def travel_log(request):
     liked_profiles = MatchResponse.objects.filter(
         from_user=request.user,
         liked=True
-    ).select_related('to_profile')
+    ).select_related('to_profile', 'to_profile__user')
 
     return render(request, 'travel_log.html', {
         'liked_profiles': liked_profiles

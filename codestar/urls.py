@@ -32,9 +32,6 @@ urlpatterns = [
     path('about/', TemplateView.as_view(template_name='about.html'),
          name='about'
          ),
-    path('travel-log/', TemplateView.as_view(template_name='travel_log.html'),
-         name='travel_log'
-         ),
     # Password reset URLs
     path(
         'password_reset/', auth_views.PasswordResetView.as_view(),
