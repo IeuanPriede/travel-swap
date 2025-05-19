@@ -131,8 +131,7 @@ def upload_images(request):
                 form.empty_permitted = True
 
         for form in formset.forms:
-            # If the form has no file uploaded, let it be skipped
-            if not form.cleaned_data.get('image') and not form.instance.pk:
+            if not form.has_changed():
                 form.empty_permitted = True
 
         if formset.is_valid():
