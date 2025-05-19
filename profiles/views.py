@@ -364,8 +364,14 @@ def view_profile(request, user_id):
 
                 # Send email notification
                 send_mail(
-                    subject='New message from your TravelSwap match!',
-                    message=message.content,
+                    subject=f'New message from {
+                        request.user.username} on TravelSwap!',
+                    message=(
+                        f"You've received a new message from {
+                            request.user.username}:\n\n"
+                        f"{message.content}\n\n"
+                        "Log in to TravelSwap to view and reply."
+                    ),
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[profile_user.email],
                     fail_silently=False,
