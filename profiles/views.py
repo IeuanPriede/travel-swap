@@ -17,6 +17,10 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.views.decorators.http import require_POST
+from messaging.forms import MessageForm
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.models import User
 
 
 # Create your views here.
@@ -325,7 +329,8 @@ def like_profile(request):
 def travel_log(request):
     liked_profiles = MatchResponse.objects.filter(
         from_user=request.user,
-        liked=True
+        liked=True,
+        to_profile__user__isnull=False  # ensures the profile has a user
     ).select_related('to_profile', 'to_profile__user')
 
     return render(request, 'travel_log.html', {
@@ -334,12 +339,53 @@ def travel_log(request):
 
 
 @login_required
-def view_profile(request, profile_id):
-    profile = get_object_or_404(Profile, id=profile_id, is_visible=True)
+def view_profile(request, user_id):
+    profile_user = get_object_or_404(User, id=user_id)
+    is_match = check_if_matched(request.user, profile_user)
 
-    return render(request, 'profiles/view_profile.html', {
-        'profile': profile
-    })
+    message_form = None
+
+    if is_match and request.method == 'POST':
+        message_form = MessageForm(request.POST)
+        if message_form.is_valid():
+            message = message_form.save(commit=False)
+            message.sender = request.user
+            message.recipient = profile_user
+            message.save()
+
+            # Send email notification
+            send_mail(
+                subject='New message from your TravelSwap match!',
+                message=message.content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[profile_user.email],
+                fail_silently=False,
+            )
+
+            messages.success(request, "Message sent successfully!")
+            return redirect('view_profile', user_id=profile_user.id)
+
+    elif is_match:
+        message_form = MessageForm()
+
+    context = {
+        'profile_user': profile_user,
+        'is_match': is_match,
+        'message_form': message_form,
+    }
+    return render(request, 'profiles/view_profile.html', context)
+
+
+def check_if_matched(user1, user2):
+    return MatchResponse.objects.filter(
+        from_user=user1,
+        to_profile__user=user2,
+        liked=True
+    ).exists() and MatchResponse.objects.filter(
+        from_user=user2,
+        to_profile__user=user1,
+        liked=True
+    ).exists()
 
 
 def custom_logout(request):

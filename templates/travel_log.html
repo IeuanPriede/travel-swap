@@ -10,8 +10,13 @@
         <ul>
             {% for match in liked_profiles %}
                 <li>
-                    Liked: {{ match.to_profile.user.username }}
-                    - <a href="{% url 'view_profile' match.to_profile.id %}">View Profile</a>
+                    {% if match.to_profile and match.to_profile.user %}
+                        <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}">
+                        View {{ match.to_profile.user.username }}'s Profile
+                        </a>
+                    {% else %}
+                        <p>This profile is no longer available.</p>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
