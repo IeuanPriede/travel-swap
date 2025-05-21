@@ -24,6 +24,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from datetime import datetime
+import logging
 
 
 # Create your views here.
@@ -250,7 +251,7 @@ def home(request):
                 available_dates__icontains=end_date
             )
         except ValueError:
-            pass  # If the input isn't a valid date range string            
+            pass  # If the input isn't a valid date range string
 
     # Get the first profile from the filtered list
     next_profile = profiles.first()
@@ -323,6 +324,36 @@ def like_profile(request):
             to_profile__user=request.user,
             liked=True
         ).exists()
+
+        email_logger = logging.getLogger('email_notifications')
+
+        # ✅ Send email if a mutual match is confirmed
+        if is_match:
+            send_mail(
+                subject="You've got a new match on TravelSwap!",
+                message=(
+                    f"You and {profile.user.username} "
+                    "have liked each other.\n\n"
+                    "Visit their profile to start "
+                    "messaging or suggest vacation dates."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[request.user.email],
+                fail_silently=False,
+            )
+            send_mail(
+                subject="You've got a new match on TravelSwap!",
+                message=(
+                    f"{request.user.username} also liked you back!\n\n"
+                    "Log in to view their profile and connect."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[profile.user.email],
+                fail_silently=False,
+            )
+            email_logger.info(
+                f"Match email sent to: {profile.user.email} "
+                "with subject: {subject}")
 
         # Get next profile to show
         next_profile = Profile.objects.exclude(user=request.user).exclude(
@@ -428,6 +459,19 @@ def view_profile(request, user_id):
             booking.created_at = now()
             booking.last_action_by = request.user
             booking.save()
+            send_mail(
+                subject='New vacation exchange request on TravelSwap',
+                message=(
+                    f"{
+                        request.user.username
+                    } has requested a vacation exchange with you.\n\n"
+                    f"Dates: {booking.requested_dates}\n\n"
+                    "Log in to your account to respond."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[profile_user.email],
+                fail_silently=False,
+            )
             messages.success(request, "Booking request sent!")
             return redirect('view_profile', user_id=profile_user.id)
 
@@ -442,11 +486,43 @@ def view_profile(request, user_id):
             new_dates = request.POST.get('amended_dates')
             if new_dates:
                 booking.requested_dates = new_dates
+            send_mail(
+                subject='Booking request amended',
+                message=(
+                    f"{request.user.username} has suggested new dates "
+                    f"for your vacation exchange.\n\n"
+                    f"Suggested Dates: {new_dates}\n\n"
+                    "Log in to respond to the update."
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[
+                    booking.recipient.email
+                    if booking.recipient != request.user
+                    else booking.sender.email
+                ],
+                fail_silently=False,
+            )
         if action in ['accepted', 'amended', 'denied']:
             booking.status = action
             booking.responded_at = now()
             booking.last_action_by = request.user
             booking.save()
+            if action in ['accepted', 'denied']:
+                send_mail(
+                    subject=f"Booking request {action} on TravelSwap",
+                    message=(
+                        f"{request.user.username} has {action} "
+                        "your vacation exchange request.\n\n"
+                        f"Dates: {booking.requested_dates}\n\n"
+                        "Log in to see details."
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[
+                        booking.recipient.email
+                        if booking.recipient != request.user
+                        else booking.sender.email],
+                    fail_silently=False,
+                )
             messages.success(request, f"Request {action}.")
             return redirect('view_profile', user_id=profile_user.id)
 
