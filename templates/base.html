@@ -48,6 +48,36 @@
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                🔔
+                                {% if unread_notifications %}
+                                    Notifications ({{ unread_notifications|length }})
+                                {% else %}
+                                    Notifications
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                                {% if unread_notifications %}
+                                    {% for notification in unread_notifications %}
+                                        <li>
+                                            <a class="dropdown-item" href="{{ notification.link }}">
+                                                {{ notification.message }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{% url 'mark_all_read' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-center">Mark all as read</button>
+                                        </form>
+                                    </li>
+                                {% else %}
+                                    <li class="dropdown-item text-muted">No new notifications</li>
+                                {% endif %}
+                            </ul>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'profiles' %}">My Profile</a>
                         </li>

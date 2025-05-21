@@ -25,6 +25,8 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from datetime import datetime
 import logging
+from django.urls import reverse
+from notifications.models import Notification
 
 
 # Create your views here.
@@ -222,6 +224,7 @@ def delete_image(request, image_id):
 
 @login_required
 def home(request):
+
     # Get the IDs of profiles the user already responded to
     responded_ids = MatchResponse.objects.filter(
         from_user=request.user
@@ -353,7 +356,25 @@ def like_profile(request):
             )
             email_logger.info(
                 f"Match email sent to: {profile.user.email} "
-                "with subject: {subject}")
+                "with subject: {subject}"
+            )
+            matched_profile_url = reverse(
+                'view_profile', args=[profile.user.id])
+            messages.info(
+                request,
+                f"You've matched with {profile.user.username}! "
+                f"<a href='{matched_profile_url}'>View profile</a>"
+            )
+            Notification.objects.create(
+                user=profile.user,
+                message=f"You matched with {request.user.username}!",
+                link=reverse('view_profile', args=[request.user.id])
+            )
+            Notification.objects.create(
+                user=request.user,
+                message=f"You matched with {profile.user.username}!",
+                link=reverse('view_profile', args=[profile.user.id])
+            )
 
         # Get next profile to show
         next_profile = Profile.objects.exclude(user=request.user).exclude(
@@ -394,7 +415,6 @@ def view_profile(request, user_id):
     messages_between = None
 
     if is_match:
-        # Get messages between the two users
         messages_between = Message.objects.filter(
             Q(sender=request.user, recipient=profile_user) |
             Q(sender=profile_user, recipient=request.user)
@@ -408,10 +428,9 @@ def view_profile(request, user_id):
                 message.recipient = profile_user
                 message.save()
 
-                # Send email notification
                 send_mail(
-                    subject=f'New message from {
-                        request.user.username} on TravelSwap!',
+                    subject=f'New message from {request.user.username} '
+                    'on TravelSwap!',
                     message=(
                         f"You've received a new message from {
                             request.user.username}:\n\n"
@@ -430,7 +449,6 @@ def view_profile(request, user_id):
 
     profile = Profile.objects.get(user=profile_user)
 
-    # Check if there's any booking between these users
     booking = BookingRequest.objects.filter(
         Q(sender=request.user, recipient=profile_user) |
         Q(sender=profile_user, recipient=request.user)
@@ -447,9 +465,8 @@ def view_profile(request, user_id):
             available_end = datetime.strptime(
                 end_str.strip(), '%Y-%m-%d').date()
         except ValueError:
-            pass  # Malformed range, fallback to unrestricted
+            pass
 
-        # Handle request creation
     if request.method == 'POST' and 'request_booking' in request.POST:
         booking_form = BookingRequestForm(request.POST)
         if booking_form.is_valid():
@@ -459,12 +476,18 @@ def view_profile(request, user_id):
             booking.created_at = now()
             booking.last_action_by = request.user
             booking.save()
+            Notification.objects.create(
+                user=profile_user,
+                message=f"{request.user.username} "
+                "sent you a vacation exchange request.",
+                link=reverse('view_profile', args=[request.user.id])
+            )
+            print("✅ Notification created for:", profile_user.username)
             send_mail(
                 subject='New vacation exchange request on TravelSwap',
                 message=(
-                    f"{
-                        request.user.username
-                    } has requested a vacation exchange with you.\n\n"
+                    f"{request.user.username} has requested "
+                    "a vacation exchange with you.\n\n"
                     f"Dates: {booking.requested_dates}\n\n"
                     "Log in to your account to respond."
                 ),
@@ -475,38 +498,48 @@ def view_profile(request, user_id):
             messages.success(request, "Booking request sent!")
             return redirect('view_profile', user_id=profile_user.id)
 
-    # Handle booking response
     elif (
         request.method == 'POST'
         and 'respond_booking' in request.POST
         and booking
     ):
         action = request.POST.get('respond_booking')
+
+        recipient = (
+            booking.recipient
+            if booking.recipient != request.user
+            else booking.sender
+        )
+
         if action == 'amended':
             new_dates = request.POST.get('amended_dates')
             if new_dates:
                 booking.requested_dates = new_dates
-            send_mail(
-                subject='Booking request amended',
-                message=(
-                    f"{request.user.username} has suggested new dates "
-                    f"for your vacation exchange.\n\n"
-                    f"Suggested Dates: {new_dates}\n\n"
-                    "Log in to respond to the update."
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[
-                    booking.recipient.email
-                    if booking.recipient != request.user
-                    else booking.sender.email
-                ],
-                fail_silently=False,
-            )
+                send_mail(
+                    subject='Booking request amended',
+                    message=(
+                        f"{request.user.username} has suggested "
+                        "new dates for your vacation exchange.\n\n"
+                        f"Suggested Dates: {new_dates}\n\n"
+                        "Log in to respond to the update."
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[recipient.email],
+                    fail_silently=False,
+                )
+                Notification.objects.create(
+                    user=recipient,
+                    message=f"{request.user.username} suggested "
+                    "new vacation dates.",
+                    link=reverse('view_profile', args=[request.user.id])
+                )
+
         if action in ['accepted', 'amended', 'denied']:
             booking.status = action
             booking.responded_at = now()
             booking.last_action_by = request.user
             booking.save()
+
             if action in ['accepted', 'denied']:
                 send_mail(
                     subject=f"Booking request {action} on TravelSwap",
@@ -517,21 +550,24 @@ def view_profile(request, user_id):
                         "Log in to see details."
                     ),
                     from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[
-                        booking.recipient.email
-                        if booking.recipient != request.user
-                        else booking.sender.email],
+                    recipient_list=[recipient.email],
                     fail_silently=False,
                 )
+                Notification.objects.create(
+                    user=recipient,
+                    message=f"{request.user.username} {action} "
+                    "your vacation request.",
+                    link=reverse('view_profile', args=[request.user.id])
+                )
+
+            print("✅ Notification created for:", recipient.username)
+            print("🔔 Now unread for them:", Notification.objects.filter(
+                user=recipient, is_read=False).count())
+
             messages.success(request, f"Request {action}.")
             return redirect('view_profile', user_id=profile_user.id)
 
-    # Handle cancel
-    elif (
-        request.method == 'POST'
-        and 'cancel_booking' in request.POST
-        and booking
-    ):
+    elif 'cancel_booking' in request.POST and booking:
         booking.delete()
         messages.success(request, "Vacation exchange cancelled.")
         return redirect('view_profile', user_id=profile_user.id)
@@ -546,6 +582,10 @@ def view_profile(request, user_id):
         'available_start': available_start,
         'available_end': available_end,
     }
+    print("🔔 Unread notifications for this user:",
+          Notification.objects.filter(
+              user=request.user, is_read=False).count())
+
     return render(request, 'profiles/view_profile.html', context)
 
 

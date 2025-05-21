@@ -32,6 +32,7 @@ urlpatterns = [
     path('about/', TemplateView.as_view(template_name='about.html'),
          name='about'
          ),
+    path('notifications/', include('notifications.urls')),
     # Password reset URLs
     path(
         'password_reset/', auth_views.PasswordResetView.as_view(),
