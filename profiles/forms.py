@@ -34,6 +34,7 @@ class ProfileForm(forms.ModelForm):
             'bio',
             'location',
             'house_description',
+            'available_dates',
             'is_visible',
             'pets_allowed',
             'has_pool',
@@ -53,6 +54,12 @@ class ProfileForm(forms.ModelForm):
             'in_mountains': forms.CheckboxInput(),
             'in_city': forms.CheckboxInput(),
             'in_rural': forms.CheckboxInput(),
+            'available_dates': forms.TextInput(attrs={
+                    'class': 'form-control',
+                    'id': 'available-dates',
+                    'placeholder': 'Select an availability range',
+                    'autocomplete': 'off',
+                }),
         }
 
 

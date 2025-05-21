@@ -17,11 +17,13 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from django.views.decorators.http import require_POST
-from messaging.forms import MessageForm
-from messaging.models import Message
+from messaging.forms import MessageForm, BookingRequestForm
+from messaging.models import Message, BookingRequest
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils.timezone import now
+from datetime import datetime
 
 
 # Create your views here.
@@ -224,7 +226,7 @@ def home(request):
         from_user=request.user
     ).values_list('to_profile_id', flat=True)
 
-# Start with visible, unrated profiles not belonging to the user
+    # Start with visible, unrated profiles not belonging to the user
     profiles = Profile.objects.filter(
         ~Q(user=request.user),
         is_visible=True
@@ -236,6 +238,19 @@ def home(request):
         for field, value in form.cleaned_data.items():
             if value:
                 profiles = profiles.filter(**{field: True})
+
+    # Date range filtering (outside of the SearchForm)
+    date_range = request.GET.get("dates")
+    if date_range:
+        try:
+            start_date, end_date = date_range.split(" to ")
+            profiles = profiles.filter(
+                available_dates__icontains=start_date
+            ) | profiles.filter(
+                available_dates__icontains=end_date
+            )
+        except ValueError:
+            pass  # If the input isn't a valid date range string            
 
     # Get the first profile from the filtered list
     next_profile = profiles.first()
@@ -382,11 +397,78 @@ def view_profile(request, user_id):
         else:
             message_form = MessageForm()
 
+    profile = Profile.objects.get(user=profile_user)
+
+    # Check if there's any booking between these users
+    booking = BookingRequest.objects.filter(
+        Q(sender=request.user, recipient=profile_user) |
+        Q(sender=profile_user, recipient=request.user)
+    ).order_by('-created_at').first()
+
+    available_start = None
+    available_end = None
+
+    if profile.available_dates and 'to' in profile.available_dates:
+        try:
+            start_str, end_str = profile.available_dates.split(' to ')
+            available_start = datetime.strptime(
+                start_str.strip(), '%Y-%m-%d').date()
+            available_end = datetime.strptime(
+                end_str.strip(), '%Y-%m-%d').date()
+        except ValueError:
+            pass  # Malformed range, fallback to unrestricted
+
+        # Handle request creation
+    if request.method == 'POST' and 'request_booking' in request.POST:
+        booking_form = BookingRequestForm(request.POST)
+        if booking_form.is_valid():
+            booking = booking_form.save(commit=False)
+            booking.sender = request.user
+            booking.recipient = profile_user
+            booking.created_at = now()
+            booking.last_action_by = request.user
+            booking.save()
+            messages.success(request, "Booking request sent!")
+            return redirect('view_profile', user_id=profile_user.id)
+
+    # Handle booking response
+    elif (
+        request.method == 'POST'
+        and 'respond_booking' in request.POST
+        and booking
+    ):
+        action = request.POST.get('respond_booking')
+        if action == 'amended':
+            new_dates = request.POST.get('amended_dates')
+            if new_dates:
+                booking.requested_dates = new_dates
+        if action in ['accepted', 'amended', 'denied']:
+            booking.status = action
+            booking.responded_at = now()
+            booking.last_action_by = request.user
+            booking.save()
+            messages.success(request, f"Request {action}.")
+            return redirect('view_profile', user_id=profile_user.id)
+
+    # Handle cancel
+    elif (
+        request.method == 'POST'
+        and 'cancel_booking' in request.POST
+        and booking
+    ):
+        booking.delete()
+        messages.success(request, "Vacation exchange cancelled.")
+        return redirect('view_profile', user_id=profile_user.id)
+
     context = {
         'profile_user': profile_user,
+        'profile': profile,
         'is_match': is_match,
         'message_form': message_form,
         'messages': messages_between,
+        'booking': booking,
+        'available_start': available_start,
+        'available_end': available_end,
     }
     return render(request, 'profiles/view_profile.html', context)
 

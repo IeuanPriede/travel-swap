@@ -13,17 +13,175 @@
                 <img src="{{ image.image.url }}" class="img-fluid rounded shadow" alt="House image">
             </div>
         {% endfor %}
-        {% if is_match %}
-            <h4>Send a message to {{ profile_user.username }}</h4>
-            <form method="POST">
+    </div>
+
+    {% if is_match and profile.available_dates %}
+    <div class="card my-4">
+        <div class="card-header">
+            Availability
+        </div>
+        <div class="card-body">
+            <p>{{ profile.available_dates }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if is_match %}
+        {% if not booking %}
+        <!-- Initial vacation request form -->
+        <div class="card my-4 border-success">
+            <div class="card-header bg-success text-white">
+                Request a Vacation Exchange
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ booking_form.non_field_errors }}
+                    <div class="mb-3">
+                        {{ booking_form.requested_dates.label_tag }}
+                        <input type="text"
+                            name="requested_dates"
+                            id="requested-dates"
+                            class="form-control"
+                            placeholder="Select exchange dates"
+                            value="{{ booking_form.requested_dates.value|default_if_none:'' }}">
+                    </div>
+                    <button type="submit" name="request_booking" class="btn btn-outline-success">Send Request</button>
+                </form>
+            </div>
+        </div>
+
+        {% elif booking.status == 'pending' and booking.recipient == request.user %}
+            <!-- Recipient sees this (they need to respond) -->
+            <div class="card my-4">
+            <div class="card-header">Vacation Request Received</div>
+            <div class="card-body">
+                <p><strong>{{ booking.sender.username }}</strong> has requested a vacation on:</p>
+                <p>{{ booking.requested_dates }}</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="amended-dates">Suggest New Dates (optional)</label>
+                        <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% elif booking.status == 'pending' and booking.sender == request.user %}
+        <!-- Sender sees this while waiting -->
+        <div class="alert alert-info mt-4">
+            You requested a vacation on: <strong>{{ booking.requested_dates }}</strong>. Waiting for response.
+            <form method="POST" class="d-inline float-end">
                 {% csrf_token %}
-                {{ message_form.as_p }}
-                <button type="submit" class="btn btn-primary">Send</button>
+                <button type="submit" name="cancel_booking" class="btn btn-outline-danger btn-sm">Cancel Request</button>
             </form>
+        </div>
+
+        {% elif booking.status == 'amended' %}
+            {% if booking.last_action_by == request.user %}
+                <!-- You were the last to amend -->
+                <div class="alert alert-info mt-4 d-flex justify-content-between align-items-center">
+                    <span>Your amended request has been sent. Please wait for a reply.</span>
+                    <form method="POST" class="ms-3">
+                        {% csrf_token %}
+                        <button type="submit" name="cancel_booking" class="btn btn-outline-danger btn-sm">Cancel Request</button>
+                    </form>
+                </div>
+            {% else %}
+                <!-- You are the recipient, show form to respond -->
+                <div class="card my-4 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        Your request was amended
+                    </div>
+                    <div class="card-body">
+                        <p>{{ profile_user.username }} suggested new dates:</p>
+                        <p><strong>{{ booking.requested_dates }}</strong></p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
+                                <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
+                                <small class="form-text text-muted">Use this only if you want to suggest new dates again.</small>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                                <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                                <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+
+        {% elif booking.status == 'accepted' %}
+            <!-- Confirmed booking -->
+            <div class="alert alert-success mt-4">
+            Vacation exchange confirmed for: <strong>{{ booking.requested_dates }}</strong>.
+            <form method="POST" class="d-inline float-end">
+                {% csrf_token %}
+                <button type="submit" name="cancel_booking" class="btn btn-outline-danger btn-sm">Cancel Vacation</button>
+            </form>
+            </div>
+
+        {% elif booking.status == 'denied' %}
+            {% if booking.sender == request.user %}
+                <!-- Sender sees denied message -->
+                <div class="alert alert-warning mt-4">
+                    Your vacation request for <strong>{{ booking.requested_dates }}</strong> was denied.
+                </div>
+            {% else %}
+                <!-- Recipient sees confirmation that they denied -->
+                <div class="alert alert-info mt-4">
+                    You denied the vacation request from <strong>{{ booking.sender.username }}</strong>.
+                </div>
+            {% endif %}
+
+            <!-- Reset to new request form for either side -->
+            <div class="card my-4 border-success">
+                <div class="card-header bg-success text-white">
+                    Request a Vacation Exchange
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ booking_form.non_field_errors }}
+                        <div class="mb-3">
+                            {{ booking_form.requested_dates.label_tag }}
+                            <input type="text"
+                                name="requested_dates"
+                                id="requested-dates"
+                                class="form-control"
+                                placeholder="Select exchange dates"
+                                value="{{ booking_form.requested_dates.value|default_if_none:'' }}">
+                        </div>
+                        <button type="submit" name="request_booking" class="btn btn-outline-success">Send Request</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+
+
+    <div>
+        {% if is_match %}
+        <h4>Send a message to {{ profile_user.username }}</h4>
+        <form method="POST">
+            {% csrf_token %}
+            {{ message_form.as_p }}
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
         {% else %}
             <p>You must be matched with this user to send a message.</p>
         {% endif %}
     </div>
+
     <div class="card mt-4">
         <div class="card-header">
             Message History
@@ -41,4 +199,40 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Try by ID first
+    let dateField = document.querySelector('#requested-dates');
+    
+    // Fallback: use name if ID didn't match
+    if (!dateField) {
+        dateField = document.querySelector('input[name="requested_dates"]');
+    }
+
+    if (dateField) {
+        flatpickr(dateField, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            minDate: "{{ available_start|date:'Y-m-d' }}",
+            maxDate: "{{ available_end|date:'Y-m-d' }}"
+        });
+    } else {
+        console.warn("Flatpickr could not find requested_dates input.");
+    }
+
+    // AMENDED DATES PICKER
+    const amendedField = document.querySelector('#amended-dates');
+    if (amendedField) {
+        flatpickr(amendedField, {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            minDate: "{{ available_start|date:'Y-m-d' }}",
+            maxDate: "{{ available_end|date:'Y-m-d' }}"
+        });
+    }
+});
+</script>
 {% endblock %}

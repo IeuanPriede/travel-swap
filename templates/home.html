@@ -23,8 +23,9 @@
             <!-- Dates Filter -->
             <div class="mb-2">
               <label for="dates" class="form-label">Dates</label>
-              <input type="text" class="form-control" id="dates" name="dates">
+              <input type="text" class="form-control" id="dates" name="dates" placeholder="Select date range" autocomplete="off">
             </div>
+
 
             <!-- House Criteria Checkboxes -->
             <hr>
@@ -66,4 +67,12 @@
 {% endblock %}
 {% block extra_js %}
   <script src="{% static 'js/script.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+  flatpickr("#dates", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    minDate: "today"
+  });
+  </script>
 {% endblock %}
