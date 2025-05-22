@@ -16,6 +16,18 @@
     {% endif %}
     <h2>Your Profile</h2>
     <p>Username: {{ profile.user.username }}</p>
+    {% if average_rating %}
+    <p><strong>Average Rating:</strong>
+        {{ average_rating }} 
+        {% for i in "12345" %}
+        {% if average_rating|floatformat:1 >= i|add:"0" %}
+            <i class="fas fa-star text-warning"></i>
+        {% else %}
+            <i class="far fa-star text-muted"></i>
+        {% endif %}
+        {% endfor %}
+    </p>
+    {% endif %}
     <p>Email: {{ profile.user.email }}</p>
     <p>Bio: {{ profile.bio }}</p>
     <p>Location: {{ profile.location }}</p>
@@ -43,6 +55,25 @@
             <p>No images uploaded yet.</p>
         {% endfor %}
     </div>
+
+    <h4 class="mt-4">Reviews About You</h4>
+
+    {% for review in reviews %}
+    <div class="card my-2 p-2">
+        <strong>{{ review.reviewer.username }}</strong> rated:
+        {% for i in "12345" %}
+        {% if review.rating|add:"0" >= i|add:"0" %}
+            <i class="fas fa-star text-warning"></i>
+        {% else %}
+            <i class="far fa-star text-muted"></i>
+        {% endif %}
+        {% endfor %}
+        <p>{{ review.comment }}</p>
+        <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+    </div>
+    {% empty %}
+    <p>You haven't received any reviews yet.</p>
+    {% endfor %}
   
   <!-- Edit profile button -->
   <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>

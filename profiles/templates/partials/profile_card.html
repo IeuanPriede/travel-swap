@@ -1,6 +1,8 @@
 {% load static %}
 <div class="row">
     <p class="text-muted">Debug: profile = {{ profile }}</p>
+    <p><em>Debug: Showing profile for user ID {{ profile.user.id }}</em></p>
+    <p><em>Debug: Found {{ reviews|length }} reviews</em></p>
   <!-- Center Column: Carousel -->
   <div class="col-md-6 mb-4">
     <div class="card p-3 shadow-sm">
@@ -37,6 +39,39 @@
         <h5>{{ profile.first_name }} {{ profile.last_name }}</h5>
         <p><strong>Location:</strong> {{ profile.location }}</p>
         <p>{{ profile.house_description }}</p>
+        {% if average_rating %}
+          <p><strong>Average Rating:</strong>
+            {{ average_rating }}
+            {% for i in "12345" %}
+              {% if average_rating|floatformat:1 >= i|add:"0" %}
+                <i class="fas fa-star text-warning"></i>
+              {% else %}
+                <i class="far fa-star text-muted"></i>
+              {% endif %}
+            {% endfor %}
+          </p>
+        {% endif %}
+
+        {% if reviews %}
+          <h5>Recent Reviews</h5>
+          {% for review in reviews|slice:":3" %}
+            <div class="border rounded p-2 mb-2">
+              <strong>{{ review.reviewer.username }}</strong>:
+              {% for i in "12345" %}
+                {% if review.rating|add:"0" >= i|add:"0" %}
+                  <i class="fas fa-star text-warning"></i>
+                {% else %}
+                  <i class="far fa-star text-muted"></i>
+                {% endif %}
+              {% endfor %}
+              <p>{{ review.comment }}</p>
+              <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted">No reviews yet.</p>
+        {% endif %}
+
 
         <div class="d-flex justify-content-between mt-3" id="match-actions">
           <button class="btn btn-outline-secondary" onclick="handleMatch('{{ profile.id }}', null)">Next</button>

@@ -15,7 +15,7 @@ from cloudinary.uploader import destroy
 from django.template.loader import render_to_string
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.views.decorators.http import require_POST
 from messaging.forms import MessageForm, BookingRequestForm
 from messaging.models import Message, BookingRequest
@@ -27,6 +27,8 @@ from datetime import datetime
 import logging
 from django.urls import reverse
 from notifications.models import Notification
+from reviews.forms import ReviewForm
+from reviews.models import Review
 
 
 # Create your views here.
@@ -36,10 +38,14 @@ def profile_view(request):
     # Get or create a Profile instance tied to the logged-in user
     profile, created = Profile.objects.get_or_create(user=request.user)
     house_images = profile.house_images.all()
+    reviews = Review.objects.filter(reviewee=request.user)
+    average_rating = reviews.aggregate(avg=Avg('rating'))['avg']
     # Pass profile object to the template
     return render(request, 'profiles/profile.html', {
         'profile': profile,
-        'house_images': house_images
+        'house_images': house_images,
+        'reviews': reviews,
+        'average_rating': round(average_rating, 1) if average_rating else None,
         })
 
 
@@ -256,18 +262,33 @@ def home(request):
         except ValueError:
             pass  # If the input isn't a valid date range string
 
-    # Get the first profile from the filtered list
+        # Get the first profile from the filtered list
     next_profile = profiles.first()
+
+    reviews = []
+    average_rating = None
+
+    if next_profile:
+        reviews = Review.objects.filter(reviewee=next_profile.user)
+        average_rating_val = reviews.aggregate(avg=Avg('rating'))['avg']
+        average_rating = (
+            round(average_rating_val, 1) 
+            if average_rating_val else None
+        )
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         html = render_to_string('partials/profile_card.html', {
-            'profile': next_profile
+            'profile': next_profile,
+            'reviews': reviews,
+            'average_rating': average_rating,
         }, request=request)
         return JsonResponse({'next_profile_html': html})
 
     return render(request, 'home.html', {
         'profile': next_profile,
-        'form': form  # pass form to template
+        'form': form,  # pass form to template
+        'reviews': reviews,
+        'average_rating': average_rating,
     })
 
 
@@ -409,7 +430,15 @@ def travel_log(request):
 @login_required
 def view_profile(request, user_id):
     profile_user = get_object_or_404(User, id=user_id)
+    profile = Profile.objects.get(user=profile_user)
     is_match = check_if_matched(request.user, profile_user)
+    user_is_viewing_own = request.user == profile_user
+    can_review = is_match and not user_is_viewing_own
+
+    # Handle Review logic
+    existing_review = Review.objects.filter(
+        reviewer=request.user, reviewee=profile_user).first()
+    review_form = ReviewForm(instance=existing_review) if can_review else None
 
     message_form = None
     messages_between = None
@@ -572,6 +601,16 @@ def view_profile(request, user_id):
         messages.success(request, "Vacation exchange cancelled.")
         return redirect('view_profile', user_id=profile_user.id)
 
+    elif 'submit_review' in request.POST and can_review:
+        review_form = ReviewForm(request.POST, instance=existing_review)
+        if review_form.is_valid():
+            review = review_form.save(commit=False)
+            review.reviewer = request.user
+            review.reviewee = profile_user
+            review.save()
+            messages.success(request, "Your review has been submitted.")
+            return redirect('view_profile', user_id=profile_user.id)
+
     context = {
         'profile_user': profile_user,
         'profile': profile,
@@ -581,6 +620,10 @@ def view_profile(request, user_id):
         'booking': booking,
         'available_start': available_start,
         'available_end': available_end,
+        'can_review': can_review,
+        'review_form': review_form,
+        'existing_review': existing_review,
+        'reviews': Review.objects.filter(reviewee=profile_user),
     }
     print("🔔 Unread notifications for this user:",
           Notification.objects.filter(
@@ -599,6 +642,19 @@ def check_if_matched(user1, user2):
         to_profile__user=user1,
         liked=True
     ).exists()
+
+
+def user_is_matched(user1, user2):
+    try:
+        profile2 = user2.profile
+        profile1 = user1.profile
+        liked_by_user1 = MatchResponse.objects.filter(
+            from_user=user1, to_profile=profile2, liked=True).exists()
+        liked_by_user2 = MatchResponse.objects.filter(
+            from_user=user2, to_profile=profile1, liked=True).exists()
+        return liked_by_user1 and liked_by_user2
+    except Profile.DoesNotExist:
+        return False
 
 
 def custom_logout(request):

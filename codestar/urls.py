@@ -32,6 +32,7 @@ urlpatterns = [
     path('about/', TemplateView.as_view(template_name='about.html'),
          name='about'
          ),
+    path('reviews/', include('reviews.urls')),
     path('notifications/', include('notifications.urls')),
     # Password reset URLs
     path(
