@@ -7,6 +7,7 @@ from .forms import (
     UserForm,
     ImageFormSet,
     SearchForm,
+    ContactForm,
 )
 from django.contrib.auth import login, logout
 from django.contrib import messages
@@ -655,6 +656,24 @@ def user_is_matched(user1, user2):
         return liked_by_user1 and liked_by_user2
     except Profile.DoesNotExist:
         return False
+
+
+def about(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            send_mail(
+                cd['subject'],
+                cd['message'],
+                cd['email'],
+                [settings.DEFAULT_FROM_EMAIL],  # or a dedicated admin email
+            )
+            messages.success(request, "Your message has been sent!")
+            return redirect('about')  # redirects back to about page
+    else:
+        form = ContactForm()
+    return render(request, 'about.html', {'form': form})
 
 
 def custom_logout(request):

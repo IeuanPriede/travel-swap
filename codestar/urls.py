@@ -18,7 +18,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
 from profiles import views as profile_views
 
@@ -29,9 +28,7 @@ urlpatterns = [
     path('', profile_views.home, name='home'),
     path('like/', profile_views.like_profile, name='like_profile'),
     path('next/', profile_views.next_profile, name='next_profile'),
-    path('about/', TemplateView.as_view(template_name='about.html'),
-         name='about'
-         ),
+    path('about/', profile_views.about, name='about'),
     path('reviews/', include('reviews.urls')),
     path('notifications/', include('notifications.urls')),
     # Password reset URLs
