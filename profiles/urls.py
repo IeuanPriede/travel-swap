@@ -20,5 +20,6 @@ urlpatterns = [
         views.set_main_image, name='set_main_image'
         ),
     path('travel-log/', views.travel_log, name='travel_log'),
-    path('profile/', views.profile_view, name='profile_view')
+    path('profile/<int:user_id>/', views.view_profile, name='view_profile'),
+    path('profile/', views.profile_view, name='profile_view'),
 ]

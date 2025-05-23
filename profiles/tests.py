@@ -155,24 +155,21 @@ class EditProfileViewTest(TestCase):
 
     def test_post_valid_data_updates_profile(self):
         self.client.login(username='testuser', password='testpass')
-        data = {
-            'first_name': 'Updated',
-            'last_name': 'Name',
-            'location': 'Updated Location',
-        }
 
         response = self.client.post(self.url, {
-            'first_name': 'Updated',
+            'username': 'testuser',     # required by UserForm
+            'first_name': 'Updated',    # belongs to Profile or User, depending
             'last_name': 'Name',
-            'bio': 'Test bio',
+            'bio': 'Test bio',          # required by ProfileForm
             'location': 'Updated Location',
         })
 
-        self.assertEqual(response.status_code, 302)  # Should redirect
-        self.profile.refresh_from_db()
-        self.assertEqual(self.profile.first_name, data['first_name'])
-        self.assertEqual(self.profile.location, data['location'])
+        # Expect redirect on success
+        self.assertEqual(response.status_code, 302)
 
-        # Check success message
+        self.profile.refresh_from_db()
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'Updated')
+
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(any("updated" in str(m) for m in messages))

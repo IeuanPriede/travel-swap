@@ -426,7 +426,7 @@ def travel_log(request):
     ).select_related('to_profile', 'to_profile__user')
 
     return render(request, 'travel_log.html', {
-        'liked_profiles': liked_profiles
+        'liked_profiles': liked_profiles,
     })
 
 

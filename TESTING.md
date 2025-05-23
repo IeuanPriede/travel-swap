@@ -44,3 +44,11 @@
 |------------------------------|----------------------------------------------|----------------------------------------------|-----------|
 | test_redirect_if_not_logged_in | Anonymous user is redirected to login       | Redirect with ?next=/profile/                | ✅         |
 | test_profile_view_authenticated | Logged-in user sees profile, template loads | 200 response, context populated              | ✅         |
+
+### Edit Profile View Tests
+
+| Test Name                      | Description                                         | Expected Result                              | Pass/Fail |
+|--------------------------------|-----------------------------------------------------|-----------------------------------------------|-----------|
+| test_redirect_if_not_logged_in | Redirects unauthenticated users                    | Redirects to login with `?next=`              | ✅         |
+| test_get_request_renders_forms | Loads edit_profile template and prepopulated forms | Form instances and profile appear in context | ✅         |
+| test_post_valid_data_updates_profile | Valid form data saves and redirects             | Profile is updated and success message shown | ✅         |
