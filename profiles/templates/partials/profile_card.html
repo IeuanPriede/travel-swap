@@ -71,11 +71,14 @@
         {% else %}
           <p class="text-muted">No reviews yet.</p>
         {% endif %}
-
-
         <div class="d-flex justify-content-between mt-3" id="match-actions">
           <button class="btn btn-outline-secondary" onclick="handleMatch('{{ profile.id }}', null)">Next</button>
-          <button class="btn btn-outline-success" onclick="handleMatch('{{ profile.id }}', true)">👍</button>
+
+          {% if user.is_authenticated %}
+            <button class="btn btn-outline-success" onclick="handleMatch('{{ profile.id }}', true)">👍</button>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline-success">👍</a>
+          {% endif %}
         </div>
       {% else %}
         <div class="alert alert-info">

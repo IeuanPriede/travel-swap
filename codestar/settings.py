@@ -120,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Redirect user to home page after logout
 LOGOUT_REDIRECT_URL = '/'
 # Redirect user to profile page after login
-LOGIN_REDIRECT_URL = '/profiles/'
+LOGIN_REDIRECT_URL = '/'
 # Email configuration (for development)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'TravelSwap <noreply@travelswap.com>'

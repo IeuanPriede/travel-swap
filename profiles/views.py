@@ -229,21 +229,21 @@ def delete_image(request, image_id):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-@login_required
 def home(request):
+    profiles = Profile.objects.filter(is_visible=True)
+    form = SearchForm(request.GET or None)
 
     # Get the IDs of profiles the user already responded to
-    responded_ids = MatchResponse.objects.filter(
-        from_user=request.user
-    ).values_list('to_profile_id', flat=True)
+    if request.user.is_authenticated:
+        # Logged-in users: exclude their own and previously responded profiles
+        responded_ids = MatchResponse.objects.filter(
+            from_user=request.user
+        ).values_list('to_profile_id', flat=True)
 
-    # Start with visible, unrated profiles not belonging to the user
-    profiles = Profile.objects.filter(
-        ~Q(user=request.user),
-        is_visible=True
-    ).exclude(id__in=responded_ids)
-
-    form = SearchForm(request.GET or None)
+        profiles = Profile.objects.filter(
+            ~Q(user=request.user),
+            is_visible=True
+        ).exclude(id__in=responded_ids)
 
     if form.is_valid():
         for field, value in form.cleaned_data.items():
@@ -263,9 +263,12 @@ def home(request):
         except ValueError:
             pass  # If the input isn't a valid date range string
 
-        # Get the first profile from the filtered list
-    next_profile = profiles.first()
+    else:
+        # Guest users: show only visible profiles (basic demo mode)
+        profiles = Profile.objects.filter(is_visible=True)
 
+    # Get the first profile from the filtered list
+    next_profile = profiles.first()
     reviews = []
     average_rating = None
 

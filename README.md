@@ -18,6 +18,31 @@ TravelSwap is a Django-based holiday house exchange platform that allows users t
 
 ## User Stories
 
+### Visitor
+
+#### Visitors (Non-Registered)
+
+As a non-registered visitor, I can view the Home and About pages,
+so that I can understand what the platform offers before signing up.
+
+- If as a non-registered visitor, I try to access the travel log page, I will be prompted to login/register.
+
+- If as a non-registered visitor, I try to like a profile, I will be prompted to login/register.
+
+#### User Registration & Authentication
+
+As a visitor, I can register/log in/out, so that I can access features securely.
+
+- Visitor can register with email and password.
+
+- Login and logout buttons work correctly.
+
+- Password reset functionality exists.
+
+### Registered User
+
+### Admin
+
 ## Features
 
 - Tinder-style profile swipe interface
@@ -45,8 +70,8 @@ TravelSwap is a Django-based holiday house exchange platform that allows users t
 
 To run locally:
 
-git clone https://github.com/yourusername/travelswap.git
-cd travelswap
+git clone https://github.com/IeuanPriede/travel-swap.git
+cd travel-swap
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
