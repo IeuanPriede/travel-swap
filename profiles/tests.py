@@ -1,3 +1,178 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
+from .models import Profile, ImageValidator, HouseImage, MatchResponse
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+from profiles.forms import UserForm, ProfileForm
+from django.contrib.messages import get_messages
 
-# Create your tests here.
+
+class ProfileModelTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='pass')
+        self.profile = Profile.objects.create(
+            user=self.user, location='Italy', is_visible=True)
+
+    def test_profile_creation(self):
+        self.assertEqual(self.profile.location, 'Italy')
+        self.assertTrue(self.profile.is_visible)
+        self.assertEqual(str(self.profile), f'{self.user.username} - Italy')
+
+
+class ImageValidatorTest(TestCase):
+    def setUp(self):
+        self.validator = ImageValidator(max_size_mb=2)
+
+    def test_valid_image(self):
+        image = SimpleUploadedFile(
+            "test.jpg", b"0" * 1024, content_type="image/jpeg")
+        try:
+            self.validator(image)
+        except ValidationError:
+            self.fail("ValidationError raised unexpectedly for a valid image.")
+
+    def test_invalid_type(self):
+        image = SimpleUploadedFile(
+            "test.gif", b"0" * 1024, content_type="image/gif")
+        with self.assertRaises(ValidationError) as cm:
+            self.validator(image)
+        self.assertIn("Only JPEG and PNG", str(cm.exception))
+
+    def test_too_large_image(self):
+        image = SimpleUploadedFile(
+            "test.jpg", b"0" * 3 * 1024 * 1024, content_type="image/jpeg")
+        with self.assertRaises(ValidationError) as cm:
+            self.validator(image)
+        self.assertIn("Maximum file size is", str(cm.exception))
+
+
+class HouseImageModelTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='pass123')
+        self.profile = Profile.objects.create(user=self.user)
+
+    def test_house_image_creation(self):
+        image = SimpleUploadedFile(
+            "house.jpg", b"0" * 1024, content_type="image/jpeg")
+        house_image = HouseImage.objects.create(
+            profile=self.profile, image=image, is_main=True)
+
+        self.assertEqual(house_image.profile, self.profile)
+        self.assertTrue(house_image.is_main)
+        self.assertEqual(str(house_image), "Image for testuser")
+
+
+class MatchResponseModelTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user(
+            username='user1', password='testpass')
+        self.user2 = User.objects.create_user(
+            username='user2', password='testpass')
+        self.profile2 = Profile.objects.create(user=self.user2)
+
+    def test_create_match_response(self):
+        response = MatchResponse.objects.create(
+            from_user=self.user1,
+            to_profile=self.profile2,
+            liked=True
+        )
+        self.assertEqual(response.from_user, self.user1)
+        self.assertEqual(response.to_profile, self.profile2)
+        self.assertTrue(response.liked)
+
+    def test_str_method(self):
+        response = MatchResponse.objects.create(
+            from_user=self.user1,
+            to_profile=self.profile2,
+            liked=False
+        )
+        self.assertEqual(str(response), "user1 disliked user2")
+
+    def test_unique_together_constraint(self):
+        MatchResponse.objects.create(
+            from_user=self.user1,
+            to_profile=self.profile2,
+            liked=True
+        )
+        with self.assertRaises(Exception):  # Could be IntegrityError
+            # or other depending on DB
+            MatchResponse.objects.create(
+                from_user=self.user1,
+                to_profile=self.profile2,
+                liked=False
+            )
+
+
+class ProfileViewTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass')
+        self.profile = Profile.objects.create(user=self.user, location="Spain")
+        self.url = reverse('profile_view')
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f"/accounts/login/?next={self.url}")
+
+    def test_profile_view_authenticated(self):
+        self.client.login(username='testuser', password='testpass')
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profiles/profile.html')
+        self.assertIn('profile', response.context)
+        self.assertEqual(response.context['profile'], self.profile)
+        self.assertIn('house_images', response.context)
+        self.assertIn('reviews', response.context)
+        self.assertIn('average_rating', response.context)
+
+
+class EditProfileViewTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass')
+        self.profile = Profile.objects.create(user=self.user, location="Spain")
+        self.url = reverse('edit_profile')  # Match your URL name exactly
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get(self.url)
+        self.assertRedirects(response, f"/accounts/login/?next={self.url}")
+
+    def test_get_request_renders_forms(self):
+        self.client.login(username='testuser', password='testpass')
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profiles/edit_profile.html')
+        self.assertIsInstance(response.context['user_form'], UserForm)
+        self.assertIsInstance(response.context['profile_form'], ProfileForm)
+        self.assertEqual(response.context['profile'], self.profile)
+
+    def test_post_valid_data_updates_profile(self):
+        self.client.login(username='testuser', password='testpass')
+        data = {
+            'first_name': 'Updated',
+            'last_name': 'Name',
+            'location': 'Updated Location',
+        }
+
+        response = self.client.post(self.url, {
+            'first_name': 'Updated',
+            'last_name': 'Name',
+            'bio': 'Test bio',
+            'location': 'Updated Location',
+        })
+
+        self.assertEqual(response.status_code, 302)  # Should redirect
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.first_name, data['first_name'])
+        self.assertEqual(self.profile.location, data['location'])
+
+        # Check success message
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(any("updated" in str(m) for m in messages))

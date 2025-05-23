@@ -32,7 +32,6 @@ from reviews.forms import ReviewForm
 from reviews.models import Review
 
 
-# Create your views here.
 # View to display the logged-in user's profile
 @login_required
 def profile_view(request):
