@@ -4,7 +4,8 @@ from .models import Profile, ImageValidator, HouseImage, MatchResponse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from profiles.forms import UserForm, ProfileForm
+from profiles.forms import UserForm, ProfileForm, ImageForm
+from django.forms import modelformset_factory
 from django.contrib.messages import get_messages
 
 
@@ -173,3 +174,129 @@ class EditProfileViewTest(TestCase):
 
         messages = list(get_messages(response.wsgi_request))
         self.assertTrue(any("updated" in str(m) for m in messages))
+
+
+class SetMainImageViewTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass')
+        self.profile = Profile.objects.create(user=self.user)
+
+        dummy_file = SimpleUploadedFile(
+            "test.jpg", b"file_content", content_type="image/jpeg")
+
+        self.image1 = HouseImage.objects.create(
+            profile=self.profile, image=dummy_file, is_main=False
+        )
+        self.image2 = HouseImage.objects.create(
+            profile=self.profile, image=dummy_file, is_main=True
+        )
+
+        self.url = reverse('set_main_image', args=[self.image1.id])
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.post(self.url)
+        self.assertRedirects(response, f"/accounts/login/?next={self.url}")
+
+    def test_set_main_image(self):
+        self.client.login(username='testuser', password='testpass')
+        response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, 302)  # Redirect to edit_profile
+        self.assertRedirects(response, reverse('edit_profile'))
+
+        self.image1.refresh_from_db()
+        self.image2.refresh_from_db()
+
+        self.assertTrue(self.image1.is_main)
+        self.assertFalse(self.image2.is_main)
+
+
+class UploadImagesViewTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass')
+        self.profile = Profile.objects.create(user=self.user)
+        self.url = reverse('upload_images')
+        self.ImageFormSet = modelformset_factory(
+            HouseImage, form=ImageForm, extra=0)
+
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.post(self.url)
+        self.assertRedirects(response, f"/accounts/login/?next={self.url}")
+
+    def test_upload_single_image_auto_sets_main(self):
+        self.client.login(username='testuser', password='testpass')
+
+        image_file = SimpleUploadedFile(
+            "test.jpg", b"file_content", content_type="image/jpeg"
+        )
+
+        data = {
+            'form-TOTAL_FORMS': '1',
+            'form-INITIAL_FORMS': '0',
+            'form-0-id': '',
+            'form-0-image': '',
+        }
+
+        files = {
+            'form-0-image': image_file,
+        }
+
+        response = self.client.post(
+            self.url, data=data, files=files, follow=True)
+
+        # Debug formset validation errors if test fails
+        if response.context and 'formset' in response.context:
+            for i, form in enumerate(response.context['formset'].forms):
+                print(f"Form {i} errors:", form.errors)
+            print(
+                "Non-form errors:", response.context[
+                    'formset'].non_form_errors())
+
+        self.assertRedirects(response, reverse('edit_profile'))
+
+        images = HouseImage.objects.filter(profile=self.profile)
+        self.assertEqual(images.count(), 1)
+        self.assertTrue(images.first().is_main)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(
+            any("updated successfully" in str(m) for m in messages))
+
+    def test_upload_sets_manual_main_image(self):
+        self.client.login(username='testuser', password='testpass')
+
+        image1 = HouseImage.objects.create(
+            profile=self.profile,
+            image=SimpleUploadedFile("a.jpg", b"a", content_type="image/jpeg"),
+            is_main=False
+        )
+        image2 = HouseImage.objects.create(
+            profile=self.profile,
+            image=SimpleUploadedFile("b.jpg", b"b", content_type="image/jpeg"),
+            is_main=False
+        )
+
+        form_data = {
+            'form-TOTAL_FORMS': '2',
+            'form-INITIAL_FORMS': '2',
+            'form-0-id': image1.id,
+            'form-1-id': image2.id,
+            'main_image': str(image2.id),
+        }
+
+        response = self.client.post(self.url, data=form_data, follow=True)
+
+        image1.refresh_from_db()
+        image2.refresh_from_db()
+
+        self.assertFalse(image1.is_main)
+        self.assertTrue(image2.is_main)
+
+        self.assertRedirects(response, reverse('edit_profile'))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(
+            any("updated successfully" in str(m) for m in messages))

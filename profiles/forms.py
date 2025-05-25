@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from .models import Profile, HouseImage
+from django.core.exceptions import ValidationError
+import imghdr
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -74,15 +76,33 @@ class SearchForm(forms.Form):
 
 
 class ImageForm(forms.ModelForm):
+    image = forms.ImageField(
+        required=False,  # <- ✅ This is the key
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/jpeg,image/png'
+        })
+    )
+
     class Meta:
         model = HouseImage
         fields = ['image']
-        widgets = {
-            'image': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'image/jpeg,image/png'
-                })
-        }
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+
+        if not image:
+            return None  # ⬅️ Allow empty image fields
+
+        # Validate only if file is uploaded
+        if image.size > 2 * 1024 * 1024:
+            raise ValidationError('Image size must be under 2MB.')
+
+        file_type = imghdr.what(image)
+        if file_type not in ['jpeg', 'png']:
+            raise ValidationError('Only JPEG and PNG images are allowed.')
+
+        return image
 
 
 ImageFormSet = modelformset_factory(

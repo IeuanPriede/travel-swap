@@ -1,4 +1,5 @@
 function handleMatch(profileId, liked) {
+  console.log("Clicked Next for profile ID:", profileId);
   const url = liked === true ? '/like/' : '/next/';
 
   fetch(url, {
@@ -9,12 +10,23 @@ function handleMatch(profileId, liked) {
     },
     body: JSON.stringify({ profile_id: profileId })
   })
-  .then(response => response.json())
+  .then(response => {
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Expected JSON, but got something else");
+    }
+    return response.json();
+  })
   .then(data => {
     if (data.match) {
+      console.log("Server returned:", data);
       alert("🎉 It's a match with " + data.match_with + "!");
     }
     document.getElementById('profile-section').innerHTML = data.next_profile_html;
+  })
+  .catch(error => {
+    console.error("Failed to load next profile:", error);
+    alert("Oops! Something went wrong. Please try again.");
   });
 }
 

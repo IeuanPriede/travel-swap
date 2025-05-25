@@ -135,32 +135,27 @@ def set_main_image(request, image_id):
 @login_required
 def upload_images(request):
     profile = get_object_or_404(Profile, user=request.user)
-    existing_images = HouseImage.objects.filter(profile=profile)
 
     if request.method == 'POST':
-        formset = ImageFormSet(request.POST, request.FILES,
-                               queryset=existing_images)
+        formset = ImageFormSet(
+            request.POST, request.FILES, queryset=HouseImage.objects.none())
 
-        # Mark empty forms as permitted
-        for form in formset.forms:
-            if not form.has_changed():
-                form.empty_permitted = True
-
-        for form in formset.forms:
+        for form in formset:
+            print("Form cleaned data:", getattr(form, 'cleaned_data', {}))
+            print("Form errors:", form.errors)
             if not form.has_changed():
                 form.empty_permitted = True
 
         if formset.is_valid():
-            instances = formset.save(commit=False)
-            if formset.is_valid():
-                instances = formset.save(commit=False)
             new_images = []
 
-            for instance in instances:
-                instance.profile = profile
-                new_images.append(instance)
+            # Only process extra forms (for new uploads)
+            for form in formset.extra_forms:
+                if form.cleaned_data.get('image'):
+                    instance = form.save(commit=False)
+                    instance.profile = profile
+                    new_images.append(instance)
 
-            # Save new images and auto-set first as main if none exists
             for i, image in enumerate(new_images):
                 if (
                     not profile.house_images.filter(is_main=True).exists()
@@ -169,7 +164,7 @@ def upload_images(request):
                     image.is_main = True
                 image.save()
 
-            # Handle manual main image selection (if applicable)
+            # Allow selection of main image from existing ones
             selected_main_id = request.POST.get('main_image')
             if selected_main_id:
                 for image in profile.house_images.all():
@@ -180,7 +175,7 @@ def upload_images(request):
         else:
             messages.error(request, "There was a problem updating images.")
 
-    return redirect('edit_profile')
+        return redirect('edit_profile')
 
 
 @login_required
@@ -296,28 +291,34 @@ def home(request):
 
 
 @csrf_exempt
-@login_required
 def next_profile(request):
     if request.method == 'POST':
-        # Just skip saving anything, move to next profile
         data = json.loads(request.body)
         profile_id = data.get('profile_id')
         profile = get_object_or_404(Profile, id=profile_id)
 
-        # Simulate skipping by marking it "viewed" (optional enhancement)
-        request.session.setdefault('skipped_profiles', []).append(profile.id)
-
-        responded_ids = MatchResponse.objects.filter(
-            from_user=request.user).values_list('to_profile_id', flat=True)
         skipped_ids = request.session.get('skipped_profiles', [])
+        responded_ids = []
+
+        skipped_ids.append(profile.id)
+        request.session['skipped_profiles'] = skipped_ids
+
+        if request.user.is_authenticated:
+            responded_ids = MatchResponse.objects.filter(
+                from_user=request.user
+            ).values_list('to_profile_id', flat=True)
 
         next_profile = Profile.objects.filter(
-            ~Q(user=request.user),
             is_visible=True
         ).exclude(id__in=responded_ids).exclude(id__in=skipped_ids).first()
 
-        html = render_to_string('partials/profile_card.html', {
-            'profile': next_profile}, request=request)
+        if next_profile:
+            html = render_to_string('partials/profile_card.html', {
+                'profile': next_profile
+            }, request=request)
+        else:
+            html = "<p class='text-center mt-5'>🎉 "
+            "No more profiles available!</p>"
 
         return JsonResponse({
             'match': False,
