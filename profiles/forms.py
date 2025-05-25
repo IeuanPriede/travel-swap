@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from .models import Profile, HouseImage
 from django.core.exceptions import ValidationError
-import imghdr
+from PIL import Image
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -77,7 +77,7 @@ class SearchForm(forms.Form):
 
 class ImageForm(forms.ModelForm):
     image = forms.ImageField(
-        required=False,  # <- ✅ This is the key
+        required=False,
         widget=forms.FileInput(attrs={
             'class': 'form-control',
             'accept': 'image/jpeg,image/png'
@@ -92,15 +92,18 @@ class ImageForm(forms.ModelForm):
         image = self.cleaned_data.get('image')
 
         if not image:
-            return None  # ⬅️ Allow empty image fields
+            return None
 
-        # Validate only if file is uploaded
         if image.size > 2 * 1024 * 1024:
             raise ValidationError('Image size must be under 2MB.')
 
-        file_type = imghdr.what(image)
-        if file_type not in ['jpeg', 'png']:
-            raise ValidationError('Only JPEG and PNG images are allowed.')
+        # ✅ Use Pillow to check the actual image format
+        try:
+            img = Image.open(image)
+            if img.format not in ['JPEG', 'PNG']:
+                raise ValidationError('Only JPEG and PNG images are allowed.')
+        except Exception:
+            raise ValidationError('Invalid image file.')
 
         return image
 
