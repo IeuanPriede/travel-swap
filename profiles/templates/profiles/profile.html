@@ -2,11 +2,6 @@
 {% load image_extras %}
 
 {% block content %}
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-  {% endfor %}
-{% endif %}
     {% if profile.house_images.all %}
         {% with profile.house_images.all|get_main_image as hero %}
             {% if hero %}

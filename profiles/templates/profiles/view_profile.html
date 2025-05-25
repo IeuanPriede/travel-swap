@@ -198,7 +198,7 @@
             Message History
         </div>
         <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-            {% for message in messages %}
+            {% for message in messages_between %}
             <div class="mb-2">
                 <strong>{{ message.sender.username }}:</strong><br>
                 {{ message.content }}<br>

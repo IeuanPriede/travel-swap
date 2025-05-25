@@ -477,6 +477,7 @@ def view_profile(request, user_id):
 
                 messages.success(request, "Message sent successfully!")
                 return redirect('view_profile', user_id=profile_user.id)
+            print("Messages:", messages.get_messages(request))
         else:
             message_form = MessageForm()
 
@@ -620,7 +621,7 @@ def view_profile(request, user_id):
         'profile': profile,
         'is_match': is_match,
         'message_form': message_form,
-        'messages': messages_between,
+        'messages_between': messages_between,
         'booking': booking,
         'available_start': available_start,
         'available_end': available_end,
