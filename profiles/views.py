@@ -64,34 +64,44 @@ def edit_profile(request):
         profile_form = ProfileForm(
             request.POST, request.FILES, instance=profile
             )  # for updating the profile model
-        formset = ImageFormSet(queryset=HouseImage.objects.filter(
-            profile=profile
-                ))
+        formset = ImageFormSet(
+            request.POST,
+            request.FILES,
+            queryset=HouseImage.objects.filter(profile=profile)
+        )
+
+        print("Formset data:", request.POST)
+        total_forms = request.POST.get('form-TOTAL_FORMS')
+        initial_forms = request.POST.get('form-INITIAL_FORMS')
+        print("Management form data:", total_forms, initial_forms)
 
         # Check all forms individually first
         user_form_valid = user_form.is_valid()
         profile_form_valid = profile_form.is_valid()
-        print("DEBUG - Form valid states:",
-              user_form_valid, profile_form_valid)
         formset_valid = formset.is_valid()
 
         # Debug: print validation states
-        print("UserForm valid:", user_form_valid)
-        print("ProfileForm valid:", profile_form_valid)
-        print("Formset valid:", formset_valid)
+        print(
+            "DEBUG - Form valid states:",
+            user_form_valid, profile_form_valid
+        )
         print("UserForm errors:", user_form.errors)
         print("ProfileForm errors:", profile_form.errors)
+        print("Formset valid:", formset_valid)
         print("Formset errors:", formset.errors)
 
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form_valid and profile_form_valid and formset_valid:
             print("All forms valid")
             user_form.save()
             profile_form.save()
+
             images = formset.save(commit=False)
             for image in images:
                 if image.image:  # only save if image was uploaded
                     image.profile = profile
                     image.save()
+
+            formset.save_m2m()
 
             messages.success(request, "Your profile has been updated.")
             return redirect(
@@ -149,22 +159,29 @@ def upload_images(request):
         if formset.is_valid():
             new_images = []
 
-            # Only process extra forms (for new uploads)
-            for form in formset.extra_forms:
-                if form.cleaned_data.get('image'):
+            for form in formset:
+                image_file = form.cleaned_data.get('image')
+                if image_file:
                     instance = form.save(commit=False)
                     instance.profile = profile
-                    new_images.append(instance)
+                    try:
+                        instance.save()
+                        new_images.append(instance)
+                    except Exception as e:
+                        print("Upload failed:", e)
+                        messages.error(request, f"Image upload failed: {e}")
+                        return redirect('edit_profile')
+                else:
+                    print("Skipping empty form:", form.cleaned_data)
 
+            # Set first uploaded image as main if none exists
             for i, image in enumerate(new_images):
-                if (
-                    not profile.house_images.filter(is_main=True).exists()
-                    and i == 0
-                ):
+                if (not profile.house_images.filter(is_main=True).exists()
+                        and i == 0):
                     image.is_main = True
-                image.save()
+                    image.save()
 
-            # Allow selection of main image from existing ones
+            # Handle main image selection from radio buttons
             selected_main_id = request.POST.get('main_image')
             if selected_main_id:
                 for image in profile.house_images.all():
@@ -175,7 +192,7 @@ def upload_images(request):
         else:
             messages.error(request, "There was a problem updating images.")
 
-        return redirect('edit_profile')
+    return redirect('edit_profile')
 
 
 @login_required
