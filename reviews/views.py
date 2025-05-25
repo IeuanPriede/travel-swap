@@ -37,12 +37,10 @@ def user_is_matched(user1, user2):
 def leave_review(request, user_id):
     reviewee = get_object_or_404(User, id=user_id)
 
-    # Prevent reviewing yourself
     if request.user == reviewee:
         messages.error(request, "You cannot review yourself.")
         return redirect('view_profile', user_id=reviewee.id)
 
-    # Check for a match
     if not user_is_matched(request.user, reviewee):
         messages.error(request, "You can only review matched users.")
         return redirect('view_profile', user_id=reviewee.id)
@@ -66,6 +64,16 @@ def leave_review(request, user_id):
         'reviewee': reviewee,
         'existing_review': existing_review,
     })
+
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    form = ReviewForm(request.POST or None, instance=review)
+    if form.is_valid():
+        form.save()
+        return redirect('profile_detail', profile_id=review.profile.id)
+    return render(request, 'reviews/edit_review.html', {'form': form})
 
 
 @login_required
