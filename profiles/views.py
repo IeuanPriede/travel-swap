@@ -17,7 +17,6 @@ from django.template.loader import render_to_string
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Avg
-from django.views.decorators.http import require_POST
 from messaging.forms import MessageForm, BookingRequestForm
 from messaging.models import Message, BookingRequest
 from django.core.mail import send_mail
@@ -127,22 +126,6 @@ def edit_profile(request):
 
 
 @login_required
-@require_POST
-def set_main_image(request, image_id):
-    image = get_object_or_404(
-        HouseImage, id=image_id, profile__user=request.user)
-
-    # Clear previous main image
-    HouseImage.objects.filter(profile=image.profile).update(is_main=False)
-
-    # Set new main image
-    image.is_main = True
-    image.save()
-
-    return redirect('edit_profile')
-
-
-@login_required
 def upload_images(request):
     profile = get_object_or_404(Profile, user=request.user)
 
@@ -176,20 +159,6 @@ def upload_images(request):
                             'formset': formset,
                             'profile': profile,
                         })
-
-            # Set first uploaded image as main if none exists
-            for i, image in enumerate(new_images):
-                if (not profile.house_images.filter(is_main=True).exists()
-                        and i == 0):
-                    image.is_main = True
-                    image.save()
-
-            # Handle main image selection from radio buttons
-            selected_main_id = request.POST.get('main_image')
-            if selected_main_id:
-                for image in profile.house_images.all():
-                    image.is_main = (str(image.id) == selected_main_id)
-                    image.save()
 
             messages.success(request, "Images updated successfully.")
             return redirect('edit_profile')

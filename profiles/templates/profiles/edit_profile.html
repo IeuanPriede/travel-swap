@@ -62,17 +62,9 @@
         <div class="row" id="image-gallery">
             {% for image in profile.house_images.all %}
                 <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
-                    <div class="card {% if image.is_main %}border-primary{% endif %}">
+                    <div class="card">
                         <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
                         <div class="card-body text-center d-flex flex-column gap-2">
-                            <a href="{% url 'set_main_image' image.id %}"
-                                class="btn btn-outline-primary btn-sm {% if image.is_main %}active{% endif %}">
-                                {% if image.is_main %}
-                                    ✓ Main Image
-                                {% else %}
-                                    Set as Main Image
-                                {% endif %}
-                            </a>
                             <!-- Delete image button -->
                             <button type="button" class="btn btn-danger btn-sm delete-image-btn"
                                     data-image-id="{{ image.id }}">
@@ -121,13 +113,6 @@
                                         {% for image in existing_images %}
                                             <div class="col-6 mb-3">
                                                 <img src="{{ image.image.url }}" alt="Image" class="img-thumbnail w-100">
-                                                <div class="form-check mt-2">
-                                                    <input class="form-check-input" type="radio" name="main_image" value="{{ image.id }}"
-                                                        {% if image.is_main %}checked{% endif %}>
-                                                    <label class="form-check-label">
-                                                        Set as main image
-                                                    </label>
-                                                </div>
                                             </div>
                                         {% endfor %}
                                     </div>

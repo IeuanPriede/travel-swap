@@ -74,7 +74,6 @@ class HouseImage(models.Model):
     )
     image = models.ImageField(upload_to='house_images/',
                               validators=[ImageValidator(max_size_mb=2)])
-    is_main = models.BooleanField(default=False)  # Indicates hero image
 
     def __str__(self):
         return f"Image for {self.profile.user.username}"

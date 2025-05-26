@@ -15,10 +15,6 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('like/', views.like_profile, name='like_profile'),
     path('next/', views.next_profile, name='next_profile'),
-    path(
-        'set-main-image/<int:image_id>/',
-        views.set_main_image, name='set_main_image'
-        ),
     path('travel-log/', views.travel_log, name='travel_log'),
     path('profile/<int:user_id>/', views.view_profile, name='view_profile'),
     path('profile/', views.profile_view, name='profile_view'),
