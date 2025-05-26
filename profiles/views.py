@@ -426,8 +426,21 @@ def travel_log(request):
         to_profile__user__isnull=False  # ensures the profile has a user
     ).select_related('to_profile', 'to_profile__user')
 
+    # Build mutual match list (by setting a flag on each match)
+    for match in liked_profiles:
+        is_mutual = MatchResponse.objects.filter(
+            from_user=match.to_profile.user,
+            to_profile__user=request.user,
+            liked=True
+        ).exists()
+        match.is_mutual = is_mutual  # attach flag directly
+
+    mutual_matches_count = sum(
+        1 for match in liked_profiles if match.is_mutual)
+
     return render(request, 'travel_log.html', {
         'liked_profiles': liked_profiles,
+        'mutual_matches_count': mutual_matches_count,
     })
 
 

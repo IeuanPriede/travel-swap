@@ -1,26 +1,63 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <div class="container">
     {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/travel-log-hero.jpg' hero_title='Your Travel Log' hero_subtitle='Connect with profiles you matched with!' %}
-
-    <ul>
-    {% if liked_profiles %}
-        <p>{{ liked_profiles|length }} liked profiles:</p>
-        <ul>
-            {% for match in liked_profiles %}
-                <li>
-                    {% if match.to_profile and match.to_profile.user %}
-                        <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}">
-                        View {{ match.to_profile.user.username }}'s Profile
-                        </a>
+    <div class="travel-log-intro mb-4 p-4">
+        <h2 class="fw-bold">Welcome to Your Travel Log</h2>
+            <p class="text-muted">
+                This is your collection of homes you’ve liked while exploring TravelSwap. 
+                When you see a <span class="badge bg-success">Matched</span> badge, it means the other user liked you back — you're now connected!
+                Click “View Profile” to chat, suggest a vacation exchange, or leave a review.
+            </p>
+        {% if liked_profiles %}
+            <p class="lead text-muted mb-4 mt-5 text-center">
+                You’ve matched 👍 with {{ mutual_matches_count }} fellow traveler{{ mutual_matches_count|pluralize }}.
+            </p>
+        {% endif %}
+    </div>    
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+    {% for match in liked_profiles %}
+        {% if match.to_profile and match.to_profile.user %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+            <div class="row g-0 align-items-center">
+                <div class="col-4 d-flex align-items-center">
+                {% with match.to_profile.house_images.first as hero_image %}
+                    {% if hero_image %}
+                        <img src="{{ hero_image.image.url }}" class="travel-log-img" alt="Profile image">
                     {% else %}
-                        <p>This profile is no longer available.</p>
+                        <img src="{% static 'images/placeholders/profile-placeholder.jpg' %}" class="travel-log-img" alt="No image">
                     {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>You haven’t liked any profiles yet.</p>
-    {% endif %}
+                {% endwith %}
+                </div>
+                <div class="col-8">
+                <div class="card-body">
+                    <h5 class="card-title">
+                    {{ match.to_profile.user.username }}
+                    {% if match.is_mutual %}
+                        <span class="badge bg-success ms-2">Matched</span>
+                    {% endif %}
+                    </h5>
+                    <p class="card-text text-muted">Location: {{ match.to_profile.location }}</p>
+                    <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}" class="btn btn-outline-primary mt-2">
+                    View Profile
+                    </a>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col">
+            <div class="alert alert-warning">This profile is no longer available.</div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <p class="text-center text-muted fs-5 mt-4">
+            You haven’t liked any profiles yet.
+        </p>
+    {% endfor %}
+    </div>
 </div>
 {% endblock %}
