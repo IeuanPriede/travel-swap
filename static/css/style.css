@@ -1,6 +1,25 @@
+/* Navbar */
+
+/* Notifications bell */
+.notification-bell {
+    margin-left: auto;
+    margin-right: 1rem;
+    position: relative;
+}
+
+.notification-bell .badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
+    font-size: 0.7rem;
+    padding: 3px 6px;
+}
+
 body {
     font-family: 'Segoe UI', sans-serif;
 }
+
 .hero {
     height: 300px;
     background-size: cover;
@@ -43,4 +62,5 @@ body {
   display: inline-flex;
   flex-direction: row-reverse;
 }
+
 

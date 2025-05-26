@@ -38,76 +38,69 @@
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
-        <div class="container">
+        <div class="container d-flex align-items-center justify-content-between">
+
+            <!-- Left: Logo -->
             <a class="navbar-brand" href="#">
                 <img src="{% static 'images/logo.png' %}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top">
                 TravelSwap
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+
+            <!-- Right: Bell + Burger -->
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                <div class="dropdown notification-bell me-2">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        {% if unread_notifications %}
+                            <span class="badge bg-danger">{{ unread_notifications|length }}</span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                        {% if unread_notifications %}
+                            {% for notification in unread_notifications %}
+                                <li><a class="dropdown-item" href="{{ notification.link }}">{{ notification.message }}</a></li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{% url 'mark_all_read' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-center">Mark all as read</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="dropdown-item text-muted">No new notifications</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Burger icon -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <!-- Collapsible Nav -->
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ home_url }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ about_url }}">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'travel_log' %}">Travel Log</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ home_url }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ about_url }}">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ travel_log_url }}">Travel Log</a></li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                🔔
-                                {% if unread_notifications %}
-                                    Notifications ({{ unread_notifications|length }})
-                                {% else %}
-                                    Notifications
-                                {% endif %}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
-                                {% if unread_notifications %}
-                                    {% for notification in unread_notifications %}
-                                        <li>
-                                            <a class="dropdown-item" href="{{ notification.link }}">
-                                                {{ notification.message }}
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="POST" action="{% url 'mark_all_read' %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="dropdown-item text-center">Mark all as read</button>
-                                        </form>
-                                    </li>
-                                {% else %}
-                                    <li class="dropdown-item text-muted">No new notifications</li>
-                                {% endif %}
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profiles' %}">My Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profiles' %}">My Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ login_url }}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ register_url }}">Register</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{{ login_url }}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ register_url }}">Register</a></li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+
     {% if messages %}
     <div class="container mt-3">
         {% for message in messages %}
