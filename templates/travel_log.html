@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Your Travel Log</h2>
-    <p>Logged in as: {{ request.user.username }}</p>
+<div class="container">
+    {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/travel-log-hero.jpg' hero_title='Your Travel Log' hero_subtitle='Connect with profiles you matched with!' %}
 
     <ul>
     {% if liked_profiles %}

@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Edit Your Profile</h2>
+<div class="container">
+    {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/edit-profile-hero.jpg' hero_title='Edit Your Profile' %}
     <!-- Begin Profile Edit Form -->
     <form method="post" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
         {% csrf_token %}

@@ -2,7 +2,7 @@
 {% load image_extras %}
 
 {% block content %}
-    <h2>Your Profile</h2>
+    {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/profile-hero.jpg' hero_title='Your Profile' %}
     <p>Username: {{ profile.user.username }}</p>
     {% if average_rating %}
     <p><strong>Average Rating:</strong>

@@ -4,8 +4,7 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-  <h1>TravelSwap</h1>
-  <p>Home exchange reimagined for modern travelers.</p>
+{% include 'partials/hero.html' with hero_image_url='/static/images/heroes/home-hero.jpg' hero_title='Welcome to TravelSwap' hero_subtitle='Exchange your holiday home with others worldwide' %}
 
   <div class="container mt-4">
     <div class="row">

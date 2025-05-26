@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
-    <h2>{{ profile.user.username }}'s Profile</h2>
+<div class="container">
+    {% with profile.user.username|add:"'s Profile" as title %}
+    {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/view-profile-hero.jpg' hero_title=title hero_subtitle="Let's Swap!" %}
+    {% endwith %}
+
     {% if average_rating %}
     <p><strong>Average Rating:</strong>
         {{ average_rating }}

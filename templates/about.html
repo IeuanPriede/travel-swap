@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+{% include 'partials/hero.html' with hero_image_url='/static/images/heroes/about-hero.jpg' hero_title='About Us' %}
 <div class="container mt-4">
     <h2>Contact Us</h2>
     <form method="post" novalidate>
