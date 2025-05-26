@@ -11,7 +11,7 @@ from .forms import (
 )
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from cloudinary.uploader import destroy
 from django.template.loader import render_to_string
 import json
@@ -170,9 +170,12 @@ def upload_images(request):
                     except Exception as e:
                         print("Upload failed:", e)
                         messages.error(request, f"Image upload failed: {e}")
-                        return redirect('edit_profile')
-                else:
-                    print("Skipping empty form:", form.cleaned_data)
+                        return render(request, 'profiles/edit_profile.html', {
+                            'user_form': UserForm(instance=request.user),
+                            'profile_form': ProfileForm(instance=profile),
+                            'formset': formset,
+                            'profile': profile,
+                        })
 
             # Set first uploaded image as main if none exists
             for i, image in enumerate(new_images):
@@ -189,8 +192,16 @@ def upload_images(request):
                     image.save()
 
             messages.success(request, "Images updated successfully.")
+            return redirect('edit_profile')
+
         else:
             messages.error(request, "There was a problem updating images.")
+            return render(request, 'profiles/edit_profile.html', {
+                'user_form': UserForm(instance=request.user),
+                'profile_form': ProfileForm(instance=profile),
+                'formset': formset,
+                'profile': profile,
+            })
 
     return redirect('edit_profile')
 
@@ -219,24 +230,27 @@ def register(request):
 
 @login_required
 def delete_image(request, image_id):
+    print(f"Delete request received for image_id={image_id}")
+
     image = get_object_or_404(HouseImage, id=image_id)
 
-    # Ensure the image belongs to the logged-in user
     if image.profile.user != request.user:
+        print("Forbidden: user mismatch")
         return JsonResponse({"error": "Forbidden"}, status=403)
 
     if request.method == "POST":
-        # Extract the public ID from the image URL
-        public_id = image.image.name.rsplit(
-            '.', 1)[0]  # Removes file extension
+        public_id = image.image.name.rsplit('.', 1)[0]
+        print(f"Deleting Cloudinary image: public_id={public_id}")
         try:
-            destroy(public_id)  # Cloudinary file delete
+            destroy(public_id)
         except Exception as e:
             print(f"Error deleting image from Cloudinary: {e}")
 
-        image.delete()  # Delete the DB entry
-        return JsonResponse({"success": True})
+        image.delete()
+        print("Image deleted successfully")
+        return HttpResponse(status=204)  # ✅ No content
 
+    print("Invalid request method")
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
