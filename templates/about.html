@@ -3,20 +3,63 @@
 
 {% block content %}
 {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/about-hero.jpg' hero_title='About Us' %}
-<div class="container mt-4">
-    <h2>Contact Us</h2>
-    <form method="post" novalidate>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Send</button>
-    </form>
 
-    {% if messages %}
-        <script>
-            {% for message in messages %}
-                alert("{{ message|escapejs }}");
+<div class="about-section">
+    <h2>Our Mission</h2>
+    <p>
+        TravelSwap was born out of a love for authentic travel experiences. We believe that exploring the world doesn't have to mean expensive hotels or feeling like a tourist. With TravelSwap, you can swap homes with like-minded travelers, live like a local, and build lasting connections.
+    </p>
+    <h2>How It Works</h2>
+    <p>
+        Simply create a profile, list your home, and start browsing. Like what you see? Click like 👍! If both parties like each other’s homes, it’s a match—and you can message directly to arrange your travel exchange.
+    </p>
+    <h2>Who We Are</h2>
+    <p>
+        We’re a small, passionate team of travelers and tech enthusiasts who believe in meaningful travel and mutual trust. Whether it’s a beachside bungalow, a mountain retreat, or a city apartment—we help you find the perfect place to stay, your way.
+    </p>
+    <blockquote class="blockquote text-center mt-5">
+        <p>“Don’t just visit — live it.”</p>
+        <footer class="blockquote-footer">TravelSwap Philosophy</footer>
+    </blockquote>
+</div>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="contact-form bg-white p-4 rounded shadow-sm">
+        <h2 class="text-center mb-4">Contact Us</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">
+                    {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="text-danger small">
+                        {{ field.errors|striptags }}
+                    </div>
+                    {% endif %}
+                </div>
             {% endfor %}
-        </script>
-    {% endif %}
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4">Send</button>
+          </div>
+        </form>
+      </div>
+
+      {% if messages %}
+        <div class="mt-4">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endblock %}

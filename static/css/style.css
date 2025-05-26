@@ -26,6 +26,51 @@ body {
     background-position: center;
 }
 
+/* About Page Styling */
+.about-section {
+  background-color: #f8f9fa; /* light grey background */
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+  margin-bottom: 3rem;
+  margin-top: 3rem;
+}
+
+.about-section h2 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  color: #0d6efd; /* Bootstrap primary */
+  position: relative;
+}
+
+.about-section h2::after {
+  content: "";
+  display: block;
+  width: 50px;
+  height: 3px;
+  background-color: #0d6efd;
+  margin-top: 0.5rem;
+  border-radius: 5px;
+}
+
+.about-section p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-top: 0.75rem;
+}
+
+/* Contact Form Styling */
+.contact-form {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 5rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+/* Travel Log */
+/* Star Rating */
+
 .star-rating {
   display: inline-flex;
   flex-direction: row;
