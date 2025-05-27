@@ -192,14 +192,8 @@ body {
 
 /* messaging */
 
-.messaging-container {
-  background: #f8f9fa;
-  border-radius: 8px;
-  height: 530px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid #dee2e6;
+body .messaging-container {
+  border: 4px dashed red !important;
 }
 
 .messages-window {

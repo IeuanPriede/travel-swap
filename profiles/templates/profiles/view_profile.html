@@ -216,26 +216,26 @@
         <div class="col-lg-9">
             {% if is_match %}
             <div class="messaging-container">
-            <div class="messages-window">
-                {% for message in messages_between %}
-                <div class="message-bubble {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
-                <div><strong>{{ message.sender.username }}</strong></div>
-                <div>{{ message.content }}</div>
-                <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+                <div class="messages-window">
+                    {% for message in messages_between %}
+                    <div class="message-bubble {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                        <div><strong>{{ message.sender.username }}</strong></div>
+                        <div>{{ message.content }}</div>
+                        <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No messages yet.</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p class="text-muted">No messages yet.</p>
-                {% endfor %}
-            </div>
-            <div class="message-form">
-                <form method="POST" id="message-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_message" value="1">
-                    {{ message_form.content }}
-                    <button type="submit" class="btn btn-primary">Send</button>
-                </form>
-                <div id="message-feedback" class="mt-2"></div>
-            </div>
+                <div class="message-form">
+                    <form method="POST" id="message-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_message" value="1">
+                        {{ message_form.content }}
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                    <div id="message-feedback" class="mt-2"></div>
+                </div>
             </div>
             {% else %}
             <p>You must be matched with this user to send a message.</p>
