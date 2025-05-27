@@ -466,13 +466,21 @@ def view_profile(request, user_id):
             Q(sender=profile_user, recipient=request.user)
         ).order_by('timestamp')
 
-        if request.method == 'POST':
+        if request.method == 'POST' and 'content' in request.POST:
             message_form = MessageForm(request.POST)
+
             if message_form.is_valid():
                 message = message_form.save(commit=False)
                 message.sender = request.user
                 message.recipient = profile_user
                 message.save()
+
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'username': request.user.username,
+                        'content': message.content,
+                    })
 
                 send_mail(
                     subject=f'New message from {request.user.username} '

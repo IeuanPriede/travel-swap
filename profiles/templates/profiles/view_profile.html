@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 {% if messages %}
   {% for message in messages %}
@@ -77,124 +78,109 @@
         </div>
     </div>
 
-    {% if is_match %}
-        {% if not booking or booking.status == 'amended' %}
-        <!-- Show vacation request form -->
-        <div class="card my-4 border-success">
-            <div class="card-header bg-success text-white">
-                Request a Vacation Exchange
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    {% csrf_token %}
-                    {{ booking_form.non_field_errors }}
-                    <div class="mb-3">
-                        {{ booking_form.requested_dates.label_tag }}
-                        <input type="text"
-                            name="requested_dates"
-                            id="requested-dates"
-                            class="form-control"
-                            placeholder="Select exchange dates"
-                            value="{{ booking_form.requested_dates.value|default_if_none:'' }}">
-                    </div>
-                    <button type="submit" name="request_booking" class="btn btn-outline-success">Send Request</button>
-                </form>
-            </div>
-        </div>
-
-        {% elif booking.status == 'pending' and booking.recipient == request.user %}
-        <!-- Recipient sees request and can respond -->
-        <div class="card my-4">
-            <div class="card-header">Vacation Request Received</div>
-            <div class="card-body">
-                <p><strong>{{ booking.sender.username }}</strong> has requested a vacation on:</p>
-                <p>{{ booking.requested_dates }}</p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="amended-dates">Suggest New Dates (optional)</label>
-                        <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
-                    </div>
-                    <div class="btn-group">
-                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
-                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
-                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        {% elif booking.status == 'amended' and booking.last_action_by != request.user %}
-        <!-- Recipient sees amended request and can respond -->
-        <div class="card my-4 border-warning">
-            <div class="card-header bg-warning text-dark">
-                Your request was amended
-            </div>
-            <div class="card-body">
-                <p>{{ profile_user.username }} suggested new dates:</p>
-                <p><strong>{{ booking.requested_dates }}</strong></p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
-                        <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
-                        <small class="form-text text-muted">Use this only if you want to suggest new dates again.</small>
-                    </div>
-                    <div class="btn-group">
-                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
-                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
-                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% endif %}
-    {% endif %}
-
-    <div class="card mt-4">
-        <div class="card-header bg-secondary text-white">
-            Message {{ profile_user.username }}
-        </div>
-        <div class="card-body">
+    <div class="row">
+        <div class="col-lg-3">
             {% if is_match %}
-            <form method="POST">
-                {% csrf_token %}
-                {{ message_form.as_p }}
-                <button type="submit" class="btn btn-primary">Send</button>
-            </form>
-            {% else %}
-            <p>You must be matched with this user to send a message.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="card mt-4">
-        <div class="card-header bg-dark text-white">
-            Message History
-        </div>
-        <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
-            {% if messages_between %}
-            <div class="accordion" id="messageAccordion">
-                {% for message in messages_between %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
-                            <strong>{{ message.sender.username }}</strong>
-                            <span class="ms-2 text-muted small">— {{ message.timestamp|date:"M d, H:i" }}</span>
-                        </button>
-                    </h2>
-                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#messageAccordion">
-                        <div class="accordion-body">
-                            {{ message.content }}
-                        </div>
+                {% if not booking or booking.status == 'amended' or booking.status == 'denied' %}
+                <!-- Show vacation request form -->
+                <div class="card my-4 border-success request-card">
+                    <div class="card-header bg-success text-white">
+                        Request a Vacation Exchange
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {% csrf_token %}
+                            {{ booking_form.non_field_errors }}
+                            <div class="mb-3">
+                                {{ booking_form.requested_dates.label_tag }}
+                                <input type="text"
+                                    name="requested_dates"
+                                    id="requested-dates"
+                                    class="form-control"
+                                    placeholder="Select exchange dates"
+                                    value="{{ booking_form.requested_dates.value|default_if_none:'' }}">
+                            </div>
+                            <button type="submit" name="request_booking" class="btn btn-outline-success">Send Request</button>
+                        </form>
                     </div>
                 </div>
+
+                {% elif booking.status == 'pending' and booking.recipient == request.user %}
+                <!-- Recipient sees request and can respond -->
+                <div class="card my-4">
+                    <div class="card-header">Vacation Request Received</div>
+                    <div class="card-body">
+                        <p><strong>{{ booking.sender.username }}</strong> has requested a vacation on:</p>
+                        <p>{{ booking.requested_dates }}</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="amended-dates">Suggest New Dates (optional)</label>
+                                <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                                <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                                <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {% elif booking.status == 'amended' and booking.last_action_by != request.user %}
+                <!-- Recipient sees amended request and can respond -->
+                <div class="card my-4 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        Your request was amended
+                    </div>
+                    <div class="card-body">
+                        <p>{{ profile_user.username }} suggested new dates:</p>
+                        <p><strong>{{ booking.requested_dates }}</strong></p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
+                                <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
+                                <small class="form-text text-muted">Use this only if you want to suggest new dates again.</small>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                                <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                                <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="col-lg-9">
+            {% if is_match %}
+            <div class="messaging-container">
+            <div class="messages-window">
+                {% for message in messages_between %}
+                <div class="message-bubble {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                <div><strong>{{ message.sender.username }}</strong></div>
+                <div>{{ message.content }}</div>
+                <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">No messages yet.</p>
                 {% endfor %}
             </div>
-            {% else %}
-            <div class="p-3">
-                <p class="text-muted">No messages yet.</p>
+            <div class="message-form">
+                <form method="POST" id="message-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="submit_message" value="1">
+                    {{ message_form.content }}
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+                <div id="message-feedback" class="mt-2"></div>
             </div>
+            </div>
+            {% else %}
+            <p>You must be matched with this user to send a message.</p>
             {% endif %}
         </div>
     </div>
@@ -340,6 +326,62 @@ document.addEventListener('DOMContentLoaded', function () {
             minDate: "{{ available_start|date:'Y-m-d' }}",
             maxDate: "{{ available_end|date:'Y-m-d' }}"
         });
+    }
+    // Auto-scroll message window
+    const messagesWindow = document.querySelector('.messages-window');
+    if (messagesWindow) {
+        messagesWindow.scrollTop = messagesWindow.scrollHeight;
+    }
+    // AJAX message form submission
+    const messageForm = document.getElementById('message-form');
+    if (messageForm) {
+        messageForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(messageForm);
+
+            fetch("", {
+                method: "POST",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear form
+                    messageForm.reset();
+
+                    // Append new message
+                    const messageWindow = document.querySelector('.messages-window');
+                    const newMessage = document.createElement('div');
+                    newMessage.classList.add('message-bubble', 'message-sent');
+                    newMessage.innerHTML = `
+                        <div><strong>${data.username}</strong></div>
+                        <div>${data.content}</div>
+                        <small class="text-muted">just now</small>
+                    `;
+                    messageWindow.appendChild(newMessage);
+                    messageWindow.scrollTop = messageWindow.scrollHeight;
+
+                    // Show toast-like alert
+                    showMessageAlert("Message sent successfully!", "success");
+                } else {
+                    showMessageAlert("Failed to send message.", "danger");
+                }
+            });
+        });
+    }
+
+    function showMessageAlert(msg, type) {
+        const alertDiv = document.getElementById('message-feedback');
+        alertDiv.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${msg}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
     }
 });
 </script>
