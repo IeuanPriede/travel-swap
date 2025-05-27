@@ -14,8 +14,6 @@ from pathlib import Path
 import os
 import dj_database_url
 import sys
-import logging
-import logging.config
 if os.path.isfile("env.py"):
     import env
 
@@ -32,7 +30,7 @@ if not SECRET_KEY:
     raise ValueError("Missing SECRET_KEY environment variable")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1']
 
@@ -195,6 +193,6 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG',
+        'level': 'INFO',
     },
 }
