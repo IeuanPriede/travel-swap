@@ -11,14 +11,24 @@
     position: absolute;
     top: 0;
     right: 0;
-    transform: translate(100%, -50%);
+    transform: translate(50%, -50%);
     font-size: 0.7rem;
     padding: 3px 6px;
 }
 
+.notif-badge {
+    top: 0;
+    right: 0;
+    transform: translate(30%, -50%);
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    border-radius: 50%;
+    z-index: 10;
+}
+
 @media (min-width: 992px) {
-    .notification-bell .badge {
-        transform: translate(-20%, -10%);
+    .notif-badge {
+        transform: translate(20%, -40%);
     }
 }
 

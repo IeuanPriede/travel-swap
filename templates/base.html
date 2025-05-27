@@ -46,17 +46,19 @@
                 TravelSwap
             </a>
 
-            <!-- Right: Bell + Burger -->
-            <div class="d-flex align-items-center">
+            <!-- Right: Bell + Burger for small screens -->
+            <div class="d-flex align-items-center d-lg-none">
                 {% if user.is_authenticated %}
                 <div class="dropdown notification-bell me-2">
-                    <a class="nav-link dropdown-toggle text-white" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-bell"></i>
-                        {% if unread_notifications %}
-                            <span class="badge bg-danger">{{ unread_notifications|length }}</span>
-                        {% endif %}
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="notifDropdownSm" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="position-relative">
+                            <i class="fas fa-bell"></i>
+                            {% if unread_notifications %}
+                                <span class="badge bg-danger notif-badge position-absolute">{{ unread_notifications|length }}</span>
+                            {% endif %}
+                        </span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdownSm">
                         {% if unread_notifications %}
                             {% for notification in unread_notifications %}
                                 <li><a class="dropdown-item" href="{{ notification.link }}">{{ notification.message }}</a></li>
@@ -89,6 +91,37 @@
                     <li class="nav-item"><a class="nav-link" href="{{ travel_log_url }}">Travel Log</a></li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+                    <!-- Large screen notification bell -->
+                    {% if user.is_authenticated %}
+                    <li class="nav-item d-none d-lg-block">
+                        <div class="dropdown notification-bell">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="notifDropdownLg" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                                {% if unread_notifications %}
+                                    <span class="badge bg-danger">{{ unread_notifications|length }}</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdownLg">
+                                {% if unread_notifications %}
+                                    {% for notification in unread_notifications %}
+                                        <li><a class="dropdown-item" href="{{ notification.link }}">{{ notification.message }}</a></li>
+                                    {% endfor %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{% url 'mark_all_read' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-center">Mark all as read</button>
+                                        </form>
+                                    </li>
+                                {% else %}
+                                    <li class="dropdown-item text-muted">No new notifications</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </li>
+                    {% endif %}
+
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'profiles' %}">My Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>

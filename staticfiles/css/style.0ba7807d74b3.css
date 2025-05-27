@@ -17,7 +17,7 @@
 }
 
 @media (min-width: 992px) {
-    .notification-bell .badge {
+    .notif-badge {
         transform: translate(-20%, -10%);
     }
 }
