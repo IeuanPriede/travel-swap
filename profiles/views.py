@@ -653,6 +653,9 @@ def view_profile(request, user_id):
             messages.success(request, "Your review has been submitted.")
             return redirect('view_profile', user_id=profile_user.id)
 
+    if is_match and 'booking_form' not in locals():
+        booking_form = BookingRequestForm()
+
     context = {
         'profile_user': profile_user,
         'profile': profile,
@@ -666,6 +669,7 @@ def view_profile(request, user_id):
         'review_form': review_form,
         'existing_review': existing_review,
         'reviews': Review.objects.filter(reviewee=profile_user),
+        'booking_form': booking_form,
     }
     print("🔔 Unread notifications for this user:",
           Notification.objects.filter(
