@@ -83,7 +83,7 @@
             {% if is_match %}
                 {% if not booking or booking.status == 'amended' or booking.status == 'denied' %}
                 <!-- Show vacation request form -->
-                <div class="card my-4 border-success request-card">
+                <div class="card mb-4 border-success request-card">
                     <div class="card-header bg-success text-white">
                         Request a Vacation Exchange
                     </div>
@@ -152,6 +152,64 @@
                     </div>
                 </div>
                 {% endif %}
+
+                {# Leave Review Logic in Sidebar #}
+                {% if existing_review or can_review %}
+                <div class="card mt-4 mb-4">
+                    <div class="card-header bg-info text-white">
+                        {% if existing_review %}Edit Your Review{% else %}Leave a Review{% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if existing_review %}
+                            <form method="post" class="mb-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="submit_review" value="1">
+                                <div class="mb-2">
+                                    <label class="form-label d-block">Edit Rating:</label>
+                                    <div class="star-rating">
+                                        {% for i in "54321" %}
+                                        <input type="radio" name="rating" id="sidebar-star{{ i }}" value="{{ i }}"
+                                            {% if review_form.rating.value|stringformat:"s" == i %}checked{% endif %}
+                                            class="d-none" />
+                                        <label for="sidebar-star{{ i }}" style="cursor:pointer;"><i class="fa fa-star"></i></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Edit Comment:</label>
+                                    {{ review_form.comment }}
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                            </form>
+                            <form method="post" action="{% url 'delete_review' profile_user.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete Review</button>
+                            </form>
+                        {% elif can_review %}
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="submit_review" value="1">
+                                <div class="mb-2">
+                                    <label class="form-label d-block">Rating:</label>
+                                    <div class="star-rating">
+                                        {% for i in "54321" %}
+                                        <input type="radio" name="rating" id="sidebar-star{{ i }}" value="{{ i }}"
+                                            {% if review_form.rating.value|stringformat:"s" == i %}checked{% endif %}
+                                            class="d-none" />
+                                        <label for="sidebar-star{{ i }}" style="cursor:pointer;"><i class="fa fa-star"></i></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Comment:</label>
+                                    {{ review_form.comment }}
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             {% endif %}
         </div>
 
@@ -185,94 +243,12 @@
         </div>
     </div>
 
+    {# All Reviews Full Width Below #}
     <div class="card mt-4 mb-4">
         <div class="card-header bg-primary text-white">
             Reviews
         </div>
         <div class="card-body">
-            {% if existing_review %}
-                <!-- Show user's existing review -->
-                <div class="border p-3 mb-3 bg-light">
-                    <strong>You rated:</strong>
-                    {% for i in "12345" %}
-                        {% if existing_review.rating|add:"0" >= i|add:"0" %}
-                            <i class="fas fa-star text-warning"></i>
-                        {% else %}
-                            <i class="far fa-star text-muted"></i>
-                        {% endif %}
-                    {% endfor %}
-                    <p class="mt-2">{{ existing_review.comment }}</p>
-
-                    <!-- Edit review by showing the form again -->
-                    <form method="post" class="mb-2">
-                        {% csrf_token %}
-                        <input type="hidden" name="submit_review" value="1">
-                        <div class="mb-2">
-                            <label class="form-label d-block">Edit Rating:</label>
-                            <div class="star-rating">
-                                {% for i in "54321" %}
-                                <input
-                                    type="radio"
-                                    name="rating"
-                                    id="star{{ i }}"
-                                    value="{{ i }}"
-                                    {% if review_form.rating.value|stringformat:"s" == i %}checked{% endif %}
-                                    class="d-none"
-                                />
-                                <label for="star{{ i }}" style="cursor:pointer;">
-                                    <i class="fa fa-star"></i>
-                                </label>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Edit Comment:</label>
-                            {{ review_form.comment }}
-                        </div>
-                        <button type="submit" class="btn btn-sm btn-primary">Update Review</button>
-                    </form>
-
-                    <!-- Delete button -->
-                    <form method="post" action="{% url 'delete_review' profile_user.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                            Delete Review
-                        </button>
-                    </form>
-                </div>
-
-            {% elif can_review %}
-                <!-- Review form if user hasn't submitted a review yet -->
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="submit_review" value="1">
-                    <div class="mb-3">
-                        <label class="form-label d-block">Star Rating:</label>
-                        <div class="star-rating">
-                            {% for i in "54321" %}
-                            <input
-                                type="radio"
-                                name="rating"
-                                id="star{{ i }}"
-                                value="{{ i }}"
-                                {% if review_form.rating.value|stringformat:"s" == i %}checked{% endif %}
-                                class="d-none"
-                            />
-                            <label for="star{{ i }}" style="cursor:pointer;">
-                                <i class="fa fa-star"></i>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Your Review:</label>
-                        {{ review_form.comment }}
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit Review</button>
-                </form>
-            {% endif %}
-
-            <hr>
             <h5>All Reviews</h5>
             {% for review in reviews %}
                 <div class="card my-2 p-2">

@@ -195,7 +195,7 @@ body {
 .messaging-container {
   background: #f8f9fa;
   border-radius: 8px;
-  height: 500px;
+  height: 530px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -275,4 +275,7 @@ body {
     font-size: 0.85rem;
   }
 }
+
+/* Leave a review */
+
 
