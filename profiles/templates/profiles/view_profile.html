@@ -1,49 +1,85 @@
 {% extends "base.html" %}
 {% block content %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+{% endif %}
 <div class="container">
     {% with profile.user.username|add:"'s Profile" as title %}
     {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/view-profile-hero.jpg' hero_title=title hero_subtitle="Let's Swap!" %}
     {% endwith %}
 
-    {% if average_rating %}
-    <p><strong>Average Rating:</strong>
-        {{ average_rating }}
-        {% for i in "12345" %}
-        {% if average_rating|floatformat:1 >= i|add:"0" %}
-            <i class="fas fa-star text-warning"></i>
-        {% else %}
-            <i class="far fa-star text-muted"></i>
+    <div class="about-section">
+        {% if average_rating %}
+        <p><strong>Average Rating:</strong>
+            {{ average_rating }}
+            {% for i in "12345" %}
+            {% if average_rating|floatformat:1 >= i|add:"0" %}
+                <i class="fas fa-star text-warning"></i>
+            {% else %}
+                <i class="far fa-star text-muted"></i>
+            {% endif %}
+            {% endfor %}
+        </p>
         {% endif %}
-        {% endfor %}
-    </p>
-    {% endif %}
-    <p><strong>Location:</strong> {{ profile.location }}</p>
-    <p><strong>Bio:</strong> {{ profile.bio }}</p>
-    <p><strong>House Description:</strong> {{ profile.house_description }}</p>
-
-    <h4>Gallery</h4>
-    <div class="row">
-        {% for image in profile.house_images.all %}
-            <div class="col-md-4 mb-3">
-                <img src="{{ image.image.url }}" class="img-fluid rounded shadow" alt="House image">
+        <div class="row">
+            <!-- Profile Details -->
+            <div class="col-md-6 mb-4">
+                <div class="h-100">
+                    <p><strong>Location:</strong> {{ profile.location }}</p>
+                    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+                    <p><strong>House Description:</strong> {{ profile.house_description }}</p>
+                </div>
             </div>
-        {% endfor %}
-    </div>
 
-    {% if is_match and profile.available_dates %}
-    <div class="card my-4">
-        <div class="card-header">
-            Availability
-        </div>
-        <div class="card-body">
-            <p>{{ profile.available_dates }}</p>
+            <!-- Gallery Carousel -->
+            <div class="col-md-6 mb-4">
+                <div class="card gallery h-100">
+                    <div class="card-header bg-primary text-white">
+                        Gallery
+                    </div>
+                    <div class="card-body narrow-body">
+                        {% if profile.house_images.all %}
+                        <div class="carousel-wrapper">
+                            <div id="houseCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+                                <div class="carousel-inner">
+                                    {% for image in profile.house_images.all %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <img src="{{ image.image.url }}" class="gallery-img" alt="House image">
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#houseCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#houseCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                                <div class="carousel-indicators mt-3">
+                                    {% for image in profile.house_images.all %}
+                                    <button type="button" data-bs-target="#houseCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No images available for this property.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    {% endif %}
 
     {% if is_match %}
-        {% if not booking %}
-        <!-- Initial vacation request form -->
+        {% if not booking or booking.status == 'amended' %}
+        <!-- Show vacation request form -->
         <div class="card my-4 border-success">
             <div class="card-header bg-success text-white">
                 Request a Vacation Exchange
@@ -67,8 +103,8 @@
         </div>
 
         {% elif booking.status == 'pending' and booking.recipient == request.user %}
-            <!-- Recipient sees this (they need to respond) -->
-            <div class="card my-4">
+        <!-- Recipient sees request and can respond -->
+        <div class="card my-4">
             <div class="card-header">Vacation Request Received</div>
             <div class="card-body">
                 <p><strong>{{ booking.sender.username }}</strong> has requested a vacation on:</p>
@@ -88,152 +124,144 @@
             </div>
         </div>
 
-        {% elif booking.status == 'pending' and booking.sender == request.user %}
-        <!-- Sender sees this while waiting -->
-        <div class="alert alert-info mt-4">
-            You requested a vacation on: <strong>{{ booking.requested_dates }}</strong>. Waiting for response.
-            <form method="POST" class="d-inline float-end">
-                {% csrf_token %}
-                <button type="submit" name="cancel_booking" class="btn btn-outline-danger btn-sm">Cancel Request</button>
-            </form>
+        {% elif booking.status == 'amended' and booking.last_action_by != request.user %}
+        <!-- Recipient sees amended request and can respond -->
+        <div class="card my-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                Your request was amended
+            </div>
+            <div class="card-body">
+                <p>{{ profile_user.username }} suggested new dates:</p>
+                <p><strong>{{ booking.requested_dates }}</strong></p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
+                        <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
+                        <small class="form-text text-muted">Use this only if you want to suggest new dates again.</small>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        {% elif booking.status == 'amended' %}
-            {% if booking.last_action_by == request.user %}
-                <!-- You were the last to amend -->
-                <div class="alert alert-info mt-4 d-flex justify-content-between align-items-center">
-                    <span>Your amended request has been sent. Please wait for a reply.</span>
-                    <form method="POST" class="ms-3">
-                        {% csrf_token %}
-                        <button type="submit" name="cancel_booking" class="btn btn-outline-danger btn-sm">Cancel Request</button>
-                    </form>
-                </div>
-            {% else %}
-                <!-- You are the recipient, show form to respond -->
-                <div class="card my-4 border-warning">
-                    <div class="card-header bg-warning text-dark">
-                        Your request was amended
-                    </div>
-                    <div class="card-body">
-                        <p>{{ profile_user.username }} suggested new dates:</p>
-                        <p><strong>{{ booking.requested_dates }}</strong></p>
-                        <form method="POST">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
-                                <input type="text" id="amended-dates" name="amended_dates" class="form-control" placeholder="Select new dates">
-                                <small class="form-text text-muted">Use this only if you want to suggest new dates again.</small>
-                            </div>
-                            <div class="btn-group">
-                                <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
-                                <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
-                                <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            {% endif %}
-
-
-        {% elif booking.status == 'accepted' %}
-            <!-- Confirmed booking -->
-            <div class="alert alert-success mt-4">
-            Vacation exchange confirmed for: <strong>{{ booking.requested_dates }}</strong>.
-            <form method="POST" class="d-inline float-end">
-                {% csrf_token %}
-                <button type="submit" name="cancel_booking" class="btn btn-outline-danger btn-sm">Cancel Vacation</button>
-            </form>
-            </div>
-
-        {% elif booking.status == 'denied' %}
-            {% if booking.sender == request.user %}
-                <!-- Sender sees denied message -->
-                <div class="alert alert-warning mt-4">
-                    Your vacation request for <strong>{{ booking.requested_dates }}</strong> was denied.
-                </div>
-            {% else %}
-                <!-- Recipient sees confirmation that they denied -->
-                <div class="alert alert-info mt-4">
-                    You denied the vacation request from <strong>{{ booking.sender.username }}</strong>.
-                </div>
-            {% endif %}
-
-            <!-- Reset to new request form for either side -->
-            <div class="card my-4 border-success">
-                <div class="card-header bg-success text-white">
-                    Request a Vacation Exchange
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ booking_form.non_field_errors }}
-                        <div class="mb-3">
-                            {{ booking_form.requested_dates.label_tag }}
-                            <input type="text"
-                                name="requested_dates"
-                                id="requested-dates"
-                                class="form-control"
-                                placeholder="Select exchange dates"
-                                value="{{ booking_form.requested_dates.value|default_if_none:'' }}">
-                        </div>
-                        <button type="submit" name="request_booking" class="btn btn-outline-success">Send Request</button>
-                    </form>
-                </div>
-            </div>
         {% endif %}
     {% endif %}
 
-    <div>
-        {% if is_match %}
-        <h4>Send a message to {{ profile_user.username }}</h4>
-        <form method="POST">
-            {% csrf_token %}
-            {{ message_form.as_p }}
-            <button type="submit" class="btn btn-primary">Send</button>
-        </form>
-        {% else %}
+    <div class="card mt-4">
+        <div class="card-header bg-secondary text-white">
+            Message {{ profile_user.username }}
+        </div>
+        <div class="card-body">
+            {% if is_match %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ message_form.as_p }}
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+            {% else %}
             <p>You must be matched with this user to send a message.</p>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 
     <div class="card mt-4">
-        <div class="card-header">
+        <div class="card-header bg-dark text-white">
             Message History
         </div>
-        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
-            {% for message in messages_between %}
-            <div class="mb-2">
-                <strong>{{ message.sender.username }}:</strong><br>
-                {{ message.content }}<br>
-                <small class="text-muted">{{ message.timestamp|date:"M d, H:i" }}</small>
+        <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+            {% if messages_between %}
+            <div class="accordion" id="messageAccordion">
+                {% for message in messages_between %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                            <strong>{{ message.sender.username }}</strong>
+                            <span class="ms-2 text-muted small">— {{ message.timestamp|date:"M d, H:i" }}</span>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#messageAccordion">
+                        <div class="accordion-body">
+                            {{ message.content }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            {% empty %}
-            <p>No messages yet.</p>
-            {% endfor %}
+            {% else %}
+            <div class="p-3">
+                <p class="text-muted">No messages yet.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
-    <div class="card mt-4">
-        <h4>Review Section</h4>
 
-        {% if existing_review %}
-            <!-- Show user's existing review -->
-            <div class="border p-3 mb-3 bg-light">
-                <strong>You rated:</strong>
-                {% for i in "12345" %}
-                    {% if existing_review.rating|add:"0" >= i|add:"0" %}
-                        <i class="fas fa-star text-warning"></i>
-                    {% else %}
-                        <i class="far fa-star text-muted"></i>
-                    {% endif %}
-                {% endfor %}
-                <p class="mt-2">{{ existing_review.comment }}</p>
+    <div class="card mt-4 mb-4">
+        <div class="card-header bg-primary text-white">
+            Reviews
+        </div>
+        <div class="card-body">
+            {% if existing_review %}
+                <!-- Show user's existing review -->
+                <div class="border p-3 mb-3 bg-light">
+                    <strong>You rated:</strong>
+                    {% for i in "12345" %}
+                        {% if existing_review.rating|add:"0" >= i|add:"0" %}
+                            <i class="fas fa-star text-warning"></i>
+                        {% else %}
+                            <i class="far fa-star text-muted"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <p class="mt-2">{{ existing_review.comment }}</p>
 
-                <!-- Edit review by showing the form again -->
-                <form method="post" class="mb-2">
+                    <!-- Edit review by showing the form again -->
+                    <form method="post" class="mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="submit_review" value="1">
+                        <div class="mb-2">
+                            <label class="form-label d-block">Edit Rating:</label>
+                            <div class="star-rating">
+                                {% for i in "54321" %}
+                                <input
+                                    type="radio"
+                                    name="rating"
+                                    id="star{{ i }}"
+                                    value="{{ i }}"
+                                    {% if review_form.rating.value|stringformat:"s" == i %}checked{% endif %}
+                                    class="d-none"
+                                />
+                                <label for="star{{ i }}" style="cursor:pointer;">
+                                    <i class="fa fa-star"></i>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Edit Comment:</label>
+                            {{ review_form.comment }}
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Update Review</button>
+                    </form>
+
+                    <!-- Delete button -->
+                    <form method="post" action="{% url 'delete_review' profile_user.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Delete Review
+                        </button>
+                    </form>
+                </div>
+
+            {% elif can_review %}
+                <!-- Review form if user hasn't submitted a review yet -->
+                <form method="post">
                     {% csrf_token %}
                     <input type="hidden" name="submit_review" value="1">
-                    <div class="mb-2">
-                        <label class="form-label d-block">Edit Rating:</label>
+                    <div class="mb-3">
+                        <label class="form-label d-block">Star Rating:</label>
                         <div class="star-rating">
                             {% for i in "54321" %}
                             <input
@@ -250,71 +278,33 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="mb-2">
-                        <label class="form-label">Edit Comment:</label>
+                    <div class="mb-3">
+                        <label class="form-label">Your Review:</label>
                         {{ review_form.comment }}
                     </div>
-                    <button type="submit" class="btn btn-sm btn-primary">Update Review</button>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
                 </form>
+            {% endif %}
 
-                <!-- Delete button -->
-                <form method="post" action="{% url 'delete_review' profile_user.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                        Delete Review
-                    </button>
-                </form>
-            </div>
-
-        {% elif can_review %}
-            <!-- Review form if user hasn't submitted a review yet -->
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="submit_review" value="1">
-                <div class="mb-3">
-                    <label class="form-label d-block">Star Rating:</label>
-                    <div class="star-rating">
-                        {% for i in "54321" %}
-                        <input
-                            type="radio"
-                            name="rating"
-                            id="star{{ i }}"
-                            value="{{ i }}"
-                            {% if review_form.rating.value|stringformat:"s" == i %}checked{% endif %}
-                            class="d-none"
-                        />
-                        <label for="star{{ i }}" style="cursor:pointer;">
-                            <i class="fa fa-star"></i>
-                        </label>
-                        {% endfor %}
-                    </div>
+            <hr>
+            <h5>All Reviews</h5>
+            {% for review in reviews %}
+                <div class="card my-2 p-2">
+                    <strong>{{ review.reviewer.username }}</strong> rated:
+                    {% for i in "12345" %}
+                        {% if review.rating|add:"0" >= i|add:"0" %}
+                            <i class="fas fa-star text-warning"></i>
+                        {% else %}
+                            <i class="far fa-star text-muted"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <p>{{ review.comment }}</p>
+                    <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Your Review:</label>
-                    {{ review_form.comment }}
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-            </form>
-        {% endif %}
-
-        <hr>
-        <h5>All Reviews</h5>
-        {% for review in reviews %}
-            <div class="card my-2 p-2">
-                <strong>{{ review.reviewer.username }}</strong> rated:
-                {% for i in "12345" %}
-                    {% if review.rating|add:"0" >= i|add:"0" %}
-                        <i class="fas fa-star text-warning"></i>
-                    {% else %}
-                        <i class="far fa-star text-muted"></i>
-                    {% endif %}
-                {% endfor %}
-                <p>{{ review.comment }}</p>
-                <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
-            </div>
-        {% empty %}
-            <p>No reviews yet.</p>
-        {% endfor %}
+            {% empty %}
+                <p>No reviews yet.</p>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

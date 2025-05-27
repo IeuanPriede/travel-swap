@@ -587,12 +587,13 @@ def view_profile(request, user_id):
             booking.last_action_by = request.user
             booking.save()
 
+            # Send email and notification for accepted/denied
             if action in ['accepted', 'denied']:
                 send_mail(
                     subject=f"Booking request {action} on TravelSwap",
                     message=(
-                        f"{request.user.username} has {action} "
-                        "your vacation exchange request.\n\n"
+                        f"{request.user.username} has {action} your "
+                        f"vacation exchange request.\n\n"
                         f"Dates: {booking.requested_dates}\n\n"
                         "Log in to see details."
                     ),
@@ -600,18 +601,33 @@ def view_profile(request, user_id):
                     recipient_list=[recipient.email],
                     fail_silently=False,
                 )
+
                 Notification.objects.create(
                     user=recipient,
-                    message=f"{request.user.username} {action} "
-                    "your vacation request.",
+                    message=f"{request.user.username} "
+                    f"{action} your vacation request.",
                     link=reverse('view_profile', args=[request.user.id])
                 )
 
-            print("✅ Notification created for:", recipient.username)
-            print("🔔 Now unread for them:", Notification.objects.filter(
-                user=recipient, is_read=False).count())
+            # Flash message to current user
+            if action == 'accepted':
+                messages.success(request, "Vacation request accepted!")
+            elif action == 'denied':
+                if booking.sender == request.user:
+                    messages.warning(
+                        request, "Your vacation request was denied.")
+                else:
+                    messages.info(
+                        request,
+                        f"You denied the vacation request from "
+                        f"{booking.sender.username}."
+                    )
+            elif action == 'amended':
+                messages.info(
+                    request,
+                    "You proposed new dates for the vacation exchange."
+                )
 
-            messages.success(request, f"Request {action}.")
             return redirect('view_profile', user_id=profile_user.id)
 
     elif 'cancel_booking' in request.POST and booking:
