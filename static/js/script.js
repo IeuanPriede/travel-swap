@@ -18,6 +18,7 @@ function handleMatch(profileId, liked) {
     return response.json();
   })
   .then(data => {
+    console.log("Server said:", data);
     if (data.match) {
       console.log("Server returned:", data);
       alert("🎉 It's a match with " + data.match_with + "!");

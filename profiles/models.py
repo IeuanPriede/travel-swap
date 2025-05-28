@@ -99,5 +99,7 @@ class MatchResponse(models.Model):
     def __str__(self):
         # Return a string representation of the response.
         status = "liked" if self.liked else "disliked"
-        return f"{
-            self.from_user.username} {status} {self.to_profile.user.username}"
+        return (
+            f"{self.from_user.username} {status} "
+            f"{self.to_profile.user.username}"
+        )

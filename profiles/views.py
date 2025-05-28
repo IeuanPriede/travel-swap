@@ -239,7 +239,7 @@ def home(request):
         reviews = Review.objects.filter(reviewee=next_profile.user)
         average_rating_val = reviews.aggregate(avg=Avg('rating'))['avg']
         average_rating = (
-            round(average_rating_val, 1) 
+            round(average_rating_val, 1)
             if average_rating_val else None
         )
 
@@ -260,7 +260,6 @@ def home(request):
     })
 
 
-@csrf_exempt
 def next_profile(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -282,13 +281,31 @@ def next_profile(request):
             is_visible=True
         ).exclude(id__in=responded_ids).exclude(id__in=skipped_ids).first()
 
+        # If no more profiles, reset and try again
+        if not next_profile:
+            request.session['skipped_profiles'] = []
+            next_profile = Profile.objects.filter(
+                is_visible=True
+            ).exclude(id__in=responded_ids).first()
+
         if next_profile:
+            reviews = Review.objects.filter(reviewee=next_profile.user)
+            average_rating_val = reviews.aggregate(avg=Avg('rating'))['avg']
+            average_rating = None
+            if average_rating_val:
+                average_rating = round(average_rating_val, 1)
+
             html = render_to_string('partials/profile_card.html', {
-                'profile': next_profile
+                'profile': next_profile,
+                'reviews': reviews,
+                'average_rating': average_rating,
             }, request=request)
         else:
-            html = "<p class='text-center mt-5'>🎉 "
-            "No more profiles available!</p>"
+            html = (
+                "<p class='text-center mt-5'>"
+                "🎉 No more profiles available!"
+                "</p>"
+            )
 
         return JsonResponse({
             'match': False,
@@ -456,9 +473,8 @@ def view_profile(request, user_id):
                     subject=f'New message from {request.user.username} '
                     'on TravelSwap!',
                     message=(
-                        f"You've received a new message from {
-                            request.user.username}:\n\n"
-                        f"{message.content}\n\n"
+                        f"You've received a new message from "
+                        f"{request.user.username}:\n\n"
                         "Log in to TravelSwap to view and reply."
                     ),
                     from_email=settings.DEFAULT_FROM_EMAIL,
