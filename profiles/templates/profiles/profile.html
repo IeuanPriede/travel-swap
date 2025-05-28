@@ -17,7 +17,7 @@
     {% endif %}
     <p>Email: {{ profile.user.email }}</p>
     <p>Bio: {{ profile.bio }}</p>
-    <p>Location: {{ profile.location }}</p>
+    <p>Location: {{ profile.get_location_display }}</p>
     <ul>
         {% if profile.pets_allowed %}<li>Pets Allowed</li>{% endif %}
         {% if profile.has_pool %}<li>Pool</li>{% endif %}

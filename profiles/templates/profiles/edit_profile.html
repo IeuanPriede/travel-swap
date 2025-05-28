@@ -5,7 +5,7 @@
 <div class="container">
     <h1>Edit Profile</h1>
     <!-- Begin Profile Edit Form -->
-    <form method="post" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+    <form method="post" id="edit-profile-form" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
         {% csrf_token %}
 
         <!-- User Fields (username, email, etc.) -->
@@ -18,7 +18,8 @@
         <fieldset class="mb-4">
             <legend>Profile Info</legend>
             {{ profile_form.bio.label_tag }} {{ profile_form.bio }}
-            {{ profile_form.location.label_tag }} {{ profile_form.location }}
+            {{ profile_form.location.label_tag }}
+            {{ profile_form.location }}
             {{ profile_form.house_description.label_tag }} {{ profile_form.house_description }}
             <label for="available-dates">Available Dates</label>
             {{ profile_form.available_dates }}
@@ -70,6 +71,7 @@
                                     data-image-id="{{ image.id }}">
                                 Delete Image
                             </button>
+                            <small>Save Changes to apply</small>
                         </div>
                     </div>
                 </div>
@@ -80,7 +82,7 @@
 
             <!-- Trigger Modal Buttons -->
         <div class="d-flex gap-2 mb-4">
-            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
                 Upload House Images
             </button>
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">

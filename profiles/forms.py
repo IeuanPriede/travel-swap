@@ -5,6 +5,7 @@ from django.forms import modelformset_factory
 from .models import Profile, HouseImage
 from django.core.exceptions import ValidationError
 from PIL import Image
+from .widgets import CountrySelectWidgetNoFlags
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -63,6 +64,12 @@ class ProfileForm(forms.ModelForm):
                     'autocomplete': 'off',
                 }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['location'].widget = CountrySelectWidgetNoFlags(
+            attrs={'class': 'form-control select2'}
+        )
 
 
 class SearchForm(forms.Form):

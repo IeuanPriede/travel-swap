@@ -34,11 +34,13 @@
           <h5>Search Criteria</h5>
           <form method="GET" action="">
             <!-- Location Filter -->
-            <div class="mb-2">
-              <label for="location" class="form-label">Location</label>
-              <input type="text" class="form-control" id="location" name="location">
-            </div>
-
+            <select name="location" class="form-control select2">
+              <option value="">Select a country</option>
+              {% for code, name in countries %}
+                <option value="{{ code }}">{{ name }}</option>
+              {% endfor %}
+            </select>
+            
             <!-- Dates Filter -->
             <div class="mb-2">
               <label for="dates" class="form-label">Dates</label>

@@ -283,3 +283,8 @@ body {
     font-size: 0.85rem;
   }
 }
+
+/* Edit Profile */
+  #edit-profile-form {
+    margin-bottom: 300px;
+  }

@@ -29,6 +29,7 @@ from django.urls import reverse
 from notifications.models import Notification
 from reviews.forms import ReviewForm
 from reviews.models import Review
+from django_countries import countries
 
 
 # View to display the logged-in user's profile
@@ -36,6 +37,7 @@ from reviews.models import Review
 def profile_view(request):
     # Get or create a Profile instance tied to the logged-in user
     profile, created = Profile.objects.get_or_create(user=request.user)
+    print("DEBUG: Profile location is:", profile.location)
     house_images = profile.house_images.all()
     reviews = Review.objects.filter(reviewee=request.user)
     average_rating = reviews.aggregate(avg=Avg('rating'))['avg']
@@ -253,6 +255,7 @@ def home(request):
         'form': form,  # pass form to template
         'reviews': reviews,
         'average_rating': average_rating,
+        'countries': list(countries),
     })
 
 

@@ -42,4 +42,17 @@ function getCSRFToken() {
   return csrfToken;
 }
 
+// Location: Country lists
+$(document).ready(function() {
+  const countryField = $('#id_location');
+  countryField.select2({
+    placeholder: 'Select a country',
+    allowClear: true,
+    dropdownParent: $('#edit-profile-form') // required for modals or containers
+  });
 
+  // Optional force to open dropdown downward
+  countryField.on('select2:open', function () {
+    $('.select2-dropdown').css('top', '100%');
+  });
+});

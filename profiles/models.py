@@ -3,6 +3,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 import mimetypes
+from django_countries.fields import CountryField
 
 
 # Create your models here.
@@ -14,7 +15,7 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
     bio = models.TextField(blank=True)
-    location = models.CharField(max_length=100, blank=True)
+    location = CountryField(blank_label='(select country)', blank=True)
     image = models.ImageField(
         upload_to='profile_images/', default='default.jpg'
         )
