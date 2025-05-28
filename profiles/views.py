@@ -48,79 +48,45 @@ def profile_view(request):
         })
 
 
-# Edit profile view
 @login_required
 def edit_profile(request):
-    # Get the current user's profile
     profile = get_object_or_404(Profile, user=request.user)
 
     if request.method == 'POST':
         print("Form submitted")
-        # Handle the form submission
-        user_form = UserForm(
-            request.POST, instance=request.user
-            )  # for updating the user model
+        user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(
-            request.POST, request.FILES, instance=profile
-            )  # for updating the profile model
-        formset = ImageFormSet(
-            request.POST,
-            request.FILES,
-            queryset=HouseImage.objects.filter(profile=profile)
-        )
+            request.POST, request.FILES, instance=profile)
 
-        print("Formset data:", request.POST)
-        total_forms = request.POST.get('form-TOTAL_FORMS')
-        initial_forms = request.POST.get('form-INITIAL_FORMS')
-        print("Management form data:", total_forms, initial_forms)
-
-        # Check all forms individually first
         user_form_valid = user_form.is_valid()
         profile_form_valid = profile_form.is_valid()
-        formset_valid = formset.is_valid()
 
-        # Debug: print validation states
-        print(
-            "DEBUG - Form valid states:",
-            user_form_valid, profile_form_valid
-        )
+        print("DEBUG - Form valid states:",
+              user_form_valid, profile_form_valid)
         print("UserForm errors:", user_form.errors)
         print("ProfileForm errors:", profile_form.errors)
-        print("Formset valid:", formset_valid)
-        print("Formset errors:", formset.errors)
 
-        if user_form_valid and profile_form_valid and formset_valid:
-            print("All forms valid")
+        if user_form_valid and profile_form_valid:
+            print("User and Profile forms are valid")
             user_form.save()
             profile_form.save()
-
-            images = formset.save(commit=False)
-            for image in images:
-                if image.image:  # only save if image was uploaded
-                    image.profile = profile
-                    image.save()
-
-            formset.save_m2m()
-
             messages.success(request, "Your profile has been updated.")
-            return redirect(
-                'profiles'
-                )  # Redirect to the profile view after successful update
-    else:
-        user_form = UserForm(
-            instance=request.user
-            )  # Prepopulate with current user info
-        profile_form = ProfileForm(
-            instance=profile
-            )  # Prepopulate with current profile info
+            return redirect('profiles')
+
+        # If validation fails, re-render the form with errors
         formset = ImageFormSet(
-            queryset=HouseImage.objects.filter(profile=profile)
-            )
+            queryset=HouseImage.objects.filter(profile=profile))
+
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
+        formset = ImageFormSet(
+            queryset=HouseImage.objects.filter(profile=profile))
 
     return render(request, 'profiles/edit_profile.html', {
         'user_form': user_form,
         'profile_form': profile_form,
-        'formset': formset,
+        'formset': formset,  # for image modal only
         'profile': profile,
     })
 

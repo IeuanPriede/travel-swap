@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container">
-    {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/edit-profile-hero.jpg' hero_title='Edit Your Profile' %}
+    <h1>Edit Profile</h1>
     <!-- Begin Profile Edit Form -->
     <form method="post" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
         {% csrf_token %}
