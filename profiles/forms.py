@@ -48,8 +48,16 @@ class ProfileForm(forms.ModelForm):
             'in_rural',
         ]
         widgets = {
-            'bio': forms.Textarea(attrs={'rows': 3}),
-            'house_description': forms.Textarea(attrs={'rows': 4}),
+            'bio': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'style': 'width: 100%; max-width: 100%;'
+            }),
+            'house_description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'style': 'width: 100%; max-width: 100%;'
+            }),
             'pets_allowed': forms.CheckboxInput(),
             'has_pool': forms.CheckboxInput(),
             'more_than_3_bedrooms': forms.CheckboxInput(),

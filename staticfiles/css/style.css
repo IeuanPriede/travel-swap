@@ -285,7 +285,7 @@ body {
 }
 
 /* Edit Profile */
-/* Ensure dropdown layers above modals */
+/* Ensure dropdown layers above modals (Location) */
 .select2-container--open {
   z-index: 2000;
 }

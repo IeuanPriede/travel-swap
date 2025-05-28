@@ -296,3 +296,10 @@ body {
   top: 100% !important;
   left: 0 !important;
 }
+
+/* Text box */
+
+textarea.form-control {
+    max-width: 100%;
+    width: 100%;
+}

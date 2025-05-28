@@ -3,96 +3,146 @@
 
 {% block content %}
 <div class="container">
-    <h1>Edit Profile</h1>
-    <!-- Begin Profile Edit Form -->
-    <form method="post" id="edit-profile-form" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
-        {% csrf_token %}
-
-        <!-- User Fields (username, email, etc.) -->
-        <fieldset class="mb-4">
-            <legend>User Info</legend>
-            {{ user_form.as_p }}
-        </fieldset>
-
-        <!-- Profile Fields -->
-        <fieldset class="mb-4">
-            <legend>Profile Info</legend>
-            {{ profile_form.bio.label_tag }} {{ profile_form.bio }}
-            {{ profile_form.location.label_tag }}
-            <div class="mb-4">{{ profile_form.location }}</div>
-            {{ profile_form.house_description.label_tag }} {{ profile_form.house_description }}
-            <label for="available-dates">Available Dates</label>
-            {{ profile_form.available_dates }}
-            <small class="form-text text-muted mb-3 d-block">Choose your availability start and end date</small>
-            {{ profile_form.is_visible.label_tag }} {{ profile_form.is_visible }}
-        </fieldset>
-
-        <!-- House Criteria -->
-        <fieldset class="mb-4">
-            <legend>House Criteria</legend>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-check">
-                        {{ profile_form.pets_allowed }} {{ profile_form.pets_allowed.label_tag }}
-                    </div>
-                    <div class="form-check">
-                        {{ profile_form.has_pool }} {{ profile_form.has_pool.label_tag }}
-                    </div>
-                    <div class="form-check">
-                        {{ profile_form.more_than_3_bedrooms }} {{ profile_form.more_than_3_bedrooms.label_tag }}
-                    </div>
-                    <div class="form-check">
-                        {{ profile_form.near_beach }} {{ profile_form.near_beach.label_tag }}
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-check">
-                        {{ profile_form.in_mountains }} {{ profile_form.in_mountains.label_tag }}
-                    </div>
-                    <div class="form-check">
-                        {{ profile_form.in_city }} {{ profile_form.in_city.label_tag }}
-                    </div>
-                    <div class="form-check">
-                        {{ profile_form.in_rural }} {{ profile_form.in_rural.label_tag }}
-                    </div>
-                </div>
+    <h1 class="my-4">Edit Profile</h1>
+    <div class="card my-4 shadow">
+        <div class="card-body">
+            <div class="card-header bg-primary text-white">
+                <h3>Update Your Profile</h3>
             </div>
-        </fieldset>
-        <!-- House Images -->
-        <h4>House Images</h4>
-        <div class="row" id="image-gallery">
-            {% for image in profile.house_images.all %}
-                <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
-                    <div class="card">
-                        <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
-                        <div class="card-body text-center d-flex flex-column gap-2">
-                            <!-- Delete image button -->
-                            <button type="button" class="btn btn-danger btn-sm delete-image-btn"
-                                    data-image-id="{{ image.id }}">
-                                Delete Image
-                            </button>
-                            <small>Save Changes to apply</small>
+            <!-- Begin Profile Edit Form -->
+            <form method="post" id="edit-profile-form" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+                {% csrf_token %}
+
+                <!-- User Fields (username, email, etc.) -->
+                <fieldset class="mb-4">
+                    <legend>Your Info</legend>
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+
+                            <div class="mb-3">
+                                {{ user_form.username.label_tag }}
+                                {{ user_form.username }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ user_form.email.label_tag }}
+                                {{ user_form.email }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ user_form.first_name.label_tag }}
+                                {{ user_form.first_name }}
+                            </div>
+                            <div class="mb-3">
+                                {{ user_form.last_name.label_tag }}
+                                {{ user_form.last_name }}
+                            </div>    
                         </div>
                     </div>
-                </div>
-            {% empty %}
-                <p>No images uploaded yet.</p>
-            {% endfor %}
-        </div>
+                </fieldset>
 
-            <!-- Trigger Modal Buttons -->
-        <div class="d-flex gap-2 mb-4">
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
-                Upload House Images
-            </button>
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
-                Delete Profile
-            </button>
+                <!-- Profile Fields -->
+                <fieldset class="mb-4">
+                    <legend>Profile Info</legend>
+                    <div class="row card shadow-sm">
+                        <div class="mb-3 col-12 col-md-6 col-lg-4">
+                            <label for="{{ profile_form.location.id_for_label }}" class="form-label">
+                                Location (Country):
+                            </label><br>
+                            {{ profile_form.location }}
+                        </div>
+                        <div class="mb-3" style="max-width: 100%;">
+                            <label for="{{ profile_form.bio.id_for_label }}" class="form-label">
+                                About You:
+                            </label><br>
+                            {{ profile_form.bio }}
+                        </div>
+                        <div class="mb-3" style="max-width: 100%;">
+                            {{ profile_form.house_description.label_tag }}<br>
+                            {{ profile_form.house_description }}
+                        </div>
+                        <div class="mb-3 col-12">
+                            <label for="{{ profile_form.available_dates.id_for_label }}" class="form-label">
+                                {{ profile_form.available_dates.label_tag }}
+                            </label><br>
+                            {{ profile_form.available_dates }}
+                            <small class="form-text text-muted mb-3 d-block">Choose your availability start and end date</small>
+                            <label for="{{ profile_form.is_visible.id_for_label }}" class="form-label">
+                                Make Your Profile Visible:
+                            </label>
+                            {{ profile_form.is_visible }}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- House Criteria -->
+                <fieldset class="mb-4">
+                    <legend>House Criteria</legend>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ profile_form.pets_allowed }} {{ profile_form.pets_allowed.label_tag }}
+                            </div>
+                            <div class="form-check">
+                                {{ profile_form.has_pool }} {{ profile_form.has_pool.label_tag }}
+                            </div>
+                            <div class="form-check">
+                                {{ profile_form.more_than_3_bedrooms }} {{ profile_form.more_than_3_bedrooms.label_tag }}
+                            </div>
+                            <div class="form-check">
+                                {{ profile_form.near_beach }} {{ profile_form.near_beach.label_tag }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ profile_form.in_mountains }} {{ profile_form.in_mountains.label_tag }}
+                            </div>
+                            <div class="form-check">
+                                {{ profile_form.in_city }} {{ profile_form.in_city.label_tag }}
+                            </div>
+                            <div class="form-check">
+                                {{ profile_form.in_rural }} {{ profile_form.in_rural.label_tag }}
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- House Images -->
+                <h4>House Images</h4>
+                <div class="row" id="image-gallery">
+                    {% for image in profile.house_images.all %}
+                        <div class="col-md-4 mb-4 image-card" id="image-{{ image.id }}">
+                            <div class="card">
+                                <img src="{{ image.image.url }}" class="card-img-top img-fluid" alt="House Image">
+                                <div class="card-body text-center d-flex flex-column gap-2">
+                                    <!-- Delete image button -->
+                                    <button type="button" class="btn btn-danger btn-sm delete-image-btn"
+                                            data-image-id="{{ image.id }}">
+                                        Delete Image
+                                    </button>
+                                    <small>Save Changes to apply</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p>No images uploaded yet.</p>
+                    {% endfor %}
+                </div>
+
+                    <!-- Trigger Modal Buttons -->
+                <div class="d-flex gap-2 mb-4">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
+                        Upload House Images
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
+                        Delete Profile
+                    </button>
+                </div>
+                        <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{% url 'profiles' %}" class="btn btn-secondary">Cancel</a>
+            </form>
         </div>
-                <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{% url 'profiles' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+    </div>
 
     <!-- Upload Images Modal -->
     <div class="modal fade" id="uploadImagesModal" tabindex="-1" aria-labelledby="uploadImagesLabel" aria-hidden="true">
