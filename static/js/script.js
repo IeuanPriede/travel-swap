@@ -48,7 +48,8 @@ $(document).ready(function() {
   countryField.select2({
     placeholder: 'Select a country',
     allowClear: true,
-    dropdownParent: $('#edit-profile-form') // required for modals or containers
+    dropdownParent: $('#edit-profile-form'), // required for modals or containers
+    dropdownPosition: 'below'
   });
 
   // Optional force to open dropdown downward
