@@ -157,12 +157,6 @@ body {
   color: #ddd; /* unfilled muted */
 }
 
-/* Align review stars left in static display */
-.card .star-rating {
-  flex-direction: row !important;
-  justify-content: flex-start !important;
-}
-
 /* View_profile */
 
 /* Images */

@@ -148,21 +148,6 @@ body {
   flex-direction: row-reverse;
 }
 
-/* Style all stars in .star-rating blocks */
-.star-rating i.fas.fa-star {
-  color: #ffc107 !important; /* filled yellow */
-}
-
-.star-rating i.far.fa-star {
-  color: #ddd; /* unfilled muted */
-}
-
-/* Align review stars left in static display */
-.card .star-rating {
-  flex-direction: row !important;
-  justify-content: flex-start !important;
-}
-
 /* View_profile */
 
 /* Images */
@@ -311,3 +296,12 @@ body {
   top: 100% !important;
   left: 0 !important;
 }
+
+/* Profile */
+
+/* Average ratings */
+
+.fas.fa-star,
+.fas.fa-star.text-warning {
+    color: #ffc107 !important; /* force yellow */
+  }

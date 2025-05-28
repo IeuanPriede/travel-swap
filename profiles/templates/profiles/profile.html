@@ -2,66 +2,89 @@
 {% load image_extras %}
 
 {% block content %}
-    <h1>{{ profile.user.username }}'s Profile</h1>
-    {% if average_rating %}
-    <p><strong>Average Rating:</strong>
-        {{ average_rating }} 
-        {% for i in "12345" %}
-        {% if average_rating|floatformat:1 >= i|add:"0" %}
-            <i class="fas fa-star text-warning"></i>
-        {% else %}
-            <i class="far fa-star text-muted"></i>
-        {% endif %}
-        {% endfor %}
-    </p>
-    {% endif %}
-    <p>Email: {{ profile.user.email }}</p>
-    <p>Bio: {{ profile.bio }}</p>
-    <p>Location: {{ profile.get_location_display }}</p>
-    <ul>
-        {% if profile.pets_allowed %}<li>Pets Allowed</li>{% endif %}
-        {% if profile.has_pool %}<li>Pool</li>{% endif %}
-        {% if profile.more_than_3_bedrooms %}<li>3+ Bedrooms</li>{% endif %}
-        {% if profile.near_beach %}<li>Beach Nearby</li>{% endif %}
-        {% if profile.in_mountains %}<li>Mountain Area</li>{% endif %}
-        {% if profile.in_city %}<li>City</li>{% endif %}
-        {% if profile.in_rural %}<li>Rural</li>{% endif %}
-    </ul>
-  
-    <h3 class="mt-4">House Images</h3>
-    <div class="row">
-        {% for image in house_images %}
-            {% if image.image %}
-                <div class="col-md-4 mb-3">
-                    <img src="{{ image.image.url }}" class="img-fluid rounded shadow" alt="House Image">
+<div class="container my-5">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ profile.user.username }}'s Profile</h2>
+        </div>
+        <div class="card-body">
+            {% if average_rating %}
+            <div class="mb-3">
+                <strong>Average Rating:</strong> {{ average_rating|floatformat:1 }}
+                <div class="star-rating">
+                    {% for i in "12345" %}
+                        {% if average_rating >= i|add:"0" %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-            {% else %}
-                <p>No image available for this entry.</p>
+            </div>
             {% endif %}
-        {% empty %}
-            <p>No images uploaded yet.</p>
-        {% endfor %}
-    </div>
+            <p><strong>Email:</strong> {{ profile.user.email }}</p>
+            <p><strong>Bio:</strong> {{ profile.bio }}</p>
+            <p><strong>Location:</strong> {{ profile.get_location_display }}</p>
 
-    <h4 class="mt-4">Reviews About You</h4>
+            <div class="mt-3">
+                <h5>House Criteria</h5>
+                <ul class="list-group list-group-flush">
+                    {% if profile.pets_allowed %}<li class="list-group-item">Pets Allowed</li>{% endif %}
+                    {% if profile.has_pool %}<li class="list-group-item">Pool</li>{% endif %}
+                    {% if profile.more_than_3_bedrooms %}<li class="list-group-item">3+ Bedrooms</li>{% endif %}
+                    {% if profile.near_beach %}<li class="list-group-item">Beach Nearby</li>{% endif %}
+                    {% if profile.in_mountains %}<li class="list-group-item">Mountain Area</li>{% endif %}
+                    {% if profile.in_city %}<li class="list-group-item">City</li>{% endif %}
+                    {% if profile.in_rural %}<li class="list-group-item">Rural</li>{% endif %}
+                </ul>
+            </div>
 
-    {% for review in reviews %}
-    <div class="card my-2 p-2">
-        <strong>{{ review.reviewer.username }}</strong> rated:
-        {% for i in "12345" %}
-        {% if review.rating|add:"0" >= i|add:"0" %}
-            <i class="fas fa-star text-warning"></i>
-        {% else %}
-            <i class="far fa-star text-muted"></i>
-        {% endif %}
-        {% endfor %}
-        <p>{{ review.comment }}</p>
-        <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+            <div class="mt-4">
+                <h5>House Images</h5>
+                <div class="row">
+                    {% for image in house_images %}
+                        {% if image.image %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card shadow-sm">
+                                <img src="{{ image.image.url }}" class="img-fluid rounded" alt="House Image">
+                            </div>
+                        </div>
+                        {% else %}
+                        <p>No image available for this entry.</p>
+                        {% endif %}
+                    {% empty %}
+                        <p>No images uploaded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>Reviews About You</h5>
+                {% for review in reviews %}
+                <div class="card my-3 p-3 shadow-sm">
+                    <strong>{{ review.reviewer.username }}</strong> rated:
+                    <div class="star-rating">
+                        {% for i in "12345" %}
+                            {% if review.rating|add:"0" >= i|add:"0" %}
+                                <i class="fas fa-star text-warning"></i>
+                            {% else %}
+                                <i class="far fa-star text-muted"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>    
+                    <p class="mt-2">{{ review.comment }}</p>
+                    <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+                </div>
+                {% empty %}
+                <p class="text-muted">You haven't received any reviews yet.</p>
+                {% endfor %}
+            </div>
+
+            <div class="mt-4">
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+            </div>
+
+        </div>
     </div>
-    {% empty %}
-    <p>You haven't received any reviews yet.</p>
-    {% endfor %}
-  
-  <!-- Edit profile button -->
-  <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+</div>
 {% endblock %}

@@ -40,7 +40,8 @@ def profile_view(request):
     print("DEBUG: Profile location is:", profile.location)
     house_images = profile.house_images.all()
     reviews = Review.objects.filter(reviewee=request.user)
-    average_rating = reviews.aggregate(avg=Avg('rating'))['avg']
+    average_rating_val = reviews.aggregate(avg=Avg('rating'))['avg']
+    average_rating = float(average_rating_val) if average_rating_val else None
     # Pass profile object to the template
     return render(request, 'profiles/profile.html', {
         'profile': profile,
