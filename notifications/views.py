@@ -19,3 +19,13 @@ def dismiss_notification(request, notification_id):
         notification.is_read = True
         notification.save()
     return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+@login_required
+def mark_notification_read(request, notification_id):
+    notification = get_object_or_404(
+        Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return redirect(
+        notification.link or 'home')  # fallback to 'home' if no link
