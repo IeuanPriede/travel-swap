@@ -285,26 +285,14 @@ body {
 }
 
 /* Edit Profile */
-  #edit-profile-form {
-    margin-bottom: 300px;
-  }
-
-.modal {
-  overflow: visible;
-  z-index: 1050;
-}
-
+/* Ensure dropdown layers above modals */
 .select2-container--open {
-  z-index: 1060;
-}
-
-.select2-container {
-  z-index: 9999 !important;
+  z-index: 2000;
 }
 
 .select2-dropdown {
-  z-index: 99999 !important;
   position: absolute !important;
+  z-index: 2001;
   top: 100% !important;
   left: 0 !important;
 }

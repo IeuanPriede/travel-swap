@@ -44,27 +44,24 @@ function getCSRFToken() {
 
 // Location: Country lists
 $(document).ready(function () {
-  const $select = $('#id_location');
-
-  $select.select2({
+  const countryField = $('#id_location');
+  countryField.select2({
     placeholder: 'Select a country',
     allowClear: true,
-    dropdownParent: $('#edit-profile-form')  // ensures dropdown works inside modals/forms
+    dropdownParent: $('#edit-profile-form')
   });
 
-  // Fix upward opening: force dropdown to open below
-  $select.on('select2:open', function () {
+  // Manually force dropdown to open downward when triggered
+  countryField.on('select2:open', function () {
     setTimeout(() => {
-      const container = $('.select2-container--open');
-      const dropdown = $('.select2-dropdown');
-
-      if (container.length && dropdown.length) {
-        const height = container.outerHeight();
+      const dropdown = $('.select2-container--open .select2-dropdown');
+      const select = $('.select2-container--open');
+      if (dropdown.length && select.length) {
         dropdown.css({
-          top: height + 'px',
+          top: select.outerHeight(),
           bottom: 'auto'
         });
       }
-    }, 50);
+    }, 10);
   });
 });

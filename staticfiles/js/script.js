@@ -43,17 +43,28 @@ function getCSRFToken() {
 }
 
 // Location: Country lists
-$(document).ready(function() {
-  const countryField = $('#id_location');
-  countryField.select2({
+$(document).ready(function () {
+  const $select = $('#id_location');
+
+  $select.select2({
     placeholder: 'Select a country',
     allowClear: true,
-    dropdownParent: $('#edit-profile-form'), // required for modals or containers
-    dropdownPosition: 'below'
+    dropdownParent: $('#edit-profile-form')  // ensures dropdown works inside modals/forms
   });
 
-  // Optional force to open dropdown downward
-  countryField.on('select2:open', function () {
-    $('.select2-dropdown').css('top', '100%');
+  // Fix upward opening: force dropdown to open below
+  $select.on('select2:open', function () {
+    setTimeout(() => {
+      const container = $('.select2-container--open');
+      const dropdown = $('.select2-dropdown');
+
+      if (container.length && dropdown.length) {
+        const height = container.outerHeight();
+        dropdown.css({
+          top: height + 'px',
+          bottom: 'auto'
+        });
+      }
+    }, 50);
   });
 });

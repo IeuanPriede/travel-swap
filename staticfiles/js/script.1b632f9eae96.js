@@ -44,27 +44,27 @@ function getCSRFToken() {
 
 // Location: Country lists
 $(document).ready(function () {
-  const $select = $('#id_location');
+  const countryField = $('#id_location');
 
-  $select.select2({
+  countryField.select2({
     placeholder: 'Select a country',
     allowClear: true,
-    dropdownParent: $('#edit-profile-form')  // ensures dropdown works inside modals/forms
+    dropdownParent: $('#edit-profile-form'),
   });
 
-  // Fix upward opening: force dropdown to open below
-  $select.on('select2:open', function () {
-    setTimeout(() => {
-      const container = $('.select2-container--open');
-      const dropdown = $('.select2-dropdown');
+  // Force dropdown to open downward
+  countryField.on('select2:open', function () {
+    const select2Container = $('.select2-container--open');
+    const dropdown = $('.select2-dropdown');
+    const inputOffset = select2Container.offset().top;
+    const scrollTop = $(window).scrollTop();
+    const windowHeight = $(window).height();
 
-      if (container.length && dropdown.length) {
-        const height = container.outerHeight();
-        dropdown.css({
-          top: height + 'px',
-          bottom: 'auto'
-        });
-      }
-    }, 50);
+    // If there's not enough space below, shift it down manually
+    if (inputOffset - scrollTop + dropdown.outerHeight() > windowHeight) {
+      dropdown.css({
+        top: select2Container.outerHeight(),
+      });
+    }
   });
 });

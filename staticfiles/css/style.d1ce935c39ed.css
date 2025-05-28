@@ -285,14 +285,20 @@ body {
 }
 
 /* Edit Profile */
-/* Ensure dropdown layers above modals */
+#edit-profile-form {
+  margin-bottom: 300px;
+}
+
+.modal {
+  overflow: visible;
+  z-index: 1050;
+}
+
 .select2-container--open {
-  z-index: 2000;
+  z-index: 1060;
 }
 
 .select2-dropdown {
   position: absolute !important;
-  z-index: 2001;
-  top: 100% !important;
-  left: 0 !important;
+  z-index: 1061;
 }
