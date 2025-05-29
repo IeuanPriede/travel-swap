@@ -418,10 +418,13 @@ def unlike_profile(request, profile_id):
             to_profile_id=profile_id,
             liked=True
         )
+        username = match.to_profile.user.username
         match.delete()
-        messages.success(request, "You have unliked this profile.")
+        messages.success(
+            request, f"You have unliked {username}'s profile.")
     except MatchResponse.DoesNotExist:
-        messages.warning(request, "You haven't liked this profile.")
+        messages.warning(
+            request, f"You haven't {username}'s profile.")
 
     return HttpResponseRedirect(reverse('travel_log'))
 
