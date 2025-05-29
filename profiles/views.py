@@ -554,8 +554,11 @@ def view_profile(request, user_id):
                 messages.success(request, "Your review has been submitted.")
                 return redirect('view_profile', user_id=profile_user.id)
 
-    if is_match and 'booking_form' not in locals():
-        booking_form = BookingRequestForm()
+    if is_match:
+        if request.method == 'POST' and 'request_booking' in request.POST:
+            booking_form = BookingRequestForm(request.POST)
+        else:
+            booking_form = BookingRequestForm()
 
     context = {
         'profile_user': profile_user,

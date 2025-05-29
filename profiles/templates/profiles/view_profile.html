@@ -76,7 +76,7 @@
         <div class="col-lg-3">
             {% if is_match %}
                 {% if not booking %}
-                    <!-- New booking request form -->
+                    <!-- booking request form -->
                     <div class="card mb-4 border-success">
                         <div class="card-header bg-success text-white">
                             Request a Vacation Exchange
@@ -94,80 +94,121 @@
                         </div>
                     </div>
 
-                {% elif booking.status == 'pending' and booking.sender == request.user %}
-                    <!-- Sender sees pending request -->
-                    <div class="card border-warning mb-4">
-                        <div class="card-header bg-warning text-dark">
-                            Pending Request
-                        </div>
-                        <div class="card-body">
-                            <p>You requested an exchange on: <strong>{{ booking.requested_dates }}</strong></p>
-                            <form method="POST">
-                                {% csrf_token %}
-                                {{ booking_form.requested_dates.label_tag }}
-                                {{ booking_form.requested_dates }}
-                                <button type="submit" name="request_booking" class="btn btn-outline-primary mt-2">Update Request</button>
-                            </form>
-                            <form method="POST" class="mt-2">
-                                {% csrf_token %}
-                                <button type="submit" name="cancel_booking" value="cancel" class="btn btn-outline-danger">Cancel Request</button>
-                            </form>
-                        </div>
-                    </div>
+                {% elif booking.status == 'pending' %}
+                    {% if booking.sender == request.user %}
+                        <!-- Sender sees pending request -->
+                        <div class="card border-warning mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                Pending Request
+                            </div>
+                            <div class="card-body">
+                                <p>You requested an exchange on: <strong>{{ booking.requested_dates }}</strong></p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    {{ booking_form.requested_dates.label_tag }}
+                                    {{ booking_form.requested_dates }}
+                                    <button type="submit" name="request_booking" class="btn btn-outline-primary mt-2">Update Request</button>
+                                </form>
+                                <form method="POST" class="mt-2">
+                                    {% csrf_token %}
+                                    <button type="submit" name="cancel_booking" value="cancel" class="btn btn-outline-danger">Cancel Request</button>
+                                </form>
+                            </div>
+                        </div>  
 
-                {% elif booking.status == 'pending' and booking.recipient == request.user %}
-                    <!-- Recipient sees options -->
-                    <div class="card border-info mb-4">
-                        <div class="card-header bg-info text-white">
-                            Vacation Request Received
+                    {% elif booking.recipient == request.user %}
+                        <!-- Recipient sees options -->
+                        <div class="card border-info mb-4">
+                            <div class="card-header bg-info text-white">
+                                Vacation Request Received
+                            </div>
+                            <div class="card-body">
+                                <p><strong>{{ booking.sender.username }}</strong> requested: <strong>{{ booking.requested_dates }}</strong></p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
+                                    <input type="text" id="amended-dates" name="amended_dates" class="form-control mb-2" placeholder="Select new dates">
+                                    <div class="btn-group">
+                                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p><strong>{{ booking.sender.username }}</strong> requested: <strong>{{ booking.requested_dates }}</strong></p>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
-                                <input type="text" id="amended-dates" name="amended_dates" class="form-control mb-2" placeholder="Select new dates">
-                                <div class="btn-group">
-                                    <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
-                                    <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
-                                    <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    {% endif %}        
 
-                {% elif booking.status == 'amended' and booking.sender == request.user %}
-                    <!-- Sender sees amended proposal -->
-                    <div class="card border-warning mb-4">
-                        <div class="card-header bg-warning text-dark">
-                            Vacation Dates Amended
+                {% elif booking.status == 'amended' %}
+                    {% if booking.sender == request.user %}
+                        <!-- Sender sees amended proposal -->
+                        <div class="card border-warning mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                Vacation Dates Amended
+                            </div>
+                            <div class="card-body">
+                                <p><strong>{{ booking.recipient.username }}</strong> suggested: <strong>{{ booking.requested_dates }}</strong></p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
+                                    <input type="text" id="amended-dates" name="amended_dates" class="form-control mb-2" placeholder="Select new dates">
+                                    <div class="btn-group">
+                                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p><strong>{{ booking.recipient.username }}</strong> suggested: <strong>{{ booking.requested_dates }}</strong></p>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
-                                <input type="text" id="amended-dates" name="amended_dates" class="form-control mb-2" placeholder="Select new dates">
-                                <div class="btn-group">
-                                    <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
-                                    <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
-                                    <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
-                                </div>
-                            </form>
+                    {% elif booking.recipient == request.user %}
+                        <!-- Recipient sees sender's amended proposal -->
+                        <div class="card border-info mb-4">
+                            <div class="card-header bg-info text-white">Amended Vacation Request</div>
+                            <div class="card-body">
+                                <p><strong>{{ booking.sender.username }}</strong> amended the request to: <strong>{{ booking.requested_dates }}</strong></p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <label for="amended-dates" class="form-label">Suggest New Dates (optional)</label>
+                                    <input type="text" id="amended-dates" name="amended_dates" class="form-control mb-2" placeholder="Select new dates">
+                                    <div class="btn-group">
+                                        <button type="submit" name="respond_booking" value="accepted" class="btn btn-success">Accept</button>
+                                        <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend</button>
+                                        <button type="submit" name="respond_booking" value="denied" class="btn btn-danger">Deny</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
 
                 {% elif booking.status == 'accepted' %}
-                    <!-- Final state -->
-                    <div class="alert alert-success mt-3">
-                        Vacation exchange confirmed for: <strong>{{ booking.requested_dates }}</strong>
+                    <!-- Booking confirmed, but allow amendment or cancellation -->
+                    <div class="card border-success mb-4">
+                        <div class="card-header bg-success text-white">
+                            Vacation Exchange Confirmed
+                        </div>
+                        <div class="card-body">
+                            <p>The exchange is confirmed for: <strong>{{ booking.requested_dates }}</strong></p>
+
+                            <!-- Form to amend booking -->
+                            <form method="POST">
+                                {% csrf_token %}
+                                <label for="amended-dates" class="form-label">Propose New Dates</label>
+                                <input type="text" id="amended-dates" name="amended_dates" class="form-control mb-2" placeholder="Select new dates">
+                                <button type="submit" name="respond_booking" value="amended" class="btn btn-warning">Amend Booking</button>
+                            </form>
+
+                            <!-- Cancel booking -->
+                            <form method="POST" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" name="cancel_booking" value="cancel" class="btn btn-outline-danger">Cancel Booking</button>
+                            </form>
+                        </div>
                     </div>
 
                 {% elif booking.status == 'denied' %}
                     <!-- Treat as no booking: allow new request -->
-                    <div class="card mb-4 border-danger">
-                        <div class="card-header bg-danger text-white">
-                            Previous Request Denied – You Can Send a New One
+                    <div class="card mb-4 border-success">
+                        <div class="card-header bg-success text-white">
+                            Request a Vacation Exchange
                         </div>
                         <div class="card-body">
                             <form method="POST">
@@ -175,8 +216,8 @@
                                 {{ booking_form.non_field_errors }}
                                 {{ booking_form.requested_dates.label_tag }}
                                 {{ booking_form.requested_dates }}
-                                <button type="submit" name="request_booking" class="btn btn-outline-danger mt-2">
-                                    Send New Request
+                                <button type="submit" name="request_booking" class="btn btn-outline-success mt-2">
+                                    Send Request
                                 </button>
                             </form>
                         </div>
@@ -242,7 +283,6 @@
                     </div>
                 </div>
                 {% endif %}
-
             {% endif %}
         </div>
 
