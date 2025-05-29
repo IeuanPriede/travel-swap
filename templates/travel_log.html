@@ -37,12 +37,16 @@
                     {{ match.to_profile.user.username }}
                     {% if match.is_mutual %}
                         <span class="badge bg-success ms-2">Matched</span>
+                        <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}" class="btn btn-outline-primary mt-2">
+                            View Profile
+                        </a>
+                    {% else %}
+                        <div class="text-muted mt-2">
+                            <small>Must be matched to view profile</small>
+                        </div>
                     {% endif %}
                     </h5>
                     <p class="card-text text-muted">Location: {{ match.to_profile.location }}</p>
-                    <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}" class="btn btn-outline-primary mt-2">
-                    View Profile
-                    </a>
                     <a href="{% url 'unlike_profile' profile_id=match.to_profile.id %}"
                         class="btn btn-outline-danger mt-2 ms-2"
                         onclick="return confirm('Are you sure you want to unlike this profile?');">
