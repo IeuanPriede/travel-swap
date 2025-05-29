@@ -299,6 +299,6 @@ body {
 /* Align review stars left in static display */
 .card .star-rating {
   display: inline-flex !important;
-  flex-direction: row-reverse !important;
+  flex-direction: row !important;
   justify-content: flex-start !important;
 }
