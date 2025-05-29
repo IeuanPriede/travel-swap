@@ -11,7 +11,7 @@ from .forms import (
 )
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from cloudinary.uploader import destroy
 from django.template.loader import render_to_string
 import json
@@ -321,6 +321,7 @@ def like_profile(request):
         data = json.loads(request.body)
         profile_id = data.get('profile_id')
         profile = get_object_or_404(Profile, id=profile_id)
+        print("✅ Like profile view hit for:", profile.user.username)
 
         # Create or update MatchResponse
         match, created = MatchResponse.objects.get_or_create(
@@ -370,13 +371,6 @@ def like_profile(request):
                 f"Match email sent to: {profile.user.email} "
                 "with subject: {subject}"
             )
-            matched_profile_url = reverse(
-                'view_profile', args=[profile.user.id])
-            messages.info(
-                request,
-                f"You've matched with {profile.user.username}! "
-                f"<a href='{matched_profile_url}'>View profile</a>"
-            )
             Notification.objects.create(
                 user=profile.user,
                 message=f"You matched with {request.user.username}!",
@@ -398,11 +392,38 @@ def like_profile(request):
         html = render_to_string('partials/profile_card.html', {
             'profile': next_profile}, request=request)
 
+        print("Returning JSON with message:", (
+                f"You matched with {profile.user.username}! 🎉"
+                if is_match else
+                f"You liked {profile.user.username}'s profile."
+            ))
+
         return JsonResponse({
             'match': is_match,
             'match_with': profile.user.username if is_match else None,
-            'next_profile_html': html
+            'next_profile_html': html,
+            'message': (
+                f"You matched with {profile.user.username}! 🎉"
+                if is_match else
+                f"You liked {profile.user.username}'s profile."
+            )
         })
+
+
+@login_required
+def unlike_profile(request, profile_id):
+    try:
+        match = MatchResponse.objects.get(
+            from_user=request.user,
+            to_profile_id=profile_id,
+            liked=True
+        )
+        match.delete()
+        messages.success(request, "You have unliked this profile.")
+    except MatchResponse.DoesNotExist:
+        messages.warning(request, "You haven't liked this profile.")
+
+    return HttpResponseRedirect(reverse('travel_log'))
 
 
 @login_required

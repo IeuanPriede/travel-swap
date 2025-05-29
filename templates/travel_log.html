@@ -43,6 +43,11 @@
                     <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}" class="btn btn-outline-primary mt-2">
                     View Profile
                     </a>
+                    <a href="{% url 'unlike_profile' profile_id=match.to_profile.id %}"
+                        class="btn btn-outline-danger mt-2 ms-2"
+                        onclick="return confirm('Are you sure you want to unlike this profile?');">
+                            Unlike
+                    </a>
                 </div>
                 </div>
             </div>

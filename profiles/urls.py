@@ -18,4 +18,6 @@ urlpatterns = [
     path('travel-log/', views.travel_log, name='travel_log'),
     path('profile/<int:user_id>/', views.view_profile, name='view_profile'),
     path('profile/', views.profile_view, name='profile_view'),
+    path('unlike/<int:profile_id>/',
+         views.unlike_profile, name='unlike_profile'),
 ]
