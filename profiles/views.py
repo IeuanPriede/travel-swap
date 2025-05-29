@@ -690,8 +690,42 @@ def handle_booking_response(request, profile_user, booking):
 
 
 def handle_booking_cancel(request, profile_user, booking):
+    # Identify the other user
+    if booking.sender == request.user:
+        recipient = booking.recipient
+    else:
+        recipient = booking.sender
+
+    # Store the dates before deleting
+    cancelled_dates = booking.requested_dates
+
+    # Delete the booking
     booking.delete()
-    messages.success(request, "Vacation exchange cancelled.")
+
+    # Create notification for the other user
+    Notification.objects.create(
+        user=recipient,
+        message=f"{request.user.username} cancelled your "
+                f"confirmed vacation exchange for {cancelled_dates}.",
+        link=reverse('view_profile', args=[request.user.id])
+    )
+
+    # Send email to the other user (optional but useful)
+    send_mail(
+        subject='Vacation exchange cancelled',
+        message=(
+            f"{request.user.username} has cancelled the "
+            f"confirmed vacation exchange.\n\n"
+            f"Dates: {cancelled_dates}\n\n"
+            "Log in to TravelSwap to view their profile or make a new request."
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[recipient.email],
+        fail_silently=False,
+    )
+
+    # Feedback for the user performing the cancellation
+    messages.success(request, "Vacation exchange cancelled and user notified.")
     return redirect('view_profile', user_id=profile_user.id)
 
 
