@@ -109,60 +109,6 @@ body {
   display: block;
 }
 
-/* Star Rating */
-
-.star-rating {
-  display: inline-flex;
-  flex-direction: row;
-}
-
-.star-rating input[type="radio"] {
-  display: none;
-}
-
-.star-rating label {
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: #ccc;
-  transition: color 0.2s;
-}
-
-/* Fill all previous stars when one is selected */
-.star-rating input[type="radio"]:checked ~ label i {
-  color: #ffc107;
-}
-
-/* Highlight stars on hover */
-.star-rating label:hover ~ label i,
-.star-rating label:hover i {
-  color: #ffc107;
-}
-
-/* Ensure selected star is highlighted */
-.star-rating input[type="radio"]:checked + label i {
-  color: #ffc107;
-}
-
-.star-rating {
-  display: inline-flex;
-  flex-direction: row-reverse;
-}
-
-/* Style all stars in .star-rating blocks */
-.star-rating i.fas.fa-star {
-  color: #ffc107 !important; /* filled yellow */
-}
-
-.star-rating i.far.fa-star {
-  color: #ddd; /* unfilled muted */
-}
-
-/* Align review stars left in static display */
-.card .star-rating {
-  flex-direction: row !important;
-  justify-content: flex-start !important;
-}
-
 /* View_profile */
 
 /* Images */
@@ -310,4 +256,49 @@ body {
   z-index: 2001;
   top: 100% !important;
   left: 0 !important;
+}
+
+/* Star Rating */
+
+.star-rating input[type="radio"] {
+  display: none;
+}
+
+.star-rating label {
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+/* Fill all previous stars when one is selected */
+.star-rating input[type="radio"]:checked ~ label i {
+  color: #ffc107;
+}
+
+/* Highlight stars on hover */
+.star-rating label:hover ~ label i,
+.star-rating label:hover i {
+  color: #ffc107;
+}
+
+/* Ensure selected star is highlighted */
+.star-rating input[type="radio"]:checked + label i {
+  color: #ffc107;
+}
+
+/* Style all stars in .star-rating blocks */
+.star-rating i.fas.fa-star {
+  color: #ffc107 !important; /* filled yellow */
+}
+
+.star-rating i.far.fa-star {
+  color: #ddd; /* unfilled muted */
+}
+
+/* Align review stars left in static display */
+.card .star-rating {
+  display: inline-flex !important;
+  flex-direction: row-reverse !important;
+  justify-content: flex-start !important;
 }
