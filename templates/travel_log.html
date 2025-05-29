@@ -36,7 +36,7 @@
                     <h5 class="card-title">
                     {{ match.to_profile.user.username }}
                     {% if match.is_mutual %}
-                        <span class="badge bg-success ms-2">Matched</span>
+                        <span class="badge bg-success ms-2">Matched</span><br>
                         <a href="{% url 'view_profile' user_id=match.to_profile.user.id %}" class="btn btn-outline-primary mt-2">
                             View Profile
                         </a>

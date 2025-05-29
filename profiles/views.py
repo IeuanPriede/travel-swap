@@ -512,8 +512,6 @@ def view_profile(request, user_id):
         else:
             message_form = MessageForm()
 
-    profile = Profile.objects.get(user=profile_user)
-
     booking = BookingRequest.objects.filter(
         Q(sender=request.user, recipient=profile_user) |
         Q(sender=profile_user, recipient=request.user)
@@ -532,136 +530,29 @@ def view_profile(request, user_id):
         except ValueError:
             pass
 
-    if request.method == 'POST' and 'request_booking' in request.POST:
-        booking_form = BookingRequestForm(request.POST)
-        if booking_form.is_valid():
-            booking = booking_form.save(commit=False)
-            booking.sender = request.user
-            booking.recipient = profile_user
-            booking.created_at = now()
-            booking.last_action_by = request.user
-            booking.save()
-            Notification.objects.create(
-                user=profile_user,
-                message=f"{request.user.username} "
-                "sent you a vacation exchange request.",
-                link=reverse('view_profile', args=[request.user.id])
-            )
-            print("✅ Notification created for:", profile_user.username)
-            send_mail(
-                subject='New vacation exchange request on TravelSwap',
-                message=(
-                    f"{request.user.username} has requested "
-                    "a vacation exchange with you.\n\n"
-                    f"Dates: {booking.requested_dates}\n\n"
-                    "Log in to your account to respond."
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[profile_user.email],
-                fail_silently=False,
-            )
-            messages.success(request, "Booking request sent!")
-            return redirect('view_profile', user_id=profile_user.id)
+    if request.method == 'POST':
+        if 'request_booking' in request.POST:
+            result = handle_booking_request(request, profile_user)
+            if result:
+                return result
 
-    elif (
-        request.method == 'POST'
-        and 'respond_booking' in request.POST
-        and booking
-    ):
-        action = request.POST.get('respond_booking')
+        elif 'respond_booking' in request.POST and booking:
+            result = handle_booking_response(request, profile_user, booking)
+            if result:
+                return result
 
-        recipient = (
-            booking.recipient
-            if booking.recipient != request.user
-            else booking.sender
-        )
+        elif 'cancel_booking' in request.POST and booking:
+            return handle_booking_cancel(request, profile_user, booking)
 
-        if action == 'amended':
-            new_dates = request.POST.get('amended_dates')
-            if new_dates:
-                booking.requested_dates = new_dates
-                send_mail(
-                    subject='Booking request amended',
-                    message=(
-                        f"{request.user.username} has suggested "
-                        "new dates for your vacation exchange.\n\n"
-                        f"Suggested Dates: {new_dates}\n\n"
-                        "Log in to respond to the update."
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[recipient.email],
-                    fail_silently=False,
-                )
-                Notification.objects.create(
-                    user=recipient,
-                    message=f"{request.user.username} suggested "
-                    "new vacation dates.",
-                    link=reverse('view_profile', args=[request.user.id])
-                )
-
-        if action in ['accepted', 'amended', 'denied']:
-            booking.status = action
-            booking.responded_at = now()
-            booking.last_action_by = request.user
-            booking.save()
-
-            # Send email and notification for accepted/denied
-            if action in ['accepted', 'denied']:
-                send_mail(
-                    subject=f"Booking request {action} on TravelSwap",
-                    message=(
-                        f"{request.user.username} has {action} your "
-                        f"vacation exchange request.\n\n"
-                        f"Dates: {booking.requested_dates}\n\n"
-                        "Log in to see details."
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[recipient.email],
-                    fail_silently=False,
-                )
-
-                Notification.objects.create(
-                    user=recipient,
-                    message=f"{request.user.username} "
-                    f"{action} your vacation request.",
-                    link=reverse('view_profile', args=[request.user.id])
-                )
-
-            # Flash message to current user
-            if action == 'accepted':
-                messages.success(request, "Vacation request accepted!")
-            elif action == 'denied':
-                if booking.sender == request.user:
-                    messages.warning(
-                        request, "Your vacation request was denied.")
-                else:
-                    messages.info(
-                        request,
-                        f"You denied the vacation request from "
-                        f"{booking.sender.username}."
-                    )
-            elif action == 'amended':
-                messages.info(
-                    request,
-                    "You proposed new dates for the vacation exchange."
-                )
-
-            return redirect('view_profile', user_id=profile_user.id)
-
-    elif 'cancel_booking' in request.POST and booking:
-        booking.delete()
-        messages.success(request, "Vacation exchange cancelled.")
-        return redirect('view_profile', user_id=profile_user.id)
-
-    elif 'submit_review' in request.POST and can_review:
-        review_form = ReviewForm(request.POST, instance=existing_review)
-        if review_form.is_valid():
-            review = review_form.save(commit=False)
-            review.reviewer = request.user
-            review.reviewee = profile_user
-            review.save()
-            messages.success(request, "Your review has been submitted.")
-            return redirect('view_profile', user_id=profile_user.id)
+        elif 'submit_review' in request.POST and can_review:
+            review_form = ReviewForm(request.POST, instance=existing_review)
+            if review_form.is_valid():
+                review = review_form.save(commit=False)
+                review.reviewer = request.user
+                review.reviewee = profile_user
+                review.save()
+                messages.success(request, "Your review has been submitted.")
+                return redirect('view_profile', user_id=profile_user.id)
 
     if is_match and 'booking_form' not in locals():
         booking_form = BookingRequestForm()
@@ -686,6 +577,119 @@ def view_profile(request, user_id):
               user=request.user, is_read=False).count())
 
     return render(request, 'profiles/view_profile.html', context)
+
+
+def get_latest_booking(user, other_user):
+    return BookingRequest.objects.filter(
+        Q(sender=user, recipient=other_user) |
+        Q(sender=other_user, recipient=user)
+    ).order_by('-created_at').first()
+
+
+def handle_booking_request(request, profile_user):
+    form = BookingRequestForm(request.POST)
+    if form.is_valid():
+        booking = form.save(commit=False)
+        booking.sender = request.user
+        booking.recipient = profile_user
+        booking.created_at = now()
+        booking.last_action_by = request.user
+        booking.save()
+
+        Notification.objects.create(
+            user=profile_user,
+            message=f"{request.user.username} "
+                    f"sent you a vacation exchange request.",
+            link=reverse('view_profile', args=[request.user.id])
+        )
+
+        send_mail(
+            subject='New vacation exchange request on TravelSwap',
+            message=f"{request.user.username} "
+                    f"has requested a vacation exchange.\n\n"
+                    f"Dates: {booking.requested_dates}\n\n"
+                    "Log in to your account to respond.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[profile_user.email],
+            fail_silently=False,
+        )
+
+        messages.success(request, "Booking request sent!")
+        return redirect('view_profile', user_id=profile_user.id)
+    return None
+
+
+def handle_booking_response(request, profile_user, booking):
+    action = request.POST.get('respond_booking')
+    if booking.recipient != request.user:
+        recipient = booking.recipient
+    else:
+        recipient = booking.sender
+
+    if action == 'amended':
+        new_dates = request.POST.get('amended_dates')
+        if new_dates:
+            booking.requested_dates = new_dates
+            send_mail(
+                subject='Booking request amended',
+                message=(
+                    f"{request.user.username} has suggested new dates.\n\n"
+                    f"Suggested Dates: {new_dates}"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[recipient.email],
+                fail_silently=False,
+            )
+            Notification.objects.create(
+                user=recipient,
+                message=f"{request.user.username} "
+                        f"suggested new vacation dates.",
+                link=reverse('view_profile', args=[request.user.id])
+            )
+
+    if action in ['accepted', 'amended', 'denied']:
+        booking.status = action
+        booking.responded_at = now()
+        booking.last_action_by = request.user
+        booking.save()
+
+        if action in ['accepted', 'denied']:
+            send_mail(
+                subject=f"Booking request {action} on TravelSwap",
+                message=f"{request.user.username} has "
+                        f"{action} your vacation request.\n\n"
+                        f"Dates: {booking.requested_dates}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[recipient.email],
+                fail_silently=False,
+            )
+            Notification.objects.create(
+                user=recipient,
+                message=f"{request.user.username} {action} "
+                        f"your vacation request.",
+                link=reverse('view_profile', args=[request.user.id])
+            )
+
+        # Flash message to current user
+        if action == 'accepted':
+            messages.success(request, "Vacation request accepted!")
+        elif action == 'denied':
+            if booking.sender == request.user:
+                messages.warning(request, "Your vacation request was denied.")
+            else:
+                messages.info(request, f"You denied the request from "
+                              f"{booking.sender.username}.")
+        elif action == 'amended':
+            messages.info(request, "You proposed new dates.")
+
+        return redirect('view_profile', user_id=profile_user.id)
+    return None
+
+
+def handle_booking_cancel(request, profile_user, booking):
+    booking.delete()
+    messages.success(request, "Vacation exchange cancelled.")
+    return redirect('view_profile', user_id=profile_user.id)
 
 
 def check_if_matched(user1, user2):
