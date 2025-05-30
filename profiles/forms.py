@@ -6,6 +6,7 @@ from .models import Profile, HouseImage
 from django.core.exceptions import ValidationError
 from PIL import Image
 from .widgets import CountrySelectWidgetNoFlags
+from django_countries.fields import CountryField
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -81,6 +82,8 @@ class ProfileForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
+    location = CountryField(
+        blank_label='(select country)').formfield(required=False)
     pets_allowed = forms.BooleanField(required=False)
     has_pool = forms.BooleanField(required=False)
     more_than_3_bedrooms = forms.BooleanField(required=False)

@@ -1,6 +1,12 @@
 function handleMatch(profileId, liked) {
   console.log("Clicked Next for profile ID:", profileId);
   const url = liked === true ? '/like/' : '/next/';
+  const bodyData = { profile_id: profileId };
+
+  if (window.currentFilters && liked !== true) {
+    // Only apply filters for Next, not Like
+    bodyData.filters = Object.fromEntries(window.currentFilters.entries());
+  }
 
   fetch(url, {
     method: 'POST',
@@ -8,7 +14,7 @@ function handleMatch(profileId, liked) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken(),
     },
-    body: JSON.stringify({ profile_id: profileId })
+    body: JSON.stringify(bodyData)
   })
   .then(response => {
     const contentType = response.headers.get("content-type");
@@ -70,4 +76,34 @@ $(document).ready(function () {
       }
     }, 50);
   });
+});
+
+// Search filter AJAX
+document.querySelector('#filter-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const form = this;
+  const url = form.getAttribute('action') || window.location.href;
+  const formData = new FormData(form);
+
+  const params = new URLSearchParams();
+  for (const [key, value] of formData.entries()) {
+    if (value) params.append(key, value);
+  }
+
+  fetch(`${url}?${params.toString()}`, {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('profile-section').innerHTML = data.next_profile_html;
+
+      // Save current filters in JS for reuse on "Next"
+      window.currentFilters = params;
+    })
+    .catch(error => {
+      console.error('Search filter AJAX error:', error);
+    });
 });
