@@ -232,6 +232,7 @@
                     </div>
                     <div class="card-body">
                         {% if existing_review %}
+                        <!---- Review edit form !-->
                         <form method="post" class="mb-2">
                             {% csrf_token %}
                             <input type="hidden" name="submit_review" value="1">
@@ -250,15 +251,16 @@
                                 <label class="form-label">Edit Comment:</label>
                                 {{ review_form.comment }}
                             </div>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-sm btn-primary">Edit</button>
-                                <form method="post" action="{% url 'delete_review' profile_user.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
-                            </div>
+                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
                         </form>
+
+                        <form method="post" action="{% url 'delete_review' profile_user.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                            
                         {% elif can_review %}
+                        <!---- New review form !-->
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="submit_review" value="1">
