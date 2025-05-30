@@ -133,7 +133,7 @@
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadImagesModal">
                         Upload House Images
                     </button>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProfileModal">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
                         Delete Profile
                     </button>
                 </div>
@@ -141,6 +141,32 @@
                 <button type="submit" class="btn btn-primary">Save Changes</button>
                 <a href="{% url 'profiles' %}" class="btn btn-secondary">Cancel</a>
             </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'delete_profile' %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Profile Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete your profile? This action cannot be undone.</p>
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Confirm Password</label>
+                            <input type="password" name="password" class="form-control" id="id_password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
