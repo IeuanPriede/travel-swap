@@ -78,13 +78,11 @@
   </div>
 </div>
 
+<!-- Center + Right: Profile Section (AJAX will update this) -->
+<div class="col-md-9" id="profile-section">
+  {% include 'partials/profile_card.html' with profile=profile reviews=reviews average_rating=average_rating %}
+</div>
 
-      <!-- Center + Right: Profile Section (AJAX will update this) -->
-      <div class="col-md-9" id="profile-section">
-        {% include 'partials/profile_card.html' with profile=profile reviews=reviews average_rating=average_rating %}
-      </div>
-    </div>
-  </div>
 {% endblock %}
 {% block extra_js %}
   <script src="{% static 'js/script.js' %}"></script>

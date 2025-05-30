@@ -1,7 +1,7 @@
 {% load static %}
 <div class="row">
   <!-- Center Column: Carousel -->
-  <div class="col-md-6 mb-4">
+  <div class="col-md-7 mb-4">
     <div class="card p-3 shadow-sm">
       {% if profile and profile.house_images.exists %}
         <div id="profileCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
@@ -30,23 +30,25 @@
   </div>
 
   <!-- Right Column: Description and Actions -->
-  <div class="col-md-3 mb-4">
+  <div class="col-md-5 mb-4">
     <div class="card p-3 shadow-sm">
       {% if profile %}
         <h5>{{ profile.first_name }} {{ profile.last_name }}</h5>
         <p><strong>Location:</strong> {{ profile.location }}</p>
         <p>{{ profile.house_description }}</p>
         {% if average_rating %}
-          <p><strong>Average Rating:</strong>
-            {{ average_rating }}
-            {% for i in "12345" %}
-              {% if average_rating|floatformat:1 >= i|add:"0" %}
-                <i class="fas fa-star text-warning"></i>
-              {% else %}
-                <i class="far fa-star text-muted"></i>
-              {% endif %}
-            {% endfor %}
-          </p>
+          <div class="review-stars">
+            <p><strong>Average Rating:</strong>
+              {{ average_rating }}
+              {% for _ in "12345" %}
+                {% if average_rating|floatformat:"0"|add:"0" >= forloop.counter %}
+                  <i class="fas fa-star text-warning"></i>
+                {% else %}
+                  <i class="far fa-star text-muted"></i>
+                {% endif %}
+              {% endfor %}
+            </p>
+          </div>
         {% endif %}
 
         {% if reviews %}
