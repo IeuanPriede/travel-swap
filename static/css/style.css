@@ -309,3 +309,11 @@ body {
   flex-direction: row;
   justify-content: flex-start;
 }
+
+.review-stars i.fas.fa-star {
+  color: #ffc107;
+}
+
+.review-stars i.far.fa-star {
+  color: #ccc;
+}
