@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-
 from .models import Review
 from .forms import ReviewForm
 from profiles.models import Profile, MatchResponse
@@ -80,6 +79,7 @@ def edit_review(request, review_id):
 def delete_review(request, user_id):
     review = get_object_or_404(
         Review, reviewer=request.user, reviewee__id=user_id)
-    review.delete()
-    messages.success(request, "Your review has been deleted.")
+    if request.method == 'POST':
+        review.delete()
+        messages.success(request, "Your review has been deleted.")
     return redirect('view_profile', user_id=user_id)
