@@ -302,3 +302,10 @@ body {
   flex-direction: row-reverse !important;
   justify-content: flex-start !important;
 }
+
+/* Static display for user reviews */
+.review-stars {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}

@@ -23,8 +23,9 @@
             </div>
             {% endif %}
             <p><strong>Email:</strong> {{ profile.user.email }}</p>
-            <p><strong>Bio:</strong> {{ profile.bio }}</p>
+            <p><strong>Bio:</strong><br> {{ profile.bio }}</p>
             <p><strong>Location:</strong> {{ profile.get_location_display }}</p>
+            <p><strong>House Description:</strong><br> {{ profile.house_description }} </p>
 
             <div class="mt-3">
                 <h5>House Criteria</h5>
@@ -63,7 +64,7 @@
                 {% for review in reviews %}
                 <div class="card my-3 p-3 shadow-sm">
                     <strong>{{ review.reviewer.username }}</strong> rated:
-                    <div class="star-rating">
+                    <div class="review-stars">
                         {% for i in "12345" %}
                             {% if review.rating|add:"0" >= i|add:"0" %}
                                 <i class="fas fa-star text-warning"></i>
