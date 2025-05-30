@@ -197,27 +197,32 @@ def delete_image(request, image_id):
 
 
 def home(request):
-    profiles = Profile.objects.filter(is_visible=True)
     form = SearchForm(request.GET or None)
+    profiles = Profile.objects.filter(is_visible=True)
 
-    # Get the IDs of profiles the user already responded to
+    # Get list of profiles the user has already responded to
+    responded_ids = []
     if request.user.is_authenticated:
-        # Logged-in users: exclude their own and previously responded profiles
         responded_ids = MatchResponse.objects.filter(
             from_user=request.user
         ).values_list('to_profile_id', flat=True)
 
-        profiles = Profile.objects.filter(
-            ~Q(user=request.user),
-            is_visible=True
-        ).exclude(id__in=responded_ids)
+        profiles = profiles.exclude(user=request.user)
 
+    else:
+        # If not authenticated,
+        # still try to exclude anonymous user profile if any
+        profiles = profiles.exclude(user__isnull=True)
+
+    profiles = profiles.exclude(id__in=responded_ids)
+
+    # Apply house criteria filters from form
     if form.is_valid():
         for field, value in form.cleaned_data.items():
             if value:
                 profiles = profiles.filter(**{field: True})
 
-    # Date range filtering (outside of the SearchForm)
+    # Apply date range filter
     date_range = request.GET.get("dates")
     if date_range:
         try:
@@ -228,13 +233,12 @@ def home(request):
                 available_dates__icontains=end_date
             )
         except ValueError:
-            pass  # If the input isn't a valid date range string
+            pass
 
-    else:
-        # Guest users: show only visible profiles (basic demo mode)
-        profiles = Profile.objects.filter(is_visible=True)
+    # Randomize the profile order
+    profiles = profiles.order_by('?')
 
-    # Get the first profile from the filtered list
+    # Get the first random profile
     next_profile = profiles.first()
     reviews = []
     average_rating = None
@@ -242,11 +246,10 @@ def home(request):
     if next_profile:
         reviews = Review.objects.filter(reviewee=next_profile.user)
         average_rating_val = reviews.aggregate(avg=Avg('rating'))['avg']
-        average_rating = (
-            round(average_rating_val, 1)
-            if average_rating_val else None
-        )
+        if average_rating_val:
+            average_rating = round(average_rating_val, 1)
 
+    # AJAX: return partial
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         html = render_to_string('partials/profile_card.html', {
             'profile': next_profile,
@@ -255,9 +258,10 @@ def home(request):
         }, request=request)
         return JsonResponse({'next_profile_html': html})
 
+    # Normal page load
     return render(request, 'home.html', {
         'profile': next_profile,
-        'form': form,  # pass form to template
+        'form': form,
         'reviews': reviews,
         'average_rating': average_rating,
         'countries': list(countries),
@@ -281,16 +285,27 @@ def next_profile(request):
                 from_user=request.user
             ).values_list('to_profile_id', flat=True)
 
+        # Core query with current user's profile excluded
         next_profile = Profile.objects.filter(
             is_visible=True
-        ).exclude(id__in=responded_ids).exclude(id__in=skipped_ids).first()
+        ).exclude(
+            user=request.user
+        ).exclude(
+            id__in=responded_ids
+        ).exclude(
+            id__in=skipped_ids
+        ).order_by('?').first()
 
-        # If no more profiles, reset and try again
+        # If no more profiles, reset skipped list and try again
         if not next_profile:
             request.session['skipped_profiles'] = []
             next_profile = Profile.objects.filter(
                 is_visible=True
-            ).exclude(id__in=responded_ids).first()
+            ).exclude(
+                user=request.user
+            ).exclude(
+                id__in=responded_ids
+            ).order_by('?').first()
 
         if next_profile:
             reviews = Review.objects.filter(reviewee=next_profile.user)
