@@ -9,7 +9,7 @@ from .forms import (
     SearchForm,
     ContactForm,
 )
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from cloudinary.uploader import destroy
@@ -147,10 +147,14 @@ def upload_images(request):
 @login_required
 def delete_profile(request):
     if request.method == 'POST':
-        user = request.user
-        user.delete()
-        messages.success(request, "Your profile has been deleted.")
-        return redirect('home')
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        if user is not None:
+            request.user.delete()
+            messages.success(request, "Your profile has been deleted.")
+            return redirect('home')
+        else:
+            messages.error(request, "Incorrect password. Please try again.")
     return redirect('edit_profile')
 
 
