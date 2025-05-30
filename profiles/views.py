@@ -25,6 +25,7 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from datetime import datetime
 import logging
+import random
 from django.urls import reverse
 from notifications.models import Notification
 from reviews.forms import ReviewForm
@@ -206,9 +207,7 @@ def home(request):
         responded_ids = MatchResponse.objects.filter(
             from_user=request.user
         ).values_list('to_profile_id', flat=True)
-
         profiles = profiles.exclude(user=request.user)
-
     else:
         # If not authenticated,
         # still try to exclude anonymous user profile if any
@@ -221,7 +220,6 @@ def home(request):
         for field, value in form.cleaned_data.items():
             if value and field != "location":
                 profiles = profiles.filter(**{field: True})
-
         if form.cleaned_data.get("location"):
             profiles = profiles.filter(location=form.cleaned_data["location"])
 
@@ -238,14 +236,17 @@ def home(request):
         except ValueError:
             pass
 
-    # Randomize the profile order
-    profiles = profiles.order_by('?')
+    # Create randomized profile sequence on first load
+    profile_ids = list(profiles.values_list('id', flat=True))
+    random.shuffle(profile_ids)
+    request.session['profile_sequence'] = profile_ids
+    request.session['current_index'] = 0
 
-    # If no profiles match filters, don't fall back
-    if not profiles.exists():
-        next_profile = None
-    else:
-        next_profile = profiles.first()
+    # Load the first profile
+    next_profile = None
+    if profile_ids:
+        next_profile = Profile.objects.get(id=profile_ids[0])
+        request.session['current_index'] = 1
 
     reviews = []
     average_rating = None
@@ -275,67 +276,19 @@ def home(request):
     })
 
 
-@login_required
 def next_profile(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        profile_id = data.get('profile_id')
-        filters = data.get('filters', {})  # 👈 New: incoming filters from AJAX
+        filters = data.get('filters', {})
 
-        profile = get_object_or_404(Profile, id=profile_id)
+        profile_ids = request.session.get('profile_sequence', [])
+        current_index = request.session.get('current_index', 0)
 
-        # Track skipped profiles
-        skipped_ids = request.session.get('skipped_profiles', [])
-        skipped_ids.append(profile.id)
-        request.session['skipped_profiles'] = skipped_ids
+        # If we reached the end, reshuffle and restart
+        if current_index >= len(profile_ids):
 
-        # Start with all visible profiles except current user
-        profiles = Profile.objects.filter(
-            is_visible=True).exclude(user=request.user)
-
-        # Exclude already responded profiles
-        responded_ids = []
-        if request.user.is_authenticated:
-            responded_ids = MatchResponse.objects.filter(
-                from_user=request.user
-            ).values_list('to_profile_id', flat=True)
-
-        profiles = profiles.exclude(
-            id__in=responded_ids).exclude(id__in=skipped_ids)
-
-        # ✅ Apply search filters if present
-        form = SearchForm(filters)
-        if form.is_valid():
-            for field, value in form.cleaned_data.items():
-                if value and field != "location":
-                    profiles = profiles.filter(**{field: True})
-                if form.cleaned_data.get("location"):
-                    profiles = profiles.filter(
-                        location=form.cleaned_data["location"])
-
-        # Try to get next profile
-        next_profile = profiles.order_by('?').first()
-
-        # 🔍 No profile left? Check if there was only 1 match to begin with
-        if not next_profile:
-            all_matching_profiles = Profile.objects.filter(is_visible=True)
-            all_matching_profiles = all_matching_profiles.exclude(
-                user=request.user)
-            all_matching_profiles = all_matching_profiles.exclude(
-                id__in=responded_ids)
-
-            if form.is_valid():
-                for field, value in form.cleaned_data.items():
-                    if value and field != "location":
-                        all_matching_profiles = all_matching_profiles.filter(
-                            **{field: True})
-                if form.cleaned_data.get("location"):
-                    all_matching_profiles = all_matching_profiles.filter(
-                        location=form.cleaned_data["location"]
-                    )
-
-            # ✅ If only one profile matched to begin with, don't restart
-            if all_matching_profiles.count() == 1:
+            # ✅ Prevent infinite loop if only one profile matches
+            if len(profile_ids) == 1:
                 html = (
                     "<div class='alert alert-info text-center mt-4'>"
                     "🎉 You've already seen the only matching profile. "
@@ -343,10 +296,42 @@ def next_profile(request):
                 )
                 return JsonResponse(
                     {'match': False, 'next_profile_html': html})
+            profiles = Profile.objects.filter(is_visible=True)
 
-            # If more than one match ever existed, reset skipped list and retry
-            request.session['skipped_profiles'] = []
-            next_profile = all_matching_profiles.order_by('?').first()
+            if request.user.is_authenticated:
+                profiles = profiles.exclude(user=request.user)
+                responded_ids = MatchResponse.objects.filter(
+                    from_user=request.user
+                ).values_list('to_profile_id', flat=True)
+                profiles = profiles.exclude(id__in=responded_ids)
+            else:
+                profiles = profiles.exclude(user__isnull=True)
+
+            # Re-apply filters
+            form = SearchForm(filters)
+            if form.is_valid():
+                for field, value in form.cleaned_data.items():
+                    if value and field != "location":
+                        profiles = profiles.filter(**{field: True})
+                if form.cleaned_data.get("location"):
+                    profiles = profiles.filter(
+                        location=form.cleaned_data["location"])
+
+            profile_ids = list(profiles.values_list('id', flat=True))
+            random.shuffle(profile_ids)
+            current_index = 0
+            request.session['profile_sequence'] = profile_ids
+            request.session['current_index'] = current_index
+
+        # Try to get the next profile
+        next_profile = None
+        if current_index < len(profile_ids):
+            try:
+                next_profile = Profile.objects.get(
+                    id=profile_ids[current_index])
+                request.session['current_index'] = current_index + 1
+            except Profile.DoesNotExist:
+                next_profile = None
 
         # Prepare HTML
         if next_profile:
@@ -360,8 +345,10 @@ def next_profile(request):
                 'average_rating': average_rating,
             }, request=request)
         else:
-            html = "<p class='text-center mt-5'>🎉 "
-            "No more profiles available!</p>"
+            html = (
+                "<p class='text-center mt-5'>🎉 "
+                "No more profiles available!</p>"
+            )
 
         return JsonResponse({
             'match': False,
