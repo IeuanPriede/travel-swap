@@ -114,6 +114,22 @@ class ProfileForm(forms.ModelForm):
             attrs={'class': 'form-control select2'}
         )
 
+    def clean_bio(self):
+        bio = self.cleaned_data.get('bio', '').strip()
+        if not bio:
+            raise forms.ValidationError("Bio cannot be blank.")
+        return bio
+
+    def clean_house_description(self):
+        desc = self.cleaned_data.get('house_description', '').strip()
+        if not desc:
+            raise forms.ValidationError("House description cannot be blank.")
+        return desc
+
+    def clean_available_dates(self):
+        dates = self.cleaned_data.get('available_dates', '').strip()
+        return dates
+
 
 class SearchForm(forms.Form):
     location = CountryField(
@@ -187,3 +203,27 @@ class ContactForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea(attrs={
         'class': 'form-control', 'rows': 5
     }))
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        if not name:
+            raise forms.ValidationError("Name cannot be blank.")
+        return name
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError("Email cannot be blank.")
+        return email
+
+    def clean_subject(self):
+        subject = self.cleaned_data.get('subject', '').strip()
+        if not subject:
+            raise forms.ValidationError("Subject cannot be blank.")
+        return subject
+
+    def clean_message(self):
+        message = self.cleaned_data.get('message', '').strip()
+        if not message:
+            raise forms.ValidationError("Message cannot be blank.")
+        return message
