@@ -324,7 +324,7 @@ body {
 
 /* Registration forms */
 .auth-bg {
-  background-image: url('/static/images/heroes/home-hero-new.jpg');
+  background-image: url("/static/images/heroes/home-hero-new.00f553e05b9b.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
