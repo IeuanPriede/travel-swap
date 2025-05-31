@@ -4,14 +4,11 @@
   <div class="col-md-7 mb-4">
     <div class="card p-3 shadow-sm">
       {% if profile and profile.house_images.exists %}
-        <div id="manual-image-viewer" class="text-center">
-          <img id="current-house-image" src="{{ profile.house_images.first.image.url }}" class="img-fluid rounded mb-2" alt="House image">
-          {% if profile.house_images.count > 1 %}
-            <div>
-              <button class="btn btn-sm btn-outline-secondary me-2" id="prev-image">Prev</button>
-              <button class="btn btn-sm btn-outline-secondary" id="next-image">Next</button>
-            </div>
-          {% endif %}
+        <div id="manual-image-viewer" class="position-relative d-flex justify-content-center align-items-center">
+          <button id="prev-image" class="position-absolute start-0 btn btn-link custom-image-arrow" style="z-index: 1;">&#8249;</button>
+          <img id="current-house-image" src="{{ profile.house_images.first.image.url }}" class="img-fluid rounded" alt="House image" style="max-height: 400px;">
+          <button id="next-image" class="position-absolute end-0 btn btn-link custom-image-arrow" style="z-index: 1;">&#8250;</button>
+
           <script id="house-image-urls" type="application/json">
             [
               {% for image in profile.house_images.all %}
