@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block hero %}
+{% include 'partials/hero.html' with hero_image_url='/static/images/heroes/travel-log-hero.jpg' hero_title='Your Travel Log' hero_subtitle='Connect with profiles you matched with!' %}
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/travel-log-hero.jpg' hero_title='Your Travel Log' hero_subtitle='Connect with profiles you matched with!' %}
+<div class="container mt-4">
     <div class="travel-log-intro mb-4 p-4">
         <h2 class="fw-bold">Welcome to Your Travel Log</h2>
             <p class="text-muted">
@@ -69,4 +73,8 @@
     {% endfor %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}

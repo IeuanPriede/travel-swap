@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
 {% if messages %}
 {% endif %}
-<div class="container">
+
+{% block hero %}
     {% with profile.user.username|add:"'s Profile" as title %}
     {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/view-profile-hero.jpg' hero_title=title hero_subtitle="Let's Swap!" %}
     {% endwith %}
+{% endblock %}
 
+{% block content %}
+<div class="container">
     <div class="about-section">
         {% if average_rating %}
         <p><strong>Average Rating:</strong>
@@ -350,94 +353,95 @@
 </div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Try by ID first
-    let dateField = document.querySelector('#requested-dates');
-    
-    // Fallback: use name if ID didn't match
-    if (!dateField) {
-        dateField = document.querySelector('input[name="requested_dates"]');
-    }
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="{% static 'js/script.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Try by ID first
+        let dateField = document.querySelector('#requested-dates');
+        
+        // Fallback: use name if ID didn't match
+        if (!dateField) {
+            dateField = document.querySelector('input[name="requested_dates"]');
+        }
 
-    if (dateField) {
-        flatpickr(dateField, {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            minDate: "{{ available_start|date:'Y-m-d' }}",
-            maxDate: "{{ available_end|date:'Y-m-d' }}"
-        });
-    } else {
-        console.warn("Flatpickr could not find requested_dates input.");
-    }
-
-    // AMENDED DATES PICKER
-    const amendedField = document.querySelector('#amended-dates');
-    if (amendedField) {
-        flatpickr(amendedField, {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            minDate: "{{ available_start|date:'Y-m-d' }}",
-            maxDate: "{{ available_end|date:'Y-m-d' }}"
-        });
-    }
-    // Auto-scroll message window
-    const messagesWindow = document.querySelector('.messages-window');
-    if (messagesWindow) {
-        messagesWindow.scrollTop = messagesWindow.scrollHeight;
-    }
-    // AJAX message form submission
-    const messageForm = document.getElementById('message-form');
-    if (messageForm) {
-        messageForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const formData = new FormData(messageForm);
-
-            fetch("", {
-                method: "POST",
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Clear form
-                    messageForm.reset();
-
-                    // Append new message
-                    const messageWindow = document.querySelector('.messages-window');
-                    const newMessage = document.createElement('div');
-                    newMessage.classList.add('message-bubble', 'message-sent');
-                    newMessage.innerHTML = `
-                        <div><strong>${data.username}</strong></div>
-                        <div>${data.content}</div>
-                        <small class="text-muted">just now</small>
-                    `;
-                    messageWindow.appendChild(newMessage);
-                    messageWindow.scrollTop = messageWindow.scrollHeight;
-
-                    // Show toast-like alert
-                    showMessageAlert("Message sent successfully!", "success");
-                } else {
-                    showMessageAlert("Failed to send message.", "danger");
-                }
+        if (dateField) {
+            flatpickr(dateField, {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                minDate: "{{ available_start|date:'Y-m-d' }}",
+                maxDate: "{{ available_end|date:'Y-m-d' }}"
             });
-        });
-    }
+        } else {
+            console.warn("Flatpickr could not find requested_dates input.");
+        }
 
-    function showMessageAlert(msg, type) {
-        const alertDiv = document.getElementById('message-feedback');
-        alertDiv.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${msg}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-    }
-});
-</script>
+        // AMENDED DATES PICKER
+        const amendedField = document.querySelector('#amended-dates');
+        if (amendedField) {
+            flatpickr(amendedField, {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                minDate: "{{ available_start|date:'Y-m-d' }}",
+                maxDate: "{{ available_end|date:'Y-m-d' }}"
+            });
+        }
+        // Auto-scroll message window
+        const messagesWindow = document.querySelector('.messages-window');
+        if (messagesWindow) {
+            messagesWindow.scrollTop = messagesWindow.scrollHeight;
+        }
+        // AJAX message form submission
+        const messageForm = document.getElementById('message-form');
+        if (messageForm) {
+            messageForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(messageForm);
+
+                fetch("", {
+                    method: "POST",
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear form
+                        messageForm.reset();
+
+                        // Append new message
+                        const messageWindow = document.querySelector('.messages-window');
+                        const newMessage = document.createElement('div');
+                        newMessage.classList.add('message-bubble', 'message-sent');
+                        newMessage.innerHTML = `
+                            <div><strong>${data.username}</strong></div>
+                            <div>${data.content}</div>
+                            <small class="text-muted">just now</small>
+                        `;
+                        messageWindow.appendChild(newMessage);
+                        messageWindow.scrollTop = messageWindow.scrollHeight;
+
+                        // Show toast-like alert
+                        showMessageAlert("Message sent successfully!", "success");
+                    } else {
+                        showMessageAlert("Failed to send message.", "danger");
+                    }
+                });
+            });
+        }
+
+        function showMessageAlert(msg, type) {
+            const alertDiv = document.getElementById('message-feedback');
+            alertDiv.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${msg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
+    });
+    </script>
 {% endblock %}
