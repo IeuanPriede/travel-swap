@@ -53,11 +53,30 @@
                     {% endif %}
                     </h5>
                     <p class="card-text text-muted">Location: {{ match.to_profile.location }}</p>
-                    <a href="{% url 'unlike_profile' profile_id=match.to_profile.id %}"
-                        class="btn btn-outline-danger mt-2 ms-2"
-                        onclick="return confirm('Are you sure you want to unlike this profile?');">
-                            Unlike
-                    </a>
+                <a href="#"
+                    class="btn btn-danger btn-sm mt-2 ms-2 px-3 shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#unlikeConfirmModal-{{ match.to_profile.id }}">
+                    <i class="fas fa-times-circle"></i> Unlike
+                </a>
+                <!-- Modal for confirming unlike action --> 
+                <div class="modal fade" id="unlikeConfirmModal-{{ match.to_profile.id }}" tabindex="-1" aria-labelledby="unlikeConfirmLabel-{{ match.to_profile.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content shadow">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="unlikeConfirmLabel-{{ match.to_profile.id }}">Confirm Unlike</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to unlike {{ match.to_profile.user.username }}?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <a href="{% url 'unlike_profile' profile_id=match.to_profile.id %}" class="btn btn-danger">Yes, Unlike</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 </div>
                 </div>
             </div>
@@ -75,6 +94,7 @@
     {% endfor %}
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
