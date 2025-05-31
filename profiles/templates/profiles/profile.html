@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load image_extras %}
 
+{% block title %}My Profile{% endblock %}
+
+{% block hero %}
+    {% include 'partials/profile-hero.html' with hero_image_url='/static/images/heroes/profile-hero.jpg' %}
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
     <div class="card shadow">
