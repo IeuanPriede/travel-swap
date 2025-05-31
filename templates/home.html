@@ -3,9 +3,11 @@
 
 {% block title %}Home{% endblock %}
 
-{% block content %}
+{% block hero %}
 {% include 'partials/hero.html' with hero_image_url='/static/images/heroes/home-hero.jpg' hero_title='Welcome to TravelSwap' hero_subtitle='Exchange your holiday home with others worldwide' %}
+{% endblock %}
 
+{% block content %}
   <h1 class="text-center mt-4">🌍 Discover Your Next Exchange</h1>
   <p class="text-center text-muted mb-4">Swipe through homes that match your vacation style. Click 👍 to match or 'Next' to skip.</p>
 
@@ -72,15 +74,17 @@
             <div class="form-check">
               {{ form.in_rural }} {{ form.in_rural.label_tag }}
             </div>
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary w-100 mt-3">Apply Filters</button>
-    </form>
-  </div>
-</div>
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary w-100 mt-3">Apply Filters</button>
+        </form>
+      </div>
+    </div>
 
-<!-- Center + Right: Profile Section (AJAX will update this) -->
-<div class="col-md-9" id="profile-section">
-  {% include 'partials/profile_card.html' with profile=profile reviews=reviews average_rating=average_rating %}
+    <!-- Center + Right: Profile Section (AJAX will update this) -->
+    <div class="col-md-9" id="profile-section">
+      {% include 'partials/profile_card.html' with profile=profile reviews=reviews average_rating=average_rating %}
+    </div>
+  </div>
 </div>
 
 {% endblock %}
