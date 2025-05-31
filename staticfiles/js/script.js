@@ -1,6 +1,12 @@
 function handleMatch(profileId, liked) {
   console.log("Clicked Next for profile ID:", profileId);
   const url = liked === true ? '/like/' : '/next/';
+  const bodyData = { profile_id: profileId };
+
+  if (window.currentFilters && liked !== true) {
+    // Only apply filters for Next, not Like
+    bodyData.filters = Object.fromEntries(window.currentFilters.entries());
+  }
 
   fetch(url, {
     method: 'POST',
@@ -8,7 +14,7 @@ function handleMatch(profileId, liked) {
       'Content-Type': 'application/json',
       'X-CSRFToken': getCSRFToken(),
     },
-    body: JSON.stringify({ profile_id: profileId })
+    body: JSON.stringify(bodyData)
   })
   .then(response => {
     const contentType = response.headers.get("content-type");
@@ -19,13 +25,15 @@ function handleMatch(profileId, liked) {
   })
   .then(data => {
     console.log("Server said:", JSON.stringify(data, null, 2));
-    console.log("Message from server:", data.message);
     // Unified alert for both match and like
     if (data.message) {
       console.log("ALERT:", data.message);
       alert(data.message);
     }
+    console.log("New profile loaded:", profileId);
     document.getElementById('profile-section').innerHTML = data.next_profile_html;
+
+    initManualImageViewer();
   })
   .catch(error => {
     console.error("Failed to load next profile:", error);
@@ -69,5 +77,77 @@ $(document).ready(function () {
         });
       }
     }, 50);
+  });
+});
+
+// Search filter AJAX
+document.querySelector('#filter-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const form = this;
+  const url = form.getAttribute('action') || window.location.href;
+  const formData = new FormData(form);
+
+  const params = new URLSearchParams();
+  for (const [key, value] of formData.entries()) {
+    if (value) params.append(key, value);
+  }
+
+  fetch(`${url}?${params.toString()}`, {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('profile-section').innerHTML = data.next_profile_html;
+
+      // Save current filters in JS for reuse on "Next"
+      window.currentFilters = params;
+    })
+    .catch(error => {
+      console.error('Search filter AJAX error:', error);
+    });
+});
+
+function initManualImageViewer() {
+  const imageDataElement = document.getElementById('house-image-urls');
+  if (!imageDataElement) return;
+
+  const imageUrls = JSON.parse(imageDataElement.textContent);
+  let currentImageIndex = 0;
+
+  const imgElement = document.getElementById('current-house-image');
+  const prevBtn = document.getElementById('prev-image');
+  const nextBtn = document.getElementById('next-image');
+
+  if (prevBtn && nextBtn && imgElement && imageUrls.length > 0) {
+    prevBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+      imgElement.src = imageUrls[currentImageIndex];
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+      imgElement.src = imageUrls[currentImageIndex];
+    });
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("🚀 DOM ready — init viewer");
+  initManualImageViewer();
+});
+
+// Navbar fixed on scroll
+document.addEventListener('DOMContentLoaded', function () {
+  const navbar = document.querySelector('.navbar');
+
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 50) {
+      navbar.classList.add('bg-primary');
+    } else {
+      navbar.classList.remove('bg-primary');
+    }
   });
 });

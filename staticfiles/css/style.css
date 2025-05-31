@@ -1,4 +1,7 @@
 /* Navbar */
+.navbar {
+  transition: background-color 0.4s ease;
+}
 
 /* Notifications bell */
 .notification-bell {
@@ -308,5 +311,18 @@ body {
   display: inline-flex;
   flex-direction: row;
   justify-content: flex-start;
-  color: #ffc107
+}
+
+.review-stars i.fas.fa-star {
+  color: #ffc107;
+}
+
+.review-stars i.far.fa-star {
+  color: #ccc;
+}
+
+/* Prev/Next photo buttons on home page */
+.custom-image-arrow {
+  color: rgb(3 119 235) !important;
+  font-size: calc(1.325rem + 3vw) !important;
 }
