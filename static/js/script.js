@@ -25,13 +25,15 @@ function handleMatch(profileId, liked) {
   })
   .then(data => {
     console.log("Server said:", JSON.stringify(data, null, 2));
-    console.log("Message from server:", data.message);
     // Unified alert for both match and like
     if (data.message) {
       console.log("ALERT:", data.message);
       alert(data.message);
     }
+    console.log("New profile loaded:", profileId);
     document.getElementById('profile-section').innerHTML = data.next_profile_html;
+
+    initManualImageViewer();
   })
   .catch(error => {
     console.error("Failed to load next profile:", error);
@@ -106,4 +108,33 @@ document.querySelector('#filter-form').addEventListener('submit', function (e) {
     .catch(error => {
       console.error('Search filter AJAX error:', error);
     });
+});
+
+function initManualImageViewer() {
+  const imageDataElement = document.getElementById('house-image-urls');
+  if (!imageDataElement) return;
+
+  const imageUrls = JSON.parse(imageDataElement.textContent);
+  let currentImageIndex = 0;
+
+  const imgElement = document.getElementById('current-house-image');
+  const prevBtn = document.getElementById('prev-image');
+  const nextBtn = document.getElementById('next-image');
+
+  if (prevBtn && nextBtn && imgElement && imageUrls.length > 0) {
+    prevBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+      imgElement.src = imageUrls[currentImageIndex];
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentImageIndex = (currentImageIndex + 1) % imageUrls.length;
+      imgElement.src = imageUrls[currentImageIndex];
+    });
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("🚀 DOM ready — init viewer");
+  initManualImageViewer();
 });

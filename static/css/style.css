@@ -317,3 +317,9 @@ body {
 .review-stars i.far.fa-star {
   color: #ccc;
 }
+
+/* Prev/Next photo buttons on home page */
+.custom-image-arrow {
+  color: rgb(3 119 235) !important;
+  font-size: calc(1.325rem + 3vw) !important;
+}
