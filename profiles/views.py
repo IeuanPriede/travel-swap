@@ -819,3 +819,7 @@ def custom_logout(request):
     logout(request)
     messages.success(request, "You have been logged out successfully.")
     return redirect('home')
+
+
+def custom_404_view(request, exception):
+    return render(request, '404.html', status=404)
