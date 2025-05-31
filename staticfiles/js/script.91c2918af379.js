@@ -28,7 +28,7 @@ function handleMatch(profileId, liked) {
     // Unified alert for both match and like
     if (data.message) {
       console.log("ALERT:", data.message);
-      alert(data.message);
+      showMessageAlert(data.message, data.match ? 'success' : 'info');
     }
     console.log("New profile loaded:", profileId);
     document.getElementById('profile-section').innerHTML = data.next_profile_html;
@@ -81,34 +81,31 @@ $(document).ready(function () {
 });
 
 // Search filter AJAX
-document.querySelector('#filter-form').addEventListener('submit', function (e) {
-  e.preventDefault();
+const filterForm = document.querySelector('#filter-form');
+if (filterForm) {
+  filterForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const url = this.getAttribute('action') || window.location.href;
+    const formData = new FormData(this);
 
-  const form = this;
-  const url = form.getAttribute('action') || window.location.href;
-  const formData = new FormData(form);
-
-  const params = new URLSearchParams();
-  for (const [key, value] of formData.entries()) {
-    if (value) params.append(key, value);
-  }
-
-  fetch(`${url}?${params.toString()}`, {
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
+    const params = new URLSearchParams();
+    for (const [key, value] of formData.entries()) {
+      if (value) params.append(key, value);
     }
-  })
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('profile-section').innerHTML = data.next_profile_html;
 
-      // Save current filters in JS for reuse on "Next"
-      window.currentFilters = params;
+    fetch(`${url}?${params.toString()}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
-    .catch(error => {
-      console.error('Search filter AJAX error:', error);
-    });
-});
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('profile-section').innerHTML = data.next_profile_html;
+        window.currentFilters = params;
+      })
+      .catch(error => {
+        console.error('Search filter AJAX error:', error);
+      });
+  });
+}
 
 function initManualImageViewer() {
   const imageDataElement = document.getElementById('house-image-urls');
@@ -143,11 +140,47 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener('DOMContentLoaded', function () {
   const navbar = document.querySelector('.navbar');
 
+  // Handle scroll event
   window.addEventListener('scroll', function () {
-    if (window.scrollY > 50) {
+    if (window.scrollY > 10) {
       navbar.classList.add('bg-primary');
     } else {
       navbar.classList.remove('bg-primary');
     }
   });
 });
+
+// Ensure correct navbar color on page load (after layout)
+window.addEventListener('load', function () {
+  const navbar = document.querySelector('.navbar');
+  if (window.scrollY > 10 || document.body.scrollHeight <= window.innerHeight) {
+    navbar.classList.add('bg-primary');
+  }
+});
+
+// Alert message
+// Define and expose globally
+function showMessageAlert(msg, type = 'info') {
+  const alertDiv = document.getElementById('message-feedback');
+  if (!alertDiv) {
+    console.warn('No #message-feedback container found.');
+    return;
+  }
+
+  console.log(`Injecting alert: [${type}] ${msg}`);
+
+  alertDiv.innerHTML = `
+    <div class="alert alert-${type} alert-dismissible fade show shadow-sm" role="alert">
+      ${msg}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv.querySelector('.alert'));
+    bsAlert.close();
+  }, 5000);
+}
+
+// ✅ Now safely attach to global scope
+window.showMessageAlert = showMessageAlert;

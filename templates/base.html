@@ -142,7 +142,7 @@
         </div>
     </nav>
     <!-- Notification Messages -->
-    <div class="position-fixed top-0 start-50 translate-middle-x mt-5 w-75" style="z-index: 1055;">
+    <div class="position-fixed top-0 start-50 translate-middle-x mt-6 w-75" style="z-index: 1055;">
         {% if messages %}
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
@@ -157,6 +157,10 @@
     {% block hero %}
     <!-- Optional hero image override -->
     {% endblock %}
+
+    <!-- JavaScript-Driven Alerts -->
+    <div id="message-feedback" class="position-fixed top-0 start-50 translate-middle-x mt-6 z-3" style="width: 75%; margin-top: 6rem;"></div>
+
 
     <!-- Page Content -->
     <main class="flex-grow-1">
@@ -178,9 +182,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 {% block extra_js %}
-<script src="{% static 'js/script.js' %}"></script>
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{% static 'js/script.js' %}"></script>
 {% endblock %}
 </body>
 </html>
