@@ -16,6 +16,20 @@ class CustomUserCreationForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise forms.ValidationError(
+                "Username cannot be blank or spaces only.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError(
+                "Email cannot be blank or spaces only.")
+        return email
+
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -29,6 +43,26 @@ class UserForm(forms.ModelForm):
             'last_name': forms.TextInput(
                 attrs={'autocomplete': 'family-name'}),
         }
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise forms.ValidationError("Username cannot be blank.")
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        if not email:
+            raise forms.ValidationError("Email cannot be blank.")
+        return email
+
+    def clean_first_name(self):
+        name = self.cleaned_data.get('first_name', '').strip()
+        return name  # Optional: add validation if required
+
+    def clean_last_name(self):
+        name = self.cleaned_data.get('last_name', '').strip()
+        return name
 
 
 class ProfileForm(forms.ModelForm):
