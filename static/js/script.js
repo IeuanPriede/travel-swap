@@ -28,7 +28,7 @@ function handleMatch(profileId, liked) {
     // Unified alert for both match and like
     if (data.message) {
       console.log("ALERT:", data.message);
-      alert(data.message);
+      showMessageAlert(data.message, data.match ? 'success' : 'info');
     }
     console.log("New profile loaded:", profileId);
     document.getElementById('profile-section').innerHTML = data.next_profile_html;
@@ -157,3 +157,25 @@ window.addEventListener('load', function () {
     navbar.classList.add('bg-primary');
   }
 });
+
+// Alert message
+// Define and expose globally
+function showMessageAlert(msg, type = 'info') {
+  const alertDiv = document.getElementById('message-feedback');
+  if (!alertDiv) {
+    console.warn('No #message-feedback container found.');
+    return;
+  }
+
+  alertDiv.innerHTML = `
+    <div class="alert alert-${type} alert-dismissible fade show shadow" role="alert">
+      ${msg}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  `;
+
+  setTimeout(() => {
+    const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv.querySelector('.alert'));
+    bsAlert.close();
+  }, 5000);
+}

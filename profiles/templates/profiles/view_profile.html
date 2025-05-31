@@ -357,7 +357,7 @@
 {% endblock %}
 {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="{% static 'js/script.js' %}"></script>
+    <script src="{% static 'js/script.js' %}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Try by ID first
@@ -434,16 +434,6 @@
                     }
                 });
             });
-        }
-
-        function showMessageAlert(msg, type) {
-            const alertDiv = document.getElementById('message-feedback');
-            alertDiv.innerHTML = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${msg}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
         }
     });
     </script>
