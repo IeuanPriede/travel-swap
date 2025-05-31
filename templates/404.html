@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-bg d-flex align-items-center justify-content-center vh-100">
+    <div class="form-container text-center p-5 bg-white shadow rounded">
+        <h1 class="display-3 fw-bold text-danger">404</h1>
+        <h2 class="mb-4">Page Not Found</h2>
+        <p class="mb-4">Oops! The page you're looking for doesn't exist or has been moved.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+    </div>
+</div>
+{% endblock %}
