@@ -52,12 +52,19 @@
 
 ### Profiles Views
 
-| test_profile_view_authenticated_user         | Logged-in user accesses profile page         | 200 OK, template used, context contains profile data | ✅ |
-| test_profile_view_redirects_if_not_logged_in | Anonymous user tries to view /profiles/      | Redirect to login with `next=/profiles/`             | ✅ |
-| test_edit_profile_redirects_if_not_logged_in | Anonymous user tries to access edit profile page | Redirects to login page with `?next=/edit_profile/` | ✅ |
-| test_edit_profile_view_get_logged_in          | Logged-in user accesses edit profile via GET     | Page loads with user form, profile form, formset    | ✅ |
-| test_edit_profile_post_valid_data              | Logged-in user submits valid profile data        | Profile updated, redirects to `profiles` view       | ✅ |
-| test_edit_profile_post_invalid_data            | Logged-in user submits invalid data              | Form re-renders with validation errors              | ✅ |
+| test\_profile\_view\_authenticated\_user            | Logged-in user accesses profile page              | 200 OK, template used, context contains profile data           | ✅      |
+| test\_profile\_view\_redirects\_if\_not\_logged\_in | Anonymous user tries to view /profiles/           | Redirect to login with `next=/profiles/`                       | ✅      |
+| test\_edit\_profile\_redirects\_if\_not\_logged\_in | Anonymous user tries to access edit profile page  | Redirects to login page with `?next=/edit_profile/`            | ✅      |
+| test\_edit\_profile\_view\_get\_logged\_in          | Logged-in user accesses edit profile via GET      | Page loads with user form, profile form, formset               | ✅      |
+| test\_edit\_profile\_post\_valid\_data              | Logged-in user submits valid profile data         | Profile updated, redirects to `profiles` view                  | ✅      |
+| test\_edit\_profile\_post\_invalid\_data            | Logged-in user submits invalid data               | Form re-renders with validation errors                         | ✅      |
+| test\_upload\_valid\_image                          | Logged-in user uploads a valid image              | Image saved and user redirected to `edit_profile`              | ✅      |
+| test\_upload\_invalid\_image                        | Logged-in user uploads invalid (non-image) file   | Form error shown: “There was a problem updating images.”       | ✅      |
+| test\_redirects\_if\_not\_logged\_in (upload)       | Unauthenticated user tries to POST image upload   | Redirects to login page with `?next=/profiles/upload-images/`  | ✅      |
+| test\_delete\_with\_correct\_password               | Logged-in user submits correct password to delete | User deleted, redirected to home                               | ✅      |
+| test\_delete\_with\_incorrect\_password             | Logged-in user submits wrong password             | Redirects to edit profile, user not deleted                    | ✅      |
+| test\_redirects\_if\_not\_logged\_in (delete)       | Unauthenticated user tries to delete profile      | Redirects to login page with `?next=/profiles/delete-profile/` | ✅      |
+
 
 
 ## Messaging
