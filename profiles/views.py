@@ -31,6 +31,7 @@ from notifications.models import Notification
 from reviews.forms import ReviewForm
 from reviews.models import Review
 from django_countries import countries
+from django.http import HttpResponseNotAllowed
 
 
 # View to display the logged-in user's profile
@@ -277,83 +278,85 @@ def home(request):
 
 
 def next_profile(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        filters = data.get('filters', {})
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
 
-        profile_ids = request.session.get('profile_sequence', [])
-        current_index = request.session.get('current_index', 0)
+    data = json.loads(request.body)
+    filters = data.get('filters', {})
 
-        # If we reached the end, reshuffle and restart
-        if current_index >= len(profile_ids):
+    profile_ids = request.session.get('profile_sequence', [])
+    current_index = request.session.get('current_index', 0)
 
-            # ✅ Prevent infinite loop if only one profile matches
-            if len(profile_ids) == 1:
-                html = (
-                    "<div class='alert alert-info text-center mt-4'>"
-                    "🎉 You've already seen the only matching profile. "
-                    "Try changing your filters to see more!</div>"
-                )
-                return JsonResponse(
-                    {'match': False, 'next_profile_html': html})
-            profiles = Profile.objects.filter(is_visible=True)
+    # If we reached the end, reshuffle and restart
+    if current_index >= len(profile_ids):
 
-            if request.user.is_authenticated:
-                profiles = profiles.exclude(user=request.user)
-                responded_ids = MatchResponse.objects.filter(
-                    from_user=request.user
-                ).values_list('to_profile_id', flat=True)
-                profiles = profiles.exclude(id__in=responded_ids)
-            else:
-                profiles = profiles.exclude(user__isnull=True)
-
-            # Re-apply filters
-            form = SearchForm(filters)
-            if form.is_valid():
-                for field, value in form.cleaned_data.items():
-                    if value and field != "location":
-                        profiles = profiles.filter(**{field: True})
-                if form.cleaned_data.get("location"):
-                    profiles = profiles.filter(
-                        location=form.cleaned_data["location"])
-
-            profile_ids = list(profiles.values_list('id', flat=True))
-            random.shuffle(profile_ids)
-            current_index = 0
-            request.session['profile_sequence'] = profile_ids
-            request.session['current_index'] = current_index
-
-        # Try to get the next profile
-        next_profile = None
-        if current_index < len(profile_ids):
-            try:
-                next_profile = Profile.objects.get(
-                    id=profile_ids[current_index])
-                request.session['current_index'] = current_index + 1
-            except Profile.DoesNotExist:
-                next_profile = None
-
-        # Prepare HTML
-        if next_profile:
-            reviews = Review.objects.filter(reviewee=next_profile.user)
-            avg_val = reviews.aggregate(avg=Avg('rating'))['avg']
-            average_rating = round(avg_val, 1) if avg_val else None
-
-            html = render_to_string('partials/profile_card.html', {
-                'profile': next_profile,
-                'reviews': reviews,
-                'average_rating': average_rating,
-            }, request=request)
-        else:
+        # ✅ Prevent infinite loop if only one profile matches
+        if len(profile_ids) == 1:
             html = (
-                "<p class='text-center mt-5'>🎉 "
-                "No more profiles available!</p>"
+                "<div class='alert alert-info text-center mt-4'>"
+                "🎉 You've already seen the only matching profile. "
+                "Try changing your filters to see more!</div>"
             )
+            return JsonResponse(
+                {'match': False, 'next_profile_html': html})
+        profiles = Profile.objects.filter(is_visible=True)
 
-        return JsonResponse({
-            'match': False,
-            'next_profile_html': html
-        })
+        if request.user.is_authenticated:
+            profiles = profiles.exclude(user=request.user)
+            responded_ids = MatchResponse.objects.filter(
+                from_user=request.user
+            ).values_list('to_profile_id', flat=True)
+            profiles = profiles.exclude(id__in=responded_ids)
+        else:
+            profiles = profiles.exclude(user__isnull=True)
+
+        # Re-apply filters
+        form = SearchForm(filters)
+        if form.is_valid():
+            for field, value in form.cleaned_data.items():
+                if value and field != "location":
+                    profiles = profiles.filter(**{field: True})
+            if form.cleaned_data.get("location"):
+                profiles = profiles.filter(
+                    location=form.cleaned_data["location"])
+
+        profile_ids = list(profiles.values_list('id', flat=True))
+        random.shuffle(profile_ids)
+        current_index = 0
+        request.session['profile_sequence'] = profile_ids
+        request.session['current_index'] = current_index
+
+    # Try to get the next profile
+    next_profile = None
+    if current_index < len(profile_ids):
+        try:
+            next_profile = Profile.objects.get(
+                id=profile_ids[current_index])
+            request.session['current_index'] = current_index + 1
+        except Profile.DoesNotExist:
+            next_profile = None
+
+    # Prepare HTML
+    if next_profile:
+        reviews = Review.objects.filter(reviewee=next_profile.user)
+        avg_val = reviews.aggregate(avg=Avg('rating'))['avg']
+        average_rating = round(avg_val, 1) if avg_val else None
+
+        html = render_to_string('partials/profile_card.html', {
+            'profile': next_profile,
+            'reviews': reviews,
+            'average_rating': average_rating,
+        }, request=request)
+    else:
+        html = (
+            "<p class='text-center mt-5'>🎉 "
+            "No more profiles available!</p>"
+        )
+
+    return JsonResponse({
+        'match': False,
+        'next_profile_html': html
+    })
 
 
 @csrf_exempt
