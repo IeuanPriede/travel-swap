@@ -1,5 +1,4 @@
 function handleMatch(profileId, liked) {
-  console.log("Clicked Next for profile ID:", profileId);
   const url = liked === true ? '/like/' : '/next/';
   const bodyData = { profile_id: profileId };
 
@@ -24,13 +23,10 @@ function handleMatch(profileId, liked) {
     return response.json();
   })
   .then(data => {
-    console.log("Server said:", JSON.stringify(data, null, 2));
     // Unified alert for both match and like
     if (data.message) {
-      console.log("ALERT:", data.message);
       showMessageAlert(data.message, data.match ? 'success' : 'info');
     }
-    console.log("New profile loaded:", profileId);
     document.getElementById('profile-section').innerHTML = data.next_profile_html;
 
     initManualImageViewer();
@@ -132,7 +128,6 @@ function initManualImageViewer() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("🚀 DOM ready — init viewer");
   initManualImageViewer();
 });
 

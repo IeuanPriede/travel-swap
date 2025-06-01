@@ -238,7 +238,9 @@ class ProfileViewTest(TestCase):
 
     def test_profile_view_redirects_if_not_logged_in(self):
         response = self.client.get(reverse('profiles'))
-        self.assertRedirects(response, '/accounts/login/?next=/profiles/')
+        self.assertRedirects(
+            response, '/accounts/login/?next=/profiles/profile'
+        )
 
 
 class EditProfileViewTest(TestCase):

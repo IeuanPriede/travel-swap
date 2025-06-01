@@ -1,31 +1,70 @@
-## Manual Testing Document
+# TravelSwap - Testing
 
-| Feature                | Scenario                         | Expected Result            | Pass/Fail |
-|------------------------|----------------------------------|----------------------------|-----------|
-| Homepage access        | Non-user visits `/`              | Sees profile card          |          |
-| Like Profile button    | Guest user clicks 👍             | Prompted to login          |          | 
-| Contact form           | Submit invalid email             | Validation error shown     |          |
-| Booking calendar       | User selects unavailable dates   | Request not submitted      |          |
+Testing was ongoing throughout the entire build. During development I made use of Googles Developer Tools to ensure everything was working as expected and to assist me with troubleshooting when things didn't work as they should.
 
-## Admin Panel Testing
+I have gone through each page of the site using the Chrome Developer Tools to ensure each page is responsive on a variety of different screen sizes and devices, as well as manually testing this using a variety of devices in person.
 
-| Feature                  | Scenario                                                         | Expected Result                                        | Pass/Fail |
-|--------------------------|------------------------------------------------------------------|--------------------------------------------------------|-----------|
-| Admin access             | Superuser visits `/admin`                                       | Login page loads, admin access granted after login     |           |
-| Profile management       | Admin views `Profile` list                                      | Usernames, visibility, and locations are shown         |           |
-| Edit profile             | Admin edits a profile from admin panel                          | Form loads, changes are saved                          |           |
-| MatchResponse visibility | Admin views user responses in `MatchResponse`                   | Shows sender, recipient, like/dislike status           |           |
-| HouseImage management    | Admin sees images linked to profiles                            | Image records are viewable and deletable               |           |
-| Review moderation        | Admin views and filters reviews by rating or user               | Reviewer, reviewee, rating, and comments are visible   |           |
-| Notifications view       | Admin checks `Notification` model for user alerts               | User, message, read status, and timestamps visible     |           |
-| Message tracking         | Admin browses `Message` records                                 | Sender, recipient, and content shown                   |           |
-| BookingRequest tracking  | Admin views and filters bookings by status/date                 | Status (pending/accepted/etc.) and details are shown   |           |
-| Search & filters         | Admin uses search fields in each model admin                    | Results filter by username or field as expected        |           |
+## Validation Testing
 
-## Profiles Tests
+### HTML
 
-### Profiles Models 
+- All templates passed the W3C Markup Validation Service with no critical errors.
+- Minor warnings about Bootstrap-related attributes were ignored, as they do not affect rendering or accessibility.
 
+#### - Home page
+![Html Validator](static\images\documentation\html-validator.png)
+
+#### - About page
+![Html Validator](static\images\documentation\html-validator.png)
+
+#### - Travel Log page
+![Html Validator](static\images\documentation\html-validator.png)
+
+#### - View Profile page
+![Html Validator](static\images\documentation\html-validator.png)
+
+#### - Profile page
+![Html Validator](static\images\documentation\profile-warning.png)
+
+Django code, not recognized in validator.
+
+#### - Edit Profile page
+![Html Validator](static\images\documentation\profile-warning.png)
+
+Django code, not recognized in validator.
+
+#### - Register Page
+
+![Html Validator](static\images\documentation\html-validator.png)
+
+#### Login Page
+
+![Html Validator](static\images\documentation\html-validator.png)
+
+### CSS
+
+![CSS Validator](static/images/documentation/css%20validator.png)
+
+### JavaScript
+
+- JavaScript code was linted using JShint with standard settings.
+- No major syntax errors or warnings were present.
+
+![JShint Validator](static\images\documentation\jshint.png)
+
+### Python
+
+#### Automated Testing
+
+- Tests were written using `unittest`-based Django `TestCase` classes.
+- Tests were run using the Django command:  
+  ```bash
+  python manage.py test
+
+#### Profiles Models 
+
+| Test Name                        | Description                                        | Expected Result                                    | Pass/Fail |
+|----------------------------------|----------------------------------------------------|-----------------------------------------------------|-----------|
 | test_profile_str                             | Profile with user and country               | Returns 'username - country'                      | ✅ |
 | test_profile_defaults                        | Profile created without optional fields     | is_visible=True and blank fields are allowed      | ✅ |
 | test_house_image_str                         | HouseImage linked to profile                | Returns 'Image for username'                      | ✅ |
@@ -34,8 +73,10 @@
 | test_match_response_str                      | MatchResponse for a like/dislike            | Returns 'user liked/disliked user'                | ✅ |
 | test_match_response_unique_constraint        | Duplicate like by same user to same profile | Raises IntegrityError due to unique_together rule | ✅ |
 
-### Profiles Forms
+#### Profiles Forms
 
+| Test Name                        | Description                                        | Expected Result                                     | Pass/Fail |
+|----------------------------------|----------------------------------------------------|-----------------------------------------------------|-----------|
 | test_custom_user_creation_valid_data         | Valid username, email, matching passwords    | Form is valid                                      | ✅ |
 | test_custom_user_creation_blank_username     | Username is blank or spaces only             | ValidationError: Username cannot be blank         | ✅ |
 | test_custom_user_creation_blank_email        | Email is blank or spaces only                | ValidationError: Email cannot be blank            | ✅ |
@@ -50,8 +91,10 @@
 | test_contact_form_blank_subject              | ContactForm with blank subject               | ValidationError: Subject cannot be blank          | ✅ |
 | test_contact_form_blank_message              | ContactForm with blank message               | ValidationError: Message cannot be blank          | ✅ |
 
-### Profiles Views
+#### Profiles Views
 
+| Test Name                        | Description                                        | Expected Result                                                                 | Pass/Fail |
+|----------------------------------|----------------------------------------------------|---------------------------------------------------------------------------------|-----------|
 | test\_profile\_view\_authenticated\_user            | Logged-in user accesses profile page              | 200 OK, template used, context contains profile data           | ✅      |
 | test\_profile\_view\_redirects\_if\_not\_logged\_in | Anonymous user tries to view /profiles/           | Redirect to login with `next=/profiles/`                       | ✅      |
 | test\_edit\_profile\_redirects\_if\_not\_logged\_in | Anonymous user tries to access edit profile page  | Redirects to login page with `?next=/edit_profile/`            | ✅      |
@@ -104,9 +147,7 @@
 | test_custom_logout_redirects_and_shows_message | Redirects to home and shows logout success message     | ✅ |
 | test_custom_404_view_renders_template          | Returns custom 404 template with correct status code   | ✅ |
 
-## Messaging
-
-### Messaging Models
+#### Messaging Models
 
 | Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
 |----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
@@ -115,53 +156,123 @@
 | test_create_booking_request | Creates a BookingRequest and verifies field values      | sender, recipient, message, default status,  |           |
 |                              |                                                        |and string are correct                        |        ✅ |
 
-### Messaging Forms
+#### Messaging Forms
 
-| test_valid_message_form          | Content filled in correctly                    | Form is valid                              | ✅ |
-| test_blank_message_form          | No content submitted                           | Form is invalid, 'content' in errors        | ✅ |
-| test_message_widget_type         | Form uses Textarea with placeholder            | Placeholder is "Write your message..."      | ✅ |
-| test_valid_booking_request_form  | Proper date string submitted                   | Form is valid                              | ✅ |
-| test_blank_booking_request_form  | No dates entered                               | Form is invalid, 'requested_dates' in errors | ✅ |
-| test_requested_dates_widget_attrs | Widget has correct attributes (ID, placeholder) | Form input has expected HTML attributes     | ✅ |
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
+| test_valid_message_form          | Content filled in correctly                    | Form is valid                                    |     ✅    |
+| test_blank_message_form          | No content submitted                           | Form is invalid, 'content' in errors             |     ✅    |
+| test_message_widget_type         | Form uses Textarea with placeholder            | Placeholder is "Write your message..."           |     ✅    |
+| test_valid_booking_request_form  | Proper date string submitted                   | Form is valid                                    |     ✅    |
+| test_blank_booking_request_form  | No dates entered                               | Form is invalid, 'requested_dates' in errors     |     ✅    |
+| test_requested_dates_widget_attrs | Widget has correct attributes (ID, placeholder) | Form input has expected HTML attributes        |     ✅    |
 
-## Notifications
+#### Notifications Models
 
-### Notifications Models
-
+| Test Name                        | Description                                        | Expected Result                                            | Pass/Fail |
+|----------------------------------|----------------------------------------------------|------------------------------------------------------------|-----------|
 | test_create_notification | Creates a Notification and verifies field values     | user, message, default is_read, and string representation are correct | ✅ |
 
-### Notifications Views Tests
+#### Notifications Views Tests
 
+| Test Name                        | Description                                        | Expected Result                                    | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | test_mark_all_read              | Marks all unread notifications as read via POST           | All user notifications are updated and redirected| ✅ |
 | test_dismiss_notification       | Dismisses a single notification as read via POST          | Target notification `is_read=True`, redirected   | ✅ |
 | test_mark_notification_read_with_link | Marks a notification read and redirects to its link | Notification updated and redirected to `link`    | ✅ |
 | test_dismiss_notification_unauthorized_access | Tries to dismiss another user’s notification | 404 error returned                              | ✅ |
 
-### Notifications Context Processor
+#### Notifications Context Processor
 
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | test_returns_queryset_for_authenticated_user | User with unread notifications  | QuerySet with correct length       | ✅ |
 | test_returns_empty_queryset_if_all_read      | All notifications are read      | 	Empty QuerySet                    | ✅ |
 | test_returns_empty_list_for_anonymous_user   | User not logged in              | Empty list returned                | ✅ |
 
-## Reviews
+#### Review Model
 
-### Review Model
-
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | test_create_review                   | Creates a Review and verifies fields/str output       | Fields saved correctly and `__str__` is formatted       | ✅ |
 | test_unique_reviewer_reviewee_constraint | Ensures a reviewer can’t submit two reviews for same user | Raises IntegrityError for duplicate pair        | ✅ |
 
-### Review Views
+#### Review Views
 
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | test_leave_review_post_valid        | Logged-in user submits a valid review for a matched user | Review saved, redirected to profile                        | ✅ |
 | test_cannot_review_self            | User tries to review themselves                           | Error message shown, redirect back to profile              | ✅ |
 | test_cannot_review_unmatched_user | User tries to review someone they haven't matched with    | Error message shown, no form shown                         | ✅ |
 | test_delete_review                | User deletes their review via POST                        | Review removed, success message shown                      | ✅ |
 
 
-### Reviews Forms
+#### Reviews Forms
 
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | test_form_valid_data         | Valid rating and comment submitted             | Form is valid                                          | ✅ |
 | test_form_missing_rating     | No rating provided                             | Form is invalid, 'rating' in errors                    | ✅ |
 | test_form_missing_comment    | No comment provided                            | Form is invalid, 'comment' in errors                   | ✅ |
 | test_form_rating_choices     | Ensures custom radio choices are correctly set | Choices match 1–5 with star symbols                    | ✅ |
 | test_form_labels             | Custom field labels applied                    | Label for rating is "Star Rating", comment is "Your Review" | ✅ |
+
+
+## Manual Testing
+
+### 🔐 Authentication & Access Control
+
+| Feature         | Scenario                               | Expected Result                   |           |
+| --------------- | -------------------------------------- | --------------------------------- |           |
+| Homepage access        | Non-user visits `/`              | Sees profile card                |    ✅     |
+| Register form   | Submit incomplete or invalid data      | Validation errors shown           |    ✅     |
+| Login           | User logs in with correct credentials  | Redirected to homepage/profile    |    ✅     | 
+| Login fail      | User logs in with wrong password/email | Error message shown               |    ✅     |
+| Protected pages | Access profile/edit while logged out   | Redirected to login with `?like=` |    ✅     |
+
+### 🧾 Profile Features
+
+| Feature      | Scenario                             | Expected Result             |          |
+| ------------ | ------------------------------------ | --------------------------- |          |
+| Edit profile | Update location and bio              | Changes saved and visible   |    ✅    |
+| Upload image | Upload valid and invalid image types | Only valid formats accepted |    ✅    |
+| Delete image | Delete a house image                 | Image removed from gallery  |    ✅    |
+
+### 👍 Matching & Travel Log
+
+| Feature              | Scenario                             | Expected Result                     |       |
+| -------------------- | ------------------------------------ | ----------------------------------- |       |
+| Like profile         | Logged-in user likes another profile | Profile saved to travel log         |   ✅  |
+| Unlike profile       | Unlike a previously liked profile    | Removed from travel log             |   ✅  |
+| Matched profile view | Access matched profile               | Can see calendar, messages, reviews |   ✅  |
+
+### 📅 Booking System
+
+| Feature              | Scenario                     | Expected Result                     |        |
+| -------------------- | ---------------------------- | ---------------------------------   |        |
+| Submit valid request | Pick available dates, submit | Request visible to recipient        |   ✅   |
+| Respond to request   | Accept/ammend/decline a booking| Status changes, notification sent |   ✅   |
+| View bookings        | View sent/received bookings  | Shows booking cards with status     |   ✅   |   
+
+### 💬 Messaging & Notifications
+
+| Feature              | Scenario                       | Expected Result                             |        |
+| -------------------- | ------------------------------ | ------------------------------------------- |        |
+| Send message         | Send a message to a match      | Message saved, shown in chat                |   ✅   |
+| Receive notification | Matched user sees alert        | Alert appears in navbar/notification system |   ✅   |
+| Clear notification   | Click on alert icon or message | Marked as read, no longer counted           |   ✅   |
+
+### Admin Panel Testing
+
+| Feature                  | Scenario                                                         | Expected Result                                        | Pass/Fail |
+|--------------------------|------------------------------------------------------------------|--------------------------------------------------------|-----------|
+| Admin access             | Superuser visits `/admin`                                       | Login page loads, admin access granted after login     |     ✅    |
+| Profile management       | Admin views `Profile` list                                      | Usernames, visibility, and locations are shown         |     ✅    |
+| Edit profile             | Admin edits a profile from admin panel                          | Form loads, changes are saved                          |     ✅    |
+| MatchResponse visibility | Admin views user responses in `MatchResponse`                   | Shows sender, recipient, like/dislike status           |     ✅    |
+| HouseImage management    | Admin sees images linked to profiles                            | Image records are viewable and deletable               |     ✅    |
+| Review moderation        | Admin views and filters reviews by rating or user               | Reviewer, reviewee, rating, and comments are visible   |     ✅    |
+| Notifications view       | Admin checks `Notification` model for user alerts               | User, message, read status, and timestamps visible     |     ✅    |
+| Message tracking         | Admin browses `Message` records                                 | Sender, recipient, and content shown                   |     ✅    |
+| BookingRequest tracking  | Admin views and filters bookings by status/date                 | Status (pending/accepted/etc.) and details are shown   |     ✅    |
+| Search & filters         | Admin uses search fields in each model admin                    | Results filter by username or field as expected        |     ✅    |

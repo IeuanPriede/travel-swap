@@ -39,7 +39,7 @@ from django.http import HttpResponseNotAllowed
 def profile_view(request):
     # Get or create a Profile instance tied to the logged-in user
     profile, created = Profile.objects.get_or_create(user=request.user)
-    print("DEBUG: Profile location is:", profile.location)
+
     house_images = profile.house_images.all()
     reviews = Review.objects.filter(reviewee=request.user)
     average_rating_val = reviews.aggregate(avg=Avg('rating'))['avg']
@@ -58,7 +58,6 @@ def edit_profile(request):
     profile = get_object_or_404(Profile, user=request.user)
 
     if request.method == 'POST':
-        print("Form submitted")
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(
             request.POST, request.FILES, instance=profile)
@@ -66,13 +65,7 @@ def edit_profile(request):
         user_form_valid = user_form.is_valid()
         profile_form_valid = profile_form.is_valid()
 
-        print("DEBUG - Form valid states:",
-              user_form_valid, profile_form_valid)
-        print("UserForm errors:", user_form.errors)
-        print("ProfileForm errors:", profile_form.errors)
-
         if user_form_valid and profile_form_valid:
-            print("User and Profile forms are valid")
             user_form.save()
             profile_form.save()
             messages.success(request, "Your profile has been updated.")
@@ -105,8 +98,6 @@ def upload_images(request):
             request.POST, request.FILES, queryset=HouseImage.objects.none())
 
         for form in formset:
-            print("Form cleaned data:", getattr(form, 'cleaned_data', {}))
-            print("Form errors:", form.errors)
             if not form.has_changed():
                 form.empty_permitted = True
 
@@ -174,12 +165,10 @@ def register(request):
 
 @login_required
 def delete_image(request, image_id):
-    print(f"Delete request received for image_id={image_id}")
 
     image = get_object_or_404(HouseImage, id=image_id)
 
     if image.profile.user != request.user:
-        print("Forbidden: user mismatch")
         return JsonResponse({"error": "Forbidden"}, status=403)
 
     if request.method == "POST":
@@ -191,10 +180,8 @@ def delete_image(request, image_id):
             print(f"Error deleting image from Cloudinary: {e}")
 
         image.delete()
-        print("Image deleted successfully")
         return HttpResponse(status=204)  # ✅ No content
 
-    print("Invalid request method")
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
@@ -362,12 +349,10 @@ def next_profile(request):
 @csrf_exempt
 @login_required
 def like_profile(request):
-    print("DEBUG - Like recorded by:", request.user.username)
     if request.method == 'POST':
         data = json.loads(request.body)
         profile_id = data.get('profile_id')
         profile = get_object_or_404(Profile, id=profile_id)
-        print("✅ Like profile view hit for:", profile.user.username)
 
         # Create or update MatchResponse
         match, created = MatchResponse.objects.get_or_create(
@@ -437,12 +422,6 @@ def like_profile(request):
 
         html = render_to_string('partials/profile_card.html', {
             'profile': next_profile}, request=request)
-
-        print("Returning JSON with message:", (
-                f"You matched with {profile.user.username}! 🎉"
-                if is_match else
-                f"You liked {profile.user.username}'s profile."
-            ))
 
         return JsonResponse({
             'match': is_match,
@@ -555,7 +534,6 @@ def view_profile(request, user_id):
 
                 messages.success(request, "Message sent successfully!")
                 return redirect('view_profile', user_id=profile_user.id)
-            print("Messages:", messages.get_messages(request))
         else:
             message_form = MessageForm()
 
@@ -622,9 +600,6 @@ def view_profile(request, user_id):
         'reviews': Review.objects.filter(reviewee=profile_user),
         'booking_form': booking_form,
     }
-    print("🔔 Unread notifications for this user:",
-          Notification.objects.filter(
-              user=request.user, is_read=False).count())
 
     return render(request, 'profiles/view_profile.html', context)
 
