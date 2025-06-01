@@ -160,7 +160,6 @@ class ImageForm(forms.ModelForm):
         image = self.cleaned_data.get('image')
 
         if not image:
-            print("No image provided")
             return None
 
         if image.size > 2 * 1024 * 1024:
@@ -168,14 +167,12 @@ class ImageForm(forms.ModelForm):
 
         try:
             img = Image.open(image)
-            print("Image format detected:", img.format)
             if img.format not in ['JPEG', 'PNG']:
                 raise ValidationError('Only JPEG and PNG images are allowed.')
 
             image.seek(0)  # ✅ Reset file pointer for Cloudinary
 
-        except Exception as e:
-            print("Image validation error:", e)
+        except Exception:
             raise ValidationError('Invalid image file.')
 
         return image

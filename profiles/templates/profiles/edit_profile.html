@@ -11,10 +11,10 @@
 <div class="container">
     <h1 class="my-4">Edit Profile</h1>
     <div class="card my-4 shadow">
-        <div class="card-body">
-            <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primary text-white">
                 <h3>Update Your Profile</h3>
-            </div>
+        </div>
+        <div class="card-body">
             <!-- Begin Profile Edit Form -->
             <form method="post" id="edit-profile-form" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
                 {% csrf_token %}
@@ -68,9 +68,9 @@
                             {{ profile_form.house_description }}
                         </div>
                         <div class="mb-3 col-12">
-                            <label for="{{ profile_form.available_dates.id_for_label }}" class="form-label">
+                            <div class="form-label">
                                 {{ profile_form.available_dates.label_tag }}
-                            </label><br>
+                            </div><br>
                             {{ profile_form.available_dates }}
                             <small class="form-text text-muted mb-3 d-block">Choose your availability start and end date</small>
                             <label for="{{ profile_form.is_visible.id_for_label }}" class="form-label">
@@ -184,7 +184,7 @@
                     {% csrf_token %}
                     {{ formset.management_form }}
                     <div class="modal-header">
-                        <h5 class="modal-title">Upload House Images</h5>
+                        <h5 class="modal-title" id="uploadImagesLabel">Upload House Images</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -271,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
             })
             .then(response => {
-                console.log("Delete response:", response.status);
 
                 if (response.status === 204) {
                     const imageCard = document.getElementById(`image-${imageId}`);
@@ -280,7 +279,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 } else {
                     return response.json().then(data => {
-                        console.log("Delete error:", data);
                         alert(data.error || 'Failed to delete image.');
                     });
                 }

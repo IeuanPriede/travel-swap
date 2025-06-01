@@ -59,9 +59,6 @@ class ImageValidator:
 
         # Safely guess content type from file name
         guessed_type, _ = mimetypes.guess_type(file.name)
-        print(
-            "DEBUG - Guessed MIME type:",
-            guessed_type, "for file:", file.name)
 
         # Robust type check
         if guessed_type is None or guessed_type not in self.allowed_types:
