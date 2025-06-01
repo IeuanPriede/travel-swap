@@ -64,8 +64,45 @@
 | test\_delete\_with\_correct\_password               | Logged-in user submits correct password to delete | User deleted, redirected to home                               | ✅      |
 | test\_delete\_with\_incorrect\_password             | Logged-in user submits wrong password             | Redirects to edit profile, user not deleted                    | ✅      |
 | test\_redirects\_if\_not\_logged\_in (delete)       | Unauthenticated user tries to delete profile      | Redirects to login page with `?next=/profiles/delete-profile/` | ✅      |
-
-
+| test\_register\_view\_get                 | Anonymous user visits the registration page            | 200 OK, form rendered, correct template used            | ✅      |
+| test\_register\_view\_post\_valid\_data   | User submits valid registration form                   | User is created and logged in, redirected to `profiles` | ✅      |
+| test\_register\_view\_post\_invalid\_data | User submits invalid form (e.g., mismatched passwords) | Form re-renders with appropriate validation errors      | ✅      |
+| test\_register\_view\_get                 | Anonymous user visits the registration page            | 200 OK, form rendered, correct template used            | ✅      |
+| test\_register\_view\_post\_valid\_data   | User submits valid registration form                   | User is created and logged in, redirected to `profiles` | ✅      |
+| test\_register\_view\_post\_invalid\_data | User submits invalid form (e.g., mismatched passwords) | Form re-renders with appropriate validation errors      | ✅      |
+| test\_redirects\_if\_not\_logged\_in  | Unauthenticated user tries to delete image      | Redirect to login                             | ✅      |
+| test\_forbidden\_if\_not\_owner       | Logged-in user who doesn’t own the image        | 403 Forbidden returned                        | ✅      |
+| test\_successful\_deletion\_by\_owner | Correct user sends POST request to delete image | Image deleted, response code 204 (No Content) | ✅      |
+| test\_invalid\_method\_returns\_400   | Owner tries to delete image via GET request     | 400 Bad Request, JSON error response returned | ✅      |
+| test\_home\_view\_unauthenticated  | Loads home page without login                           | 200 OK, profile context present if any visible profiles exist | ✅      |
+| test\_home\_view\_authenticated\_excludes\_own\_and\_responded | Logged-in user sees only unresponded, non-self profiles | Own and previously liked/disliked 
+|                                                                |                                                         |   profiles are excluded       | ✅      |
+| test\_home\_view\_with\_filters  | Filters by pets\_allowed, pool                          | Profile shown if it matches filter criteria                   | ✅      |
+| test\_home\_view\_with\_location\_filter| Filters by location                               | Profile shown if it matches location                          | ✅      |
+| test\_home\_view\_with\_valid\_date\_range  | Filters by available\_dates range             | Profile shown if it includes range start or end               | ✅      |
+| test\_home\_view\_with\_invalid\_date\_range| Invalid date range query                      | No crash, profile list unaffected                             | ✅      |
+| test\_home\_view\_ajax\_returns\_partial| Loads profile card via AJAX                       | Returns JSON with rendered HTML                               | ✅      |
+| test_post_without_session_returns_fallback_html   | Made the only profile invisible to trigger "No more profiles"                                        | ✅    |
+| test_post_with_valid_session_returns_profile_html | Changed `"profile-card"` check to `"Next Home"` since that string reliably appears in your real HTML | ✅    |
+| test_post_with_only_one_profile_shows_alert       | No change — this one already works correctly                                                         | ✅    |
+| test_get_method_disallowed                        | No change — your view now handles non-POST methods properly with `HttpResponseNotAllowed`            | ✅    |
+| test_like_profile_creates_matchresponse           | New test — verifies MatchResponse creation, proper JSON response, and like success message            | ✅    |
+| test_unlike_profile_removes_match_and_redirects   | New test — confirms MatchResponse is deleted, redirects, and shows success message                    | ✅    |
+| test_travel_log_mutual_match_flag | Verifies mutual match logic sets `is_mutual=True` when both users liked each other | ✅      |
+| test_view_profile_get_authenticated | Tests that a matched user can access another profile and see messaging, booking, and review features | ✅ |
+| test_get_latest_booking_returns_most_recent | Confirms correct filtering and ordering of BookingRequest queries                         | ✅ |
+| test_handle_booking_request_valid           | Sends a booking request, checks creation and redirect, confirms notification exists   | ✅ |
+| test_handle_booking_response_accept         | Simulates recipient accepting a booking, confirms DB update and redirect                   | ✅ |
+| test_handle_booking_response_amend          | Simulates recipient amending booking dates, validates update and redirect                  | ✅ |
+| test\_handle\_booking\_cancel | Simulates cancelling an accepted booking. Verifies booking is deleted, notification is sent, and user is redirected. | ✅ |
+| test\_check\_if\_matched\_true                  | Verifies the function returns `True` when both users like each other's profiles | ✅ |
+| test\_check\_if\_matched\_false\_if\_one\_sided | Returns `False` if only one user liked the other                                | ✅ |
+| test\_check\_if\_matched\_false\_if\_none       | Returns `False` if no mutual MatchResponses exist                               | ✅ |
+| test\_user\_is\_matched\_true                        | Confirms mutual like returns `True`                    | ✅ |
+| test\_user\_is\_matched\_false\_if\_one\_sided       | Returns `False` if only one user liked the other       | ✅ |
+| test\_user\_is\_matched\_false\_if\_profile\_missing | Handles missing profile gracefully and returns `False` | ✅ |
+| test_custom_logout_redirects_and_shows_message | Redirects to home and shows logout success message     | ✅ |
+| test_custom_404_view_renders_template          | Returns custom 404 template with correct status code   | ✅ |
 
 ## Messaging
 

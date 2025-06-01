@@ -1,15 +1,15 @@
-{% load static %}
-{% url 'home' as home_url %}
-{% url 'about' as about_url %}
-{% url 'travel_log' as travel_log_url %}
-{% url 'login' as login_url %}
-{% url 'logout' as logout_url %}
-{% url 'register' as register_url %}
-{% url 'profile' as profile_url %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
+    {% url 'home' as home_url %}
+    {% url 'about' as about_url %}
+    {% url 'travel_log' as travel_log_url %}
+    {% url 'login' as login_url %}
+    {% url 'logout' as logout_url %}
+    {% url 'register' as register_url %}
+    {% url 'profile' as profile_url %}
+
     <meta charset="UTF-8">
     <title>{% block title %}Home Exchange{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
     <!-- FontAwesome -->
     <link
@@ -37,7 +37,7 @@
     integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
-    />
+    >
     {% if debug %}
     <meta name="debug" content="true">
     {% endif %}
@@ -170,7 +170,7 @@
 
     <!-- Footer -->
     <footer class="bg-primary text-white text-center py-3">
-        <small>&copy; 2025 TravelSwap - BASE</small>
+        <small>&copy; 2025 TravelSwap</small>
     </footer>
 
     <!-- Bootstrap JS -->
