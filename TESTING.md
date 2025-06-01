@@ -67,3 +67,10 @@
 | test_redirect_if_not_logged_in   | Anonymous user is blocked                         | Redirects to login                           | ✅         |
 | test_upload_single_image_auto_sets_main | First image uploaded becomes main image    | One image saved, marked is_main=True         | ✅         |
 | test_upload_sets_manual_main_image | User selects main image via POST param         | Selected image set as main                   | ✅         |
+
+### Messaging Tests
+
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
+| test_create_message              | Verifies Message instance saves with correct fields| sender, recipient, content,
+                                                                                        | timestamp are correct, __str__ format OK     | ✅        |
