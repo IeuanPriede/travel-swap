@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from messaging.models import Message, BookingRequest
 from datetime import timedelta
 from django.utils import timezone
+from messaging.forms import MessageForm, BookingRequestForm
 
 
 class MessageModelTest(TestCase):
@@ -63,3 +64,43 @@ class BookingRequestModelTest(TestCase):
             f"{booking.requested_dates} ({booking.status})"
         )
         self.assertEqual(str(booking), expected_str)
+
+
+class MessageFormTest(TestCase):
+
+    def test_valid_message_form(self):
+        form = MessageForm(data={'content': 'Hello, how are you?'})
+        self.assertTrue(form.is_valid())
+
+    def test_blank_message_form(self):
+        form = MessageForm(data={'content': ''})
+        self.assertFalse(form.is_valid())
+        self.assertIn('content', form.errors)
+
+    def test_message_widget_type(self):
+        form = MessageForm()
+        self.assertIn('placeholder', form.fields['content'].widget.attrs)
+        self.assertEqual(
+            form.fields['content'].widget.attrs['placeholder'],
+            'Write your message...'
+        )
+
+
+class BookingRequestFormTest(TestCase):
+
+    def test_valid_booking_request_form(self):
+        form = BookingRequestForm(
+            data={'requested_dates': '2025-08-10 to 2025-08-20'})
+        self.assertTrue(form.is_valid())
+
+    def test_blank_booking_request_form(self):
+        form = BookingRequestForm(data={'requested_dates': ''})
+        self.assertFalse(form.is_valid())
+        self.assertIn('requested_dates', form.errors)
+
+    def test_requested_dates_widget_attrs(self):
+        form = BookingRequestForm()
+        widget = form.fields['requested_dates'].widget
+        self.assertEqual(widget.attrs.get('id'), 'requested-dates')
+        self.assertEqual(
+            widget.attrs.get('placeholder'), 'Select exchange dates')

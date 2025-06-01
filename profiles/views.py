@@ -513,6 +513,7 @@ def view_profile(request, user_id):
 
     message_form = None
     messages_between = None
+    booking_form = None
 
     if is_match:
         messages_between = Message.objects.filter(
