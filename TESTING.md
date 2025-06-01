@@ -24,51 +24,45 @@
 
 ## Profiles Tests
 
-### Models Tests
+### Profiles Models 
 
-| Test Name               | Description                                                  | Expected Result                              | Pass/Fail |
-|-------------------------|--------------------------------------------------------------|-----------------------------------------------|-----------|
-| test_profile_creation   | Verifies that a Profile instance returns the correct string | `__str__()` returns "username - location"     | ✅         |
-| test_profile_creation | Profile string shows "username - location"            | `__str__()` returns correct string                    | ✅         |
-| test_valid_image      | Validates small JPEG image passes validation          | No exception raised                                   | ✅         |
-| test_invalid_type     | Validates .gif image is rejected                      | Raises ValidationError                                | ✅         |
-| test_too_large_image  | Validates oversized JPEG is rejected                  | Raises ValidationError                                | ✅         |
-| test_house_image_creation | Validates that a HouseImage links to profile and saves | Profile is linked, `is_main=True`, string correct | ✅       |
-| test_create_match_response       | Creates a MatchResponse and links users                  | Fields are correctly assigned                | ✅         |
-| test_str_method                  | Checks __str__ shows "liked/disliked" format             | String returns "user1 disliked user2"        | ✅         |
-| test_unique_together_constraint | Ensures same user can't rate same profile twice          | Second response raises IntegrityError/Exception | ✅     |
+| test_profile_str                             | Profile with user and country               | Returns 'username - country'                      | ✅ |
+| test_profile_defaults                        | Profile created without optional fields     | is_visible=True and blank fields are allowed      | ✅ |
+| test_house_image_str                         | HouseImage linked to profile                | Returns 'Image for username'                      | ✅ |
+| test_image_validator_rejects_large_file      | Upload file >2MB                            | Raises ValidationError                            | ✅ |
+| test_image_validator_rejects_invalid_type    | Upload file with invalid MIME type          | Raises ValidationError                            | ✅ |
+| test_match_response_str                      | MatchResponse for a like/dislike            | Returns 'user liked/disliked user'                | ✅ |
+| test_match_response_unique_constraint        | Duplicate like by same user to same profile | Raises IntegrityError due to unique_together rule | ✅ |
 
-### Views Tests
+### Profiles Forms
 
-| Test Name                    | Description                                  | Expected Result                             | Pass/Fail |
-|------------------------------|----------------------------------------------|----------------------------------------------|-----------|
-| test_redirect_if_not_logged_in | Anonymous user is redirected to login       | Redirect with ?next=/profile/                | ✅         |
-| test_profile_view_authenticated | Logged-in user sees profile, template loads | 200 response, context populated              | ✅         |
+| test_custom_user_creation_valid_data         | Valid username, email, matching passwords    | Form is valid                                      | ✅ |
+| test_custom_user_creation_blank_username     | Username is blank or spaces only             | ValidationError: Username cannot be blank         | ✅ |
+| test_custom_user_creation_blank_email        | Email is blank or spaces only                | ValidationError: Email cannot be blank            | ✅ |
+| test_user_form_blank_username                | UserForm submitted with blank username       | ValidationError: Username cannot be blank         | ✅ |
+| test_user_form_blank_email                   | UserForm submitted with blank email          | ValidationError: Email cannot be blank            | ✅ |
+| test_profile_form_blank_bio                  | ProfileForm submitted with blank bio         | ValidationError: Bio cannot be blank              | ✅ |
+| test_profile_form_blank_house_description    | ProfileForm with blank house description     | ValidationError: House description cannot be blank| ✅ |
+| test_image_form_large_file                   | Image >2MB uploaded                          | ValidationError: Image size must be under 2MB     | ✅ |
+| test_image_form_invalid_format               | Image not JPEG/PNG                           | ValidationError: Only JPEG and PNG allowed        | ✅ |
+| test_contact_form_blank_name                 | ContactForm with blank name                  | ValidationError: Name cannot be blank             | ✅ |
+| test_contact_form_blank_email                | ContactForm with blank email                 | ValidationError: Email cannot be blank            | ✅ |
+| test_contact_form_blank_subject              | ContactForm with blank subject               | ValidationError: Subject cannot be blank          | ✅ |
+| test_contact_form_blank_message              | ContactForm with blank message               | ValidationError: Message cannot be blank          | ✅ |
 
-### Edit Profile View Tests
+### Profiles Views
 
-| Test Name                      | Description                                         | Expected Result                              | Pass/Fail |
-|--------------------------------|-----------------------------------------------------|-----------------------------------------------|-----------|
-| test_redirect_if_not_logged_in | Redirects unauthenticated users                    | Redirects to login with `?next=`              | ✅         |
-| test_get_request_renders_forms | Loads edit_profile template and prepopulated forms | Form instances and profile appear in context | ✅         |
-| test_post_valid_data_updates_profile | Valid form data saves and redirects             | Profile is updated and success message shown | ✅         |
+| test_profile_view_authenticated_user         | Logged-in user accesses profile page         | 200 OK, template used, context contains profile data | ✅ |
+| test_profile_view_redirects_if_not_logged_in | Anonymous user tries to view /profiles/      | Redirect to login with `next=/profiles/`             | ✅ |
+| test_edit_profile_redirects_if_not_logged_in | Anonymous user tries to access edit profile page | Redirects to login page with `?next=/edit_profile/` | ✅ |
+| test_edit_profile_view_get_logged_in          | Logged-in user accesses edit profile via GET     | Page loads with user form, profile form, formset    | ✅ |
+| test_edit_profile_post_valid_data              | Logged-in user submits valid profile data        | Profile updated, redirects to `profiles` view       | ✅ |
+| test_edit_profile_post_invalid_data            | Logged-in user submits invalid data              | Form re-renders with validation errors              | ✅ |
 
-### Set Main Image View Tests
 
-| Test Name                 | Description                                 | Expected Result                         | Pass/Fail |
-|---------------------------|---------------------------------------------|------------------------------------------|-----------|
-| test_redirect_if_not_logged_in | Redirects anonymous users                | Redirects to login page                  | ✅         |
-| test_set_main_image       | Sets selected image as main, clears previous | is_main updated, redirects to edit page | ✅         |
+## Messaging
 
-### Upload Images View Tests
-
-| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
-|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
-| test_redirect_if_not_logged_in   | Anonymous user is blocked                         | Redirects to login                           | ✅         |
-| test_upload_single_image_auto_sets_main | First image uploaded becomes main image    | One image saved, marked is_main=True         | ✅         |
-| test_upload_sets_manual_main_image | User selects main image via POST param         | Selected image set as main                   | ✅         |
-
-### Messaging Tests
+### Messaging Models
 
 | Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
 |----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
@@ -76,3 +70,54 @@
 |                                  |                                                    | timestamp are correct, __str__ format OK     | ✅        |
 | test_create_booking_request | Creates a BookingRequest and verifies field values      | sender, recipient, message, default status,  |           |
 |                              |                                                        |and string are correct                        |        ✅ |
+
+### Messaging Forms
+
+| test_valid_message_form          | Content filled in correctly                    | Form is valid                              | ✅ |
+| test_blank_message_form          | No content submitted                           | Form is invalid, 'content' in errors        | ✅ |
+| test_message_widget_type         | Form uses Textarea with placeholder            | Placeholder is "Write your message..."      | ✅ |
+| test_valid_booking_request_form  | Proper date string submitted                   | Form is valid                              | ✅ |
+| test_blank_booking_request_form  | No dates entered                               | Form is invalid, 'requested_dates' in errors | ✅ |
+| test_requested_dates_widget_attrs | Widget has correct attributes (ID, placeholder) | Form input has expected HTML attributes     | ✅ |
+
+## Notifications
+
+### Notifications Models
+
+| test_create_notification | Creates a Notification and verifies field values     | user, message, default is_read, and string representation are correct | ✅ |
+
+### Notifications Views Tests
+
+| test_mark_all_read              | Marks all unread notifications as read via POST           | All user notifications are updated and redirected| ✅ |
+| test_dismiss_notification       | Dismisses a single notification as read via POST          | Target notification `is_read=True`, redirected   | ✅ |
+| test_mark_notification_read_with_link | Marks a notification read and redirects to its link | Notification updated and redirected to `link`    | ✅ |
+| test_dismiss_notification_unauthorized_access | Tries to dismiss another user’s notification | 404 error returned                              | ✅ |
+
+### Notifications Context Processor
+
+| test_returns_queryset_for_authenticated_user | User with unread notifications  | QuerySet with correct length       | ✅ |
+| test_returns_empty_queryset_if_all_read      | All notifications are read      | 	Empty QuerySet                    | ✅ |
+| test_returns_empty_list_for_anonymous_user   | User not logged in              | Empty list returned                | ✅ |
+
+## Reviews
+
+### Review Model
+
+| test_create_review                   | Creates a Review and verifies fields/str output       | Fields saved correctly and `__str__` is formatted       | ✅ |
+| test_unique_reviewer_reviewee_constraint | Ensures a reviewer can’t submit two reviews for same user | Raises IntegrityError for duplicate pair        | ✅ |
+
+### Review Views
+
+| test_leave_review_post_valid        | Logged-in user submits a valid review for a matched user | Review saved, redirected to profile                        | ✅ |
+| test_cannot_review_self            | User tries to review themselves                           | Error message shown, redirect back to profile              | ✅ |
+| test_cannot_review_unmatched_user | User tries to review someone they haven't matched with    | Error message shown, no form shown                         | ✅ |
+| test_delete_review                | User deletes their review via POST                        | Review removed, success message shown                      | ✅ |
+
+
+### Reviews Forms
+
+| test_form_valid_data         | Valid rating and comment submitted             | Form is valid                                          | ✅ |
+| test_form_missing_rating     | No rating provided                             | Form is invalid, 'rating' in errors                    | ✅ |
+| test_form_missing_comment    | No comment provided                            | Form is invalid, 'comment' in errors                   | ✅ |
+| test_form_rating_choices     | Ensures custom radio choices are correctly set | Choices match 1–5 with star symbols                    | ✅ |
+| test_form_labels             | Custom field labels applied                    | Label for rating is "Star Rating", comment is "Your Review" | ✅ |
