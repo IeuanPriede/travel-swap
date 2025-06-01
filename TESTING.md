@@ -72,5 +72,7 @@
 
 | Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
 |----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
-| test_create_message              | Verifies Message instance saves with correct fields| sender, recipient, content,
-                                                                                        | timestamp are correct, __str__ format OK     | ✅        |
+| test_create_message              | Verifies Message instance saves with correct fields| sender, recipient, content,                  |           |
+|                                  |                                                    | timestamp are correct, __str__ format OK     | ✅        |
+| test_create_booking_request | Creates a BookingRequest and verifies field values      | sender, recipient, message, default status,  |           |
+|                              |                                                        |and string are correct                        |        ✅ |
