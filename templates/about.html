@@ -34,6 +34,13 @@
       <div class="col-md-8 col-lg-6">
         <div class="contact-form bg-white p-4 rounded shadow-sm">
           <h2 class="text-center mb-4">Contact Us</h2>
+
+          {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            Please correct the errors below and try again.
+          </div>
+          {% endif %}
+
           <form method="post" novalidate>
               {% csrf_token %}
               {% for field in form %}

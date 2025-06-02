@@ -11,6 +11,8 @@
 - [Features](#features)
 - [User Stories](#user-stories)
 - [Screenshots](#screenshots)
+- [Wireframes](#Wireframes)
+- [Design](#Design)
 - [Technologies Used](#technologies-used)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -363,6 +365,32 @@
 <p align="center">
   <sub>Mobile wireframes</sub>
 </p>
+
+---
+
+## Design
+
+### 🎨 Colour Palette
+
+The TravelSwap platform uses a clean, modern palette to create a warm, trustworthy, and inviting feel:
+
+| Colour        | Hex       | Usage                              |
+| ------------- | --------- | ---------------------------------- |
+| Deep Sky Blue | `#00BFFF` | Primary buttons and links          |
+| Midnight Navy | `#2C3E50` | Header, footer, and base text      |
+| Cloud White   | `#F9F9F9` | Background                         |
+| Soft Gray     | `#DDDDDD` | Borders, cards, secondary elements |
+| Vibrant Coral | `#FF6B6B` | Notifications, alerts, like icons  |
+
+These colours provide high contrast and intuitive UX while keeping a relaxed vacation-inspired vibe.
+
+### 🖋 Fonts
+
+- Primary Font: 'Poppins', sans-serif
+
+- Fallback Fonts: 'Helvetica Neue', Helvetica, Arial, sans-serif
+
+The Poppins font provides a modern, rounded style that balances professionalism with friendliness—ideal for a community-oriented platform like TravelSwap.
 
 ---
 
