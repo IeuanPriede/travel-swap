@@ -789,8 +789,11 @@ def about(request):
             )
             messages.success(request, "Your message has been sent!")
             return redirect('about')  # redirects back to about page
+        else:
+            messages.error(
+                request, "Please correct the errors below and try again.")
     else:
-        form = ContactForm()
+        form = ContactForm()            
     return render(request, 'about.html', {'form': form})
 
 
