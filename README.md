@@ -1,6 +1,6 @@
 # TravelSwap
 
-![TravelSwap Banner](static\images\documentation\travelswap-banner.png)
+![TravelSwap Banner](static/images/documentation/travelswap-banner.png)
 
 **TravelSwap** is a Django-based holiday house exchange platform. Users can register, create profiles showcasing their homes, like and match with other users, and arrange house swaps through an interactive, Tinder-style interface. The platform includes dynamic filtering, messaging, booking calendar requests, notifications, and photo uploads.
 
@@ -476,15 +476,16 @@ To deploy your own version:
 - Bootstrap for styling
 - Code Institute for the course scaffold
 - Cloudinary for media hosting
+- My mentor Jubril Akolade
+- My wife for her help and support
 
 ---
 
 ## Future Features
 
-- Review system for homes and guests
 - Enhanced messaging (read receipts, typing indicators)
 - Mobile responsiveness improvements
-- Email notifications for key events
+- Improve UI
 
 ---
 
