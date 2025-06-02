@@ -1,6 +1,6 @@
 # TravelSwap - Testing
 
-![TravelSwap Banner](static\images\documentation\travelswap-banner.png)
+![TravelSwap Banner](static/images/documentation/travelswap-banner.png)
 
 Testing was ongoing throughout the entire build. During development I made use of Googles Developer Tools to ensure everything was working as expected and to assist me with troubleshooting when things didn't work as they should.
 
