@@ -232,27 +232,27 @@ I have used Googles Lighthouse testing to test the performance, accessibility, b
 
 | Page | Result |
 | :--- | :--- |
-| Home Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\home-page-laptop-lighthouse.png) |
-| About Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\about-page-laptop-lighthouse.png) |
-| Travel Log Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\travel-log-laptop-lighthouse.png) |
-| View Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\view-profile-laptop-lighthouse.png) |
-| Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\profile-laptop-lighthouse.png) |
-| Edit Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\edit-profile-laptop-lighthouse.png) |
-| Register Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\register-laptop-lighthouse.png) |
-| Login Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\login-laptop-lighthouse.png) |
+| Home Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/home-page-laptop-lighthouse.png) |
+| About Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/about-page-laptop-lighthouse.png) |
+| Travel Log Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/travel-log-laptop-lighthouse.png) |
+| View Profile Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/view-profile-laptop-lighthouse.png) |
+| Profile Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/profile-laptop-lighthouse.png) |
+| Edit Profile Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/edit-profile-laptop-lighthouse.png) |
+| Register Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/register-laptop-lighthouse.png) |
+| Login Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/login-laptop-lighthouse.png) |
 
 ### Mobile Results
 
 | Page | Result |
 | :--- | :--- |
-| Home Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\home-page-mobile-lighthouse.png) |
-| About Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\about-page-mobile-lighthouse.png) |
-| Travel Log Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\travel-log-mobile-lighthouse.png) |
-| View Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\view-profile-mobile-lighthouse.png) |
-| Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\profile-mobile-lighthouse.png) |
-| Edit Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\edit-profile-mobile-lighthouse.png) |
-| Register Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\register-mobile-lighthouse.png) |
-| Login Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\login-mobile-lighthouse.png) |
+| Home Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/home-page-mobile-lighthouse.png) |
+| About Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/about-page-mobile-lighthouse.png) |
+| Travel Log Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/travel-log-mobile-lighthouse.png) |
+| View Profile Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/view-profile-mobile-lighthouse.png) |
+| Profile Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/profile-mobile-lighthouse.png) |
+| Edit Profile Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/edit-profile-mobile-lighthouse.png) |
+| Register Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/register-mobile-lighthouse.png) |
+| Login Page | ![Home Desktop Lighthouse Testing](static/images/documentation/lighthouse/login-mobile-lighthouse.png) |
 
 ## Manual Testing
 
