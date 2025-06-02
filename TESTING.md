@@ -6,6 +6,8 @@ Testing was ongoing throughout the entire build. During development I made use o
 
 I have gone through each page of the site using the Chrome Developer Tools to ensure each page is responsive on a variety of different screen sizes and devices, as well as manually testing this using a variety of devices in person.
 
+🚀 [Live Demo](https://travel-swap-3f2457e62b46.herokuapp.com/)
+
 ## Validation Testing
 
 ### HTML
@@ -14,34 +16,34 @@ I have gone through each page of the site using the Chrome Developer Tools to en
 - Minor warnings about Bootstrap-related attributes were ignored, as they do not affect rendering or accessibility.
 
 #### - Home page
-![Html Validator](static\images\documentation\html-validator.png)
+![Html Validator](static/images/documentation/html-validator.png)
 
 #### - About page
-![Html Validator](static\images\documentation\html-validator.png)
+![Html Validator](static/images/documentation/html-validator.png)
 
 #### - Travel Log page
-![Html Validator](static\images\documentation\html-validator.png)
+![Html Validator](static/images/documentation/html-validator.png)
 
 #### - View Profile page
-![Html Validator](static\images\documentation\html-validator.png)
+![Html Validator](static/images/documentation/html-validator.png)
 
 #### - Profile page
-![Html Validator](static\images\documentation\profile-warning.png)
+![Html Validator](static/images/documentation/profile-warning.png)
 
 Django code, not recognized in validator.
 
 #### - Edit Profile page
-![Html Validator](static\images\documentation\profile-warning.png)
+![Html Validator](static/images/documentation/profile-warning.png)
 
 Django code, not recognized in validator.
 
 #### - Register Page
 
-![Html Validator](static\images\documentation\html-validator.png)
+![Html Validator](static/images/documentation/html-validator.png)
 
 #### Login Page
 
-![Html Validator](static\images\documentation\html-validator.png)
+![Html Validator](static/images/documentation/html-validator.png)
 
 ### CSS
 
@@ -52,7 +54,7 @@ Django code, not recognized in validator.
 - JavaScript code was linted using JShint with standard settings.
 - No major syntax errors or warnings were present.
 
-![JShint Validator](static\images\documentation\jshint.png)
+![JShint Validator](static/images/documentation/jshint.png)
 
 ### Python
 
