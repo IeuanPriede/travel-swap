@@ -90,6 +90,11 @@
                         <div class="card-body">
                             <form method="POST">
                                 {% csrf_token %}
+                                {% if booking_form.non_field_errors %}
+                                    <div class="alert alert-danger">
+                                        {{ booking_form.non_field_errors }}
+                                    </div>
+                                {% endif %}
                                 {{ booking_form.non_field_errors }}
                                 {{ booking_form.requested_dates.label_tag }}
                                 {{ booking_form.requested_dates }}

@@ -641,6 +641,9 @@ def handle_booking_request(request, profile_user):
 
         messages.success(request, "Booking request sent!")
         return redirect('view_profile', user_id=profile_user.id)
+    else:
+        messages.error(request,
+                       "Please select valid dates for your booking request.")
     return None
 
 
