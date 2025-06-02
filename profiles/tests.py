@@ -18,6 +18,7 @@ from django.contrib.messages import get_messages
 from messaging.models import BookingRequest
 from notifications.models import Notification
 from django.utils.timezone import now
+from django.core import mail
 from profiles.views import (
     get_latest_booking,
     check_if_matched,
@@ -1042,3 +1043,37 @@ class LogoutAnd404ViewTests(TestCase):
         response = self.client.get('/non-existent-page/')
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, '404.html')
+
+
+class AboutPageTests(TestCase):
+    def test_about_page_get(self):
+        """GET request should return 200 and use the correct template"""
+        response = self.client.get(reverse('about'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'about.html')
+        self.assertContains(response, 'Contact Us')
+
+    def test_about_form_valid_post(self):
+        """Valid POST should send email and redirect"""
+        response = self.client.post(reverse('about'), {
+            'name': 'Alice',
+            'email': 'alice@example.com',
+            'subject': 'Test Subject',
+            'message': 'Test message content.'
+        }, follow=True)
+        self.assertRedirects(response, reverse('about'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Your message has been sent!", response.content.decode())
+
+    def test_about_form_invalid_post(self):
+        """Invalid POST should not send email and show error"""
+        response = self.client.post(reverse('about'), {
+            'name': '',
+            'email': '',
+            'subject': '',
+            'message': ''
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, "Please correct the errors below and try again.")
+        self.assertEqual(len(mail.outbox), 0)

@@ -148,6 +148,9 @@ Django code, not recognized in validator.
 | test\_user\_is\_matched\_false\_if\_profile\_missing | Handles missing profile gracefully and returns `False` | ✅ |
 | test_custom_logout_redirects_and_shows_message | Redirects to home and shows logout success message     | ✅ |
 | test_custom_404_view_renders_template          | Returns custom 404 template with correct status code   | ✅ |
+| test_about_page_get     | GET request to /about/ page                         | Returns 200 and uses 'about.html' template             | ✅ |
+| test_about_form_valid_post | Submit valid contact form                          | Redirects to /about/, sends email, shows success alert | ✅ |
+| test_about_form_invalid_post | Submit empty/invalid contact form                | No email sent, form errors displayed, error message shown | ✅ |
 
 #### Messaging Models
 
