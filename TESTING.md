@@ -1,5 +1,7 @@
 # TravelSwap - Testing
 
+![TravelSwap Banner](static\images\documentation\travelswap-banner.png)
+
 Testing was ongoing throughout the entire build. During development I made use of Googles Developer Tools to ensure everything was working as expected and to assist me with troubleshooting when things didn't work as they should.
 
 I have gone through each page of the site using the Chrome Developer Tools to ensure each page is responsive on a variety of different screen sizes and devices, as well as manually testing this using a variety of devices in person.
@@ -217,6 +219,35 @@ Django code, not recognized in validator.
 | test_form_rating_choices     | Ensures custom radio choices are correctly set | Choices match 1–5 with star symbols                    | ✅ |
 | test_form_labels             | Custom field labels applied                    | Label for rating is "Star Rating", comment is "Your Review" | ✅ |
 
+## Lighthouse
+
+I have used Googles Lighthouse testing to test the performance, accessibility, best practices and SEO of the site.
+
+### Desktop Results
+
+| Page | Result |
+| :--- | :--- |
+| Home Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\home-page-laptop-lighthouse.png) |
+| About Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\about-page-laptop-lighthouse.png) |
+| Travel Log Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\travel-log-laptop-lighthouse.png) |
+| View Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\view-profile-laptop-lighthouse.png) |
+| Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\profile-laptop-lighthouse.png) |
+| Edit Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\edit-profile-laptop-lighthouse.png) |
+| Register Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\register-laptop-lighthouse.png) |
+| Login Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\login-laptop-lighthouse.png) |
+
+### Mobile Results
+
+| Page | Result |
+| :--- | :--- |
+| Home Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\home-page-mobile-lighthouse.png) |
+| About Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\about-page-mobile-lighthouse.png) |
+| Travel Log Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\travel-log-mobile-lighthouse.png) |
+| View Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\view-profile-mobile-lighthouse.png) |
+| Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\profile-mobile-lighthouse.png) |
+| Edit Profile Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\edit-profile-mobile-lighthouse.png) |
+| Register Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\register-mobile-lighthouse.png) |
+| Login Page | ![Home Desktop Lighthouse Testing](static\images\documentation\lighthouse\login-mobile-lighthouse.png) |
 
 ## Manual Testing
 
