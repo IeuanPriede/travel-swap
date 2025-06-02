@@ -258,8 +258,8 @@ I have used Googles Lighthouse testing to test the performance, accessibility, b
 
 ### 🔐 Authentication & Access Control
 
-| Feature         | Scenario                               | Expected Result                   |           |
-| --------------- | -------------------------------------- | --------------------------------- |           |
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | Homepage access        | Non-user visits `/`              | Sees profile card                |    ✅     |
 | Register form   | Submit incomplete or invalid data      | Validation errors shown           |    ✅     |
 | Login           | User logs in with correct credentials  | Redirected to homepage/profile    |    ✅     | 
@@ -268,40 +268,40 @@ I have used Googles Lighthouse testing to test the performance, accessibility, b
 
 ### 🧾 Profile Features
 
-| Feature      | Scenario                             | Expected Result             |          |
-| ------------ | ------------------------------------ | --------------------------- |          |
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | Edit profile | Update location and bio              | Changes saved and visible   |    ✅    |
 | Upload image | Upload valid and invalid image types | Only valid formats accepted |    ✅    |
 | Delete image | Delete a house image                 | Image removed from gallery  |    ✅    |
 
 ### 👍 Matching & Travel Log
 
-| Feature              | Scenario                             | Expected Result                     |       |
-| -------------------- | ------------------------------------ | ----------------------------------- |       |
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | Like profile         | Logged-in user likes another profile | Profile saved to travel log         |   ✅  |
 | Unlike profile       | Unlike a previously liked profile    | Removed from travel log             |   ✅  |
 | Matched profile view | Access matched profile               | Can see calendar, messages, reviews |   ✅  |
 
 ### 📅 Booking System
 
-| Feature              | Scenario                     | Expected Result                     |        |
-| -------------------- | ---------------------------- | ---------------------------------   |        |
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | Submit valid request | Pick available dates, submit | Request visible to recipient        |   ✅   |
 | Respond to request   | Accept/ammend/decline a booking| Status changes, notification sent |   ✅   |
 | View bookings        | View sent/received bookings  | Shows booking cards with status     |   ✅   |   
 
 ### 💬 Messaging & Notifications
 
-| Feature              | Scenario                       | Expected Result                             |        |
-| -------------------- | ------------------------------ | ------------------------------------------- |        |
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | Send message         | Send a message to a match      | Message saved, shown in chat                |   ✅   |
 | Receive notification | Matched user sees alert        | Alert appears in navbar/notification system |   ✅   |
 | Clear notification   | Click on alert icon or message | Marked as read, no longer counted           |   ✅   |
 
 ### Admin Panel Testing
 
-| Feature                  | Scenario                                                         | Expected Result                                        | Pass/Fail |
-|--------------------------|------------------------------------------------------------------|--------------------------------------------------------|-----------|
+| Test Name                        | Description                                        | Expected Result                             | Pass/Fail |
+|----------------------------------|----------------------------------------------------|----------------------------------------------|-----------|
 | Admin access             | Superuser visits `/admin`                                       | Login page loads, admin access granted after login     |     ✅    |
 | Profile management       | Admin views `Profile` list                                      | Usernames, visibility, and locations are shown         |     ✅    |
 | Edit profile             | Admin edits a profile from admin panel                          | Form loads, changes are saved                          |     ✅    |
