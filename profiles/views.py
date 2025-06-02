@@ -70,6 +70,11 @@ def edit_profile(request):
             profile_form.save()
             messages.success(request, "Your profile has been updated.")
             return redirect('profiles')
+        else:
+            messages.error(
+                request, "Please fill in empty forms and try again.")
+            formset = ImageFormSet(
+                queryset=HouseImage.objects.filter(profile=profile))
 
         # If validation fails, re-render the form with errors
         formset = ImageFormSet(
