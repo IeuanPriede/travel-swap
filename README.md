@@ -72,6 +72,7 @@
 
 Replace any model names/fields below if they differ in your codebase.
 
+```mermaid
 erDiagram
     USER ||--|| PROFILE : "has"
     PROFILE ||--o{ IMAGE : "has many"
@@ -158,6 +159,7 @@ erDiagram
       datetime sent_at
       bool read
     }
+```
 
 
 ### Notes on relationships
@@ -175,8 +177,9 @@ erDiagram
 - Message: sender/recipient are Profiles; you can extend to threads later.
 
 If you prefer a picture: export this ERD as PNG and save at
-static/images/documentation/schema.png, then embed with:
-![Database Schema](static/images/documentation/schema.png)
+static/images/documentation/mermaid-chart.png, then embed with:
+
+![Database Schema](static/images/documentation/mermaid-chart.png)
 
 
 ## 🧭 Agile Development
@@ -283,23 +286,23 @@ Screenshots of the board during development and final completion are included be
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\Homepage2Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop\Homepage2Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage1Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage1Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage3Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage3Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage4Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage4Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -310,27 +313,27 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\About1Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/About1Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\About2Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/About2Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\About2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/About2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\About3Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/About3Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\About4Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/About4Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -341,23 +344,23 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\Travellog1Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/Travellog1Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\Travellog2Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/Travellog2Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Travellog1Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Travellog1Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Travellog2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Travellog2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Travellog3Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Travellog3Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -368,31 +371,31 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\ViewProfile1Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/ViewProfile1Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\ViewProfile2Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/ViewProfile2Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\ViewProfile1Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/ViewProfile1Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\ViewProfile2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/ViewProfile2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\ViewProfile3Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/ViewProfile3Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\ViewProfile4Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/ViewProfile4Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\ViewProfile5Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/ViewProfile5Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -403,27 +406,27 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\MyProfile1Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/MyProfile1Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\MyProfile2Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/MyProfile2Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage1Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage1Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage3Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage3Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\Homepage4Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/Homepage4Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -434,27 +437,27 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\EditProfile1Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/EditProfile1Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\EditProfile2Laptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/EditProfile2Laptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\EditProfile1Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/EditProfile1Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\EditProfile2Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/EditProfile2Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\EditProfile3Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/EditProfile3Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\EditProfile4Phone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/EditProfile4Phone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -465,11 +468,11 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\LoginPageLaptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/LoginPageLaptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\LoginPhone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/LoginPhone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -480,11 +483,11 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\RegisterLaptop.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/RegisterLaptop.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\RegisterPhone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/RegisterPhone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   </tr>
@@ -495,11 +498,11 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\screenshots\laptop\404Page.png" width="600"><br>
+      <img src="static/images/documentation/screenshots/laptop/404Page.png" width="600"><br>
       <sub>Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\screenshots\phone\404PagePhone.png" width="300"><br>
+      <img src="static/images/documentation/screenshots/phone/404PagePhone.png" width="300"><br>
       <sub>Mobile View</sub>
     </td>
   <tr>
@@ -514,41 +517,41 @@ Screenshots of the board during development and final completion are included be
 <table>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\HomePageLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/HomePageLaptop.jpg" width="300"><br>
       <sub>Home Page – Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\AboutUsLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/AboutUsLaptop.jpg" width="300"><br>
       <sub>About Page – Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\Travellog.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/Travellog.jpg" width="300"><br>
       <sub>Travel Log Page – Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\ViewProfileLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/ViewProfileLaptop.jpg" width="300"><br>
       <sub>View Profile Page – Laptop View</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\MyProfileLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/MyProfileLaptop.jpg" width="300"><br>
       <sub>Profile Page – Laptop View</sub>
     </td>
     <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\EditProfileLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop\EditProfileLaptop.jpg" width="300"><br>
       <sub>Profile Edit Page – Laptop View</sub>
     </td>
         <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\LoginPageLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/LoginPageLaptop.jpg" width="300"><br>
       <sub>Login Page – Laptop View</sub>
     </td>
         <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\RegisterPageLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/RegisterPageLaptop.jpg" width="300"><br>
       <sub>Register Page – Laptop View</sub>
     </td>
         <td align="center">
-      <img src="static\images\documentation\wireframes\laptop\404PageLaptop.jpg" width="300"><br>
+      <img src="static/images/documentation/wireframes/laptop/404PageLaptop.jpg" width="300"><br>
       <sub>404 Page – Laptop View</sub>
     </td>
   </tr>
