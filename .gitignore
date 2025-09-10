@@ -5,6 +5,9 @@ env/
 # secrets
 env.py
 .env
+latest.dump
+*.dump
+db.sqlite3
 
 # python bytecode
 __pycache__/
