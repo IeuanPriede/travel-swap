@@ -23,3 +23,6 @@ staticfiles/
 .vscode/
 .idea/
 *.log
+# Never vendor Django admin static
+**/static/admin/**
+
