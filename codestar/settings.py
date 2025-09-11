@@ -16,6 +16,9 @@ import dj_database_url
 import sys
 
 
+USE_MANIFEST_STATIC = os.environ.get(
+    "USE_MANIFEST_STATIC", "True").lower() == "true"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -188,17 +191,31 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+        },
+    "staticfiles": {
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if USE_MANIFEST_STATIC
+            else "whitenoise.storage.CompressedStaticFilesStorage"
+        ),
+    },
+}
 
+# Tests: keep uploads in-memory and out of Cloudinary
 if 'test' in sys.argv:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.InMemoryStorage'
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.InMemoryStorage"
+    }
     MEDIA_ROOT = BASE_DIR / "test_media"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Make the default finders explicit so app (admin) static is discovered
 STATICFILES_FINDERS = [
@@ -206,8 +223,7 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-# Keep manifest storage (recommended) once resolution works
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MANIFEST_STRICT = False
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
