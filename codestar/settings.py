@@ -209,8 +209,6 @@ STORAGES = {
     "staticfiles": {"BACKEND": static_backend},
 }
 
-STATICFILES_STORAGE = static_backend
-
 # Tests: keep uploads in-memory and out of Cloudinary
 if 'test' in sys.argv:
     STORAGES["default"] = {
