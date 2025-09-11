@@ -18,6 +18,8 @@ import sys
 
 USE_MANIFEST_STATIC = os.environ.get(
     "USE_MANIFEST_STATIC", "True").lower() == "true"
+USE_STATIC_COMPRESSION = os.environ.get(
+    "USE_STATIC_COMPRESSION", "True").lower() == "true"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -191,18 +193,23 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
+if USE_STATIC_COMPRESSION:
+    static_backend = (
+        "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        if USE_MANIFEST_STATIC
+        else "whitenoise.storage.CompressedStaticFilesStorage"
+    )
+else:
+    static_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
         },
-    "staticfiles": {
-        "BACKEND": (
-            "whitenoise.storage.CompressedManifestStaticFilesStorage"
-            if USE_MANIFEST_STATIC
-            else "whitenoise.storage.CompressedStaticFilesStorage"
-        ),
-    },
+    "staticfiles": {"BACKEND": static_backend},
 }
+
+STATICFILES_STORAGE = static_backend
 
 # Tests: keep uploads in-memory and out of Cloudinary
 if 'test' in sys.argv:
