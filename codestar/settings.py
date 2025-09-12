@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import dj_database_url
-import sys
+import sys as _sys
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -180,31 +180,36 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Static files finders
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
+# WhiteNoise + Manifest in production, plain in dev
+USE_MANIFEST = os.environ.get("DYNO") is not None  # True on Heroku dynos
 
-# Storage configuration - simplified
 STORAGES = {
+    # MEDIA -> Cloudinary (both dev and prod)
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
-        },  # media
+        },
+    # STATIC -> WhiteNoise in prod, plain in dev
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
-        },  # or whitenoise in prod
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if USE_MANIFEST
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        )
+    },
 }
-# Tests: keep uploads in-memory and out of Cloudinary
-if 'test' in sys.argv:
+
+# Optional: avoid build failure if a CSS references a missing file
+WHITENOISE_MANIFEST_STRICT = False
+
+# --- Tests: keep uploads in-memory and out of Cloudinary ---
+if "test" in _sys.argv:
     STORAGES["default"] = {
         "BACKEND": "django.core.files.storage.InMemoryStorage"
-    }
+        }
     MEDIA_ROOT = BASE_DIR / "test_media"
 
 # Default primary key field type
