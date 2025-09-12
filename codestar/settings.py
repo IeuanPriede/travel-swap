@@ -11,15 +11,20 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 import dj_database_url
 import sys
+import os
 
+# Get environment variables with defaults
+USE_MANIFEST_STATIC = (
+    os.environ.get("USE_MANIFEST_STATIC", "True")
+    .lower() == "true"
+)
 
-USE_MANIFEST_STATIC = os.environ.get(
-    "USE_MANIFEST_STATIC", "True").lower() == "true"
-USE_STATIC_COMPRESSION = os.environ.get(
-    "USE_STATIC_COMPRESSION", "True").lower() == "true"
+USE_STATIC_COMPRESSION = (
+    os.environ.get("USE_STATIC_COMPRESSION", "True")
+    .lower() == "true"
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -207,17 +212,11 @@ else:
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
-        },
-    "staticfiles": {"BACKEND": static_backend},
+    },
+    "staticfiles": {
+        "BACKEND": static_backend  # This should be a string, not a dict
+    },
 }
-
-# WhiteNoise settings to handle the SVG issue
-WHITENOISE_MANIFEST_STRICT = False
-WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['svg']
-
-# Additional WhiteNoise settings that might help
-WHITENOISE_USE_FINDERS = True
-WHITENOISE_AUTOREFRESH = True
 
 # Tests: keep uploads in-memory and out of Cloudinary
 if 'test' in sys.argv:
@@ -227,10 +226,11 @@ if 'test' in sys.argv:
     MEDIA_ROOT = BASE_DIR / "test_media"
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+os.makedirs(STATIC_ROOT, exist_ok=True)
 
 # Make the default finders explicit so app (admin) static is discovered
 STATICFILES_FINDERS = [
