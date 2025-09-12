@@ -182,11 +182,8 @@ CLOUDINARY_STORAGE = {
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [r'C:\Users\pried\Travel-Swap\travel-swap\static']
-STATIC_ROOT = r'C:\Users\pried\Travel-Swap\travel-swap\staticfiles'
-
-# Create STATIC_ROOT directory if it doesn't exist
-os.makedirs(STATIC_ROOT, exist_ok=True)
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Static files finders
 STATICFILES_FINDERS = [
