@@ -15,17 +15,6 @@ import dj_database_url
 import sys
 import os
 
-# Get environment variables with defaults
-USE_MANIFEST_STATIC = (
-    os.environ.get("USE_MANIFEST_STATIC", "True")
-    .lower() == "true"
-)
-
-USE_STATIC_COMPRESSION = (
-    os.environ.get("USE_STATIC_COMPRESSION", "True")
-    .lower() == "true"
-)
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -80,23 +69,27 @@ else:
 # Allow all hosts during development
 ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1', 'localhost']
 
-
 # Application definition
-
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'cloudinary_storage',
-    'django.contrib.staticfiles',
-    'profiles',
-    'cloudinary',
-    'messaging',
-    'notifications',
-    'reviews',
-    'django_countries',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+
+    # put staticfiles first
+    "django.contrib.staticfiles",
+
+    # then cloudinary_storage
+    "cloudinary_storage",
+
+    # rest of your apps
+    "profiles",
+    "cloudinary",
+    "messaging",
+    "notifications",
+    "reviews",
+    "django_countries",
 ]
 
 MIDDLEWARE = [
@@ -116,7 +109,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),  # Main templates directory
+            os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'profiles', 'templates'),
         ],
         'APP_DIRS': True,
@@ -134,10 +127,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'codestar.wsgi.application'
 
-
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': (
@@ -174,50 +164,45 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'TravelSwap <noreply@travelswap.com>'
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # Media files (uploaded files)
-# https://docs.djangoproject.com/en/4.2/ref/settings/#media-url
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Path where media files are stored on the server
-
+# Cloudinary configuration
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-# Static files configuration with proper WhiteNoise setup
-if USE_STATIC_COMPRESSION:
-    if USE_MANIFEST_STATIC:
-        static_backend = {
-            "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        }
-    else:
-        static_backend = "whitenoise.storage.CompressedStaticFilesStorage"
-else:
-    static_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [r'C:\Users\pried\Travel-Swap\travel-swap\static']
+STATIC_ROOT = r'C:\Users\pried\Travel-Swap\travel-swap\staticfiles'
 
+# Create STATIC_ROOT directory if it doesn't exist
+os.makedirs(STATIC_ROOT, exist_ok=True)
+
+# Static files finders
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
+
+# Storage configuration - simplified
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
-    },
+        },  # media
     "staticfiles": {
-        "BACKEND": static_backend  # This should be a string, not a dict
-    },
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },  # or whitenoise in prod
 }
-
 # Tests: keep uploads in-memory and out of Cloudinary
 if 'test' in sys.argv:
     STORAGES["default"] = {
@@ -225,22 +210,7 @@ if 'test' in sys.argv:
     }
     MEDIA_ROOT = BASE_DIR / "test_media"
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-os.makedirs(STATIC_ROOT, exist_ok=True)
-
-# Make the default finders explicit so app (admin) static is discovered
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
-
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGGING = {
