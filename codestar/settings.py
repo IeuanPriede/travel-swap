@@ -193,12 +193,14 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
+# Static files configuration with proper WhiteNoise setup
 if USE_STATIC_COMPRESSION:
-    static_backend = (
-        "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        if USE_MANIFEST_STATIC
-        else "whitenoise.storage.CompressedStaticFilesStorage"
-    )
+    if USE_MANIFEST_STATIC:
+        static_backend = {
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        }
+    else:
+        static_backend = "whitenoise.storage.CompressedStaticFilesStorage"
 else:
     static_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
@@ -208,6 +210,14 @@ STORAGES = {
         },
     "staticfiles": {"BACKEND": static_backend},
 }
+
+# WhiteNoise settings to handle the SVG issue
+WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['svg']
+
+# Additional WhiteNoise settings that might help
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
 
 # Tests: keep uploads in-memory and out of Cloudinary
 if 'test' in sys.argv:
@@ -227,8 +237,6 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
-
-WHITENOISE_MANIFEST_STRICT = False
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
