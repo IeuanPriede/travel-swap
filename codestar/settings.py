@@ -11,10 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 import dj_database_url
-import sys
-
+import sys as _sys
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,23 +69,27 @@ else:
 # Allow all hosts during development
 ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1', 'localhost']
 
-
 # Application definition
-
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'profiles',
-    'cloudinary',
-    'cloudinary_storage',
-    'messaging',
-    'notifications',
-    'reviews',
-    'django_countries',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+
+    # put staticfiles first
+    "django.contrib.staticfiles",
+
+    # then cloudinary_storage
+    "cloudinary_storage",
+
+    # rest of your apps
+    "profiles",
+    "cloudinary",
+    "messaging",
+    "notifications",
+    "reviews",
+    "django_countries",
 ]
 
 MIDDLEWARE = [
@@ -106,7 +109,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),  # Main templates directory
+            os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'profiles', 'templates'),
         ],
         'APP_DIRS': True,
@@ -124,10 +127,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'codestar.wsgi.application'
 
-
 # Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': (
@@ -164,47 +164,55 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'TravelSwap <noreply@travelswap.com>'
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 # Media files (uploaded files)
-# https://docs.djangoproject.com/en/4.2/ref/settings/#media-url
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Path where media files are stored on the server
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
+# Cloudinary configuration
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-if 'test' in sys.argv:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.InMemoryStorage'
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise + Manifest in production, plain in dev
+USE_MANIFEST = os.environ.get("DYNO") is not None  # True on Heroku dynos
+
+STORAGES = {
+    # MEDIA -> Cloudinary (both dev and prod)
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"
+        },
+    # STATIC -> WhiteNoise in prod, plain in dev
+    "staticfiles": {
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if USE_MANIFEST
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        )
+    },
+}
+
+# Optional: avoid build failure if a CSS references a missing file
+WHITENOISE_MANIFEST_STRICT = False
+
+# --- Tests: keep uploads in-memory and out of Cloudinary ---
+if "test" in _sys.argv:
+    STORAGES["default"] = {
+        "BACKEND": "django.core.files.storage.InMemoryStorage"
+        }
     MEDIA_ROOT = BASE_DIR / "test_media"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGGING = {
