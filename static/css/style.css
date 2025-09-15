@@ -37,6 +37,12 @@ body {
     background-position: center;
 }
 
+@media (min-width: 768px) {
+  .title {
+    font-size: 5rem;
+  }
+}
+
 /* About Page Styling */
 .about-section {
   background-color: #f8f9fa; /* light grey background */
