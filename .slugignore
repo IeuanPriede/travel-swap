@@ -1,5 +1,4 @@
 ﻿*.md
-*.txt
 .git/
 .gitignore
 README.md
