@@ -1,0 +1,10 @@
+﻿*.md
+*.txt
+.git/
+.gitignore
+README.md
+docs/
+tests/
+.venv/
+*.pyc
+__pycache__/
