@@ -187,6 +187,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # WhiteNoise + Manifest in production, plain in dev
 USE_MANIFEST = os.environ.get("DYNO") is not None  # True on Heroku dynos
 
+# --- Media -> Cloudinary (explicit) ---
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
 STORAGES = {
     # MEDIA -> Cloudinary (both dev and prod)
     "default": {
