@@ -10,9 +10,13 @@
     {% url 'register' as register_url %}
     {% url 'profile' as profile_url %}
 
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>{% block title %}Home Exchange{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% block meta_description %}
+    <meta name="description" content="TravelSwap — swap holiday homes, match with like-minded travelers, and book securely." />
+    {% endblock %}
     
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
